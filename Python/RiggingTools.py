@@ -1,5 +1,5 @@
 import sys
-sys.path.append(r'C:/QGM/UOC/Semestres/2022-23_S1/P3 - Projecte 3. Aplicació interactiva/PAC3/AutoRig/scripts/')
+sys.path.append(r'D:/UOC/Semestres/2022-23_S2/TFG - Videojocs/TotalRIG/Python/')
 
 import RT_GlobalVariables as RTvars
 import RT_ErrorsHandler as RTeh
