@@ -5,7 +5,6 @@ import RT_ErrorsHandler as RTeh
 import maya.cmds as cmds
 from math import pow,sqrt
 
-
 def addObject(field):
     sel = cmds.ls(sl=True)
     if RTeh.GetSelectionException(sel): return
@@ -70,6 +69,16 @@ def getPositionFromBone(bone):
         return 'F_'
     elif (bone.find('_B_') > -1):
         return 'B_'
+    else:
+        return ''
+
+
+
+def getHeightFromBone(bone):
+    if (bone.find('_U_') > -1):
+        return 'U_'
+    elif (bone.find('_D_') > -1):
+        return 'D_'
     else:
         return ''
 
