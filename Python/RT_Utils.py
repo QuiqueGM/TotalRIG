@@ -5,42 +5,30 @@ import RT_ErrorsHandler as RTeh
 import maya.cmds as cmds
 from math import pow,sqrt
 
+
+def createFullLimbArray():
+    l = []
+    l.extend(RTvars.legBones)
+    l.extend(RTvars.armBones)
+    return l
+
+
+
+def createLimbArray(limb):
+    l = []
+    l.extend(limb)
+    for n in range(5 - cmds.intSliderGrp( 'NumFingerToes', q=True, v=True )):
+        l.pop()
+    
+    return l
+    
+
+
 def addObject(field):
     sel = cmds.ls(sl=True)
     if RTeh.GetSelectionException(sel): return
 
     cmds.textFieldButtonGrp(field, e=True, tx=''.join(sel))
-
-
-
-def removeObject(bone):
-    cmds.textFieldButtonGrp( bone, e=True, tx='' )
-
-
-
-def reloadMirror(bones):
-    replaceBones('L_', 'R_', bones)
-
-
-
-def reloadPosition(bones):
-    replaceBones('F_', 'B_', bones)
-
-
-
-def replaceBones(A, B, bones):
-    for b in range(len(bones)):
-        boneName = cmds.textFieldButtonGrp( bones[b], q=True, tx=True )
-        
-        if (boneName.find(A) > -1):
-            boneName = boneName.replace(A, B)
-        elif (boneName.find(B) > -1):
-            boneName = boneName.replace(B, A)
-            
-        cmds.textFieldButtonGrp(bones[b], e=True, tx=boneName)
-        
-        if b==0:
-            RTvars.limbStartingBone = boneName
 
 
 
@@ -196,27 +184,34 @@ def lockAndHideAttribute(ctrl, pos, rot):
 
 
 
-def lockAndHideOffset(offset, state, keyable=False):
-    if offset=='null':
-        offset = cmds.ls(sl=True)
-        if RTeh.GetSelectionException(offset): return
-        offset = offset[0]
-
-    cmds.setAttr( offset + '.visibility', k=not state, l=state, cb=not state )
-    for attribute in RTvars.attributes:
-        cmds.setAttr( offset + attribute, k=not state, l=state, cb=not state )
-    
-    if keyable:
-        cmds.setAttr( offset + '.visibility', k=not state )
-        for attribute in RTvars.attributes:
-            cmds.setAttr( offset + attribute, k=not state )
-
-
-
 def hideAttributes(ctrl, vis):
     cmds.setAttr( ctrl + '.visibility', vis, k=False, cb=False )
     for a in RTvars.attributes:
         cmds.setAttr( ctrl + a, k=False, cb=False )
+
+
+
+def getHierarchy():
+    if cmds.radioButton( 'FrontLimb', q=True, sl=True ):
+        return 'Arm'
+    else:
+        return 'Leg'
+
+
+
+def getIKSystem():
+    if cmds.radioButton( 'SimpleLeg', q=True, sl=True ):
+        return 'SimpleLimb'
+    else:
+        return 'HingeLimb'
+
+
+
+def getFootReverse():
+    if cmds.radioButton( 'FootReverseYes', q=True, sl=True ):
+        return 'Yes'
+    else:
+        return 'No'
 
 
 
@@ -242,9 +237,9 @@ def addAttrSeparator(ctrl, name, niceName):
 
 
 def printHeader(header):
-    print ('=================================== ' + header + ' ===================================')
+    print '=================================== ' + header + ' ==================================='
 
 
 
 def printSubheader(subheader):
-    print ('    ---------> ' + subheader)
+    print '    ---------> ' + subheader
