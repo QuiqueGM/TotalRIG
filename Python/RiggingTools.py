@@ -88,33 +88,37 @@ def rigginToolsUI():
     
     toolHeader('limbSystemTab', '---------   LIMB SYSTEM  ---------')
     subHeader(1, 'TYPE OF LIMB', 5)
-    rowWidth = [winWidth*0.1, winWidth*0.22, winWidth*0.22, winWidth*0.22, winWidth*0.22]
-    cmds.rowLayout( nc=5, cw5=rowWidth )
+    createLegOption('Hierarchy', 'FrontLimb', 'Front Leg / Arm', True, 'BackLimb', 'Back Leg / Leg', False)
+    createLegOption('IK System', 'SimpleLeg', 'Simple IK', True, 'HingeLeg', 'Hing Leg', False)
+    rowWidth = [winWidth*0.05, winWidth*0.25, winWidth*0.3, winWidth*0.3]
+    cmds.rowLayout( nc=4, cw4=rowWidth )
     cmds.radioCollection()
     cmds.text( l='', w=rowWidth[0] )
-    cmds.radioButton( 'FrontLimb', l='Front Leg', al='center', w=rowWidth[1], sl=True )
-    cmds.radioButton( 'BackLimb', l='Back Leg', al='center', w=rowWidth[2], sl=False )
-    cmds.radioButton( 'ArmLimb', l='Arm', al='center', w=rowWidth[3], sl=False )
-    cmds.radioButton( 'LegLimb', l='Leg', al='center', w=rowWidth[3], sl=False )    
+    cmds.text( l='Foot Reverse', w=rowWidth[1], al='left')
+    cmds.radioButton( 'FootReverseYes', l='Yes', al='center', w=rowWidth[2], sl=True, onc=partial(enableDeleteHandFoot, False) )
+    cmds.radioButton( 'FootReverseNo', l='No', al='center', w=rowWidth[2], sl=False, onc=partial(enableDeleteHandFoot, True) )
     cmds.setParent( '..' )
-    #createRadioCollectionForRenaming('FrontLimb', 'Front Leg', True, 'ArmLimb', 'Arm', False, 'BackLimb', 'Back Leg', False)
+    
+    rowWidth = [winWidth*0.05, winWidth*0.66]
+    cmds.rowLayout( nc=2, cw2=rowWidth )
+    cmds.radioCollection()
+    cmds.text( l='', w=rowWidth[0] )
+    cmds.intSliderGrp( 'NumFingerToes', l='Fingers / Toes', min=1, max=5, field=True, value=3, adj=1, cal=(1, "left"), w=rowWidth[1] )
+    cmds.setParent( '..' )
+    
     createTwoButtonsAction(7,'cc', 'Create controllers', createLimbControllers, 'mc', 'Mirror controllers', mirrorControllers, False)
     subHeader(7, 'OPTIONS', 5)
+    createCheckbox(0.1, 'UseDeleteHandFootCB', 'Remove Hand/Foot', emptyCallback, True, False)
     createCheckbox(0.1, 'UseMirrorCB', 'Actvate mirror', emptyCallback, True, True)
-    #createCheckbox(0.1, 'UseMirrorCB', 'Actvate mirror', enableMirrorField, True, True)
-    #verticalSpace(3)
-    #createCheckbox(0.2, 'BonesCB', 'Include bones when mirroring', enableControllerField, True, True)
-    #createCheckbox(0.2, 'ControllersCB', 'Include controllers when mirroring', emptyCallback, False, False)
-    #verticalSpace(5)
     createCheckbox(0.1, 'UseStretchCB', 'Create stretch system', emptyCallback, True, True)
-    createCheckbox(0.1, 'UseSSPoleVectorCB', 'Add Space Switch for Pole Vectors', emptyCallback, True, True)
-    createLimbFields(RTvars.armBones)
-    createLimbFields(RTvars.legBones)
-    createButtonAction(10,'', 'Create Limb System', createLimbSystem, False)
+    createLimbFields()
+    createButtonAction(10,'', 'Create Limb System', createLimbSystem, True)
+    """
     createSpaceForUtilities('---------   UTILITIES  ---------')
     createButtonAction(3,'', 'Create Stretch System', createStretchSystem, False)
     createButtonAction(3,'', 'Create Space Switch for Pole Vector', createSSforPoleVector, True)
-
+    """
+    
     toolHeader('ribbonSystemTab', '---------   RIBBON SYSTEM  ---------')
     subHeader(1, 'JOINTS', 5)
     createTextFieldButtonGrp('RBBottomJoint', 'Top Joint', partial(addObject, 'RBBottomJoint'), True)    
@@ -162,19 +166,6 @@ def rigginToolsUI():
     createSpaceForUtilities('---------   UTILITIES  ---------')
     createTwoButtonsAction(7,'cec', 'Create Eyes Controller', createEyesController, 'dec', 'Delete Eyes Controllers', deleteEyesController, False)
     createButtonAction(3,'', 'Create Squash And Stretch', createSquashAndStretch, True)
-    #createButtonAction(3,'', 'Create Blend Shapes', createFacialExpressions, True)
-    
-    """
-    toolHeader('eyesControllerTab', '---------   EYES CONTROLLER  ---------')
-    subHeader(1, 'OPTIONS', 5)
-    createCheckbox(0.1, 'ConnecetBlendShapesEyesCB', 'Connect Blend Shapes', enableCreateBlandShapes, True, True)
-    createCheckbox(0.2, 'CreateBlendShapesCB', 'Try to create the blend shapes in case they don\'t exist', emptyCallback, True, True)
-    verticalSpace(2)
-    createButtonAction(10,'', 'Create Eyes Controller', createEyesController, False)
-    createSpaceForUtilities('---------   UTILITIES  ---------')
-    createButtonAction(3,'', 'Create BlendShapes', createBlendShapes, False)
-    createButtonAction(3,'', 'Connect BlendShapes', connectBlendShapes, True)
-    """
     
     toolHeader('spaceSwitchTab', '---------   SPACE SWITCH  ---------')
     subHeader(1, 'TARGET', 1)
@@ -250,6 +241,18 @@ def createRadioCollectionForRenaming(name1, label1, state1, name2, label2, state
     cmds.radioButton( name1, l=label1, al='center', w=rowWidth[1], sl=state1 )
     cmds.radioButton( name2, l=label2, al='center', w=rowWidth[2], sl=state2 )
     cmds.radioButton( name3, l=label3, al='center', w=rowWidth[3], sl=state3 )
+    cmds.setParent( '..' )
+
+
+
+def createLegOption(label, name1, label1, state1, name2, label2, state2):
+    rowWidth = [winWidth*0.05, winWidth*0.25, winWidth*0.3, winWidth*0.3]
+    cmds.rowLayout( nc=4, cw4=rowWidth )
+    cmds.radioCollection()
+    cmds.text( l='', w=rowWidth[0] )
+    cmds.text( l=label, w=rowWidth[1], al='left')
+    cmds.radioButton( name1, l=label1, al='center', w=rowWidth[2], sl=state1 )
+    cmds.radioButton( name2, l=label2, al='center', w=rowWidth[3], sl=state2 )
     cmds.setParent( '..' )
 
 
@@ -415,32 +418,15 @@ def enableFields(*args):
 
 
 
-def enableRedefineChain(*args):
-    value = cmds.checkBox( 'UseRedefineChainCB', q=True, v=True )
-    cmds.intSliderGrp( 'NumBones', edit=True, en=value )
-    cmds.checkBox( 'DeleteChainCB', edit=True, en=value )
-
-
-
 def enableCtrlScaleChain(*args):
     value = cmds.checkBox( 'UseCreateControllersCB', q=True, v=True )
     cmds.floatSliderGrp( 'CtrlScaleChain', edit=True, en=value )
 
 
-"""
-def enableMirrorField(*args):
-    value = cmds.checkBox( 'UseMirrorCB', q=True, v=True )
-    cmds.checkBox( 'BonesCB', edit=True, en=value )
-    cmds.checkBox( 'ControllersCB', edit=True, en=value )
-    if cmds.checkBox( 'BonesCB', q=True, v=True ):
-        cmds.checkBox( 'ControllersCB', edit=True, en=False )
 
+def enableDeleteHandFoot(value, *args):
+    cmds.checkBox( 'UseDeleteHandFootCB', edit=True, en=value )
 
-
-def enableControllerField(*args):
-    value = cmds.checkBox( 'BonesCB', q=True, v=True )
-    cmds.checkBox( 'ControllersCB', edit=True, en=not value )
-"""
 
 
 def enableCreateEyes(*args):
@@ -454,6 +440,7 @@ def enableBlendShapes(*args):
     value = cmds.checkBox( 'BlendShapesCB', q=True, v=True )
     cmds.checkBox( 'FacialExpressionsCB', edit=True, en=value )
     cmds.checkBox( 'EyesCB', edit=True, en=value )
+
 
 
 def fillAreas(*args):
@@ -477,10 +464,14 @@ def fillArea(bones):
     RTvars.bone = bones[0]
 
 
-def createLimbFields(bones):
+
+def createLimbFields():
+    bones = RT_Utils.createFullLimbArray()
     rowWidth = [winWidth*0.2, winWidth*0.60, winWidth*0.3]
     for b in range(len(bones)):
         cmds.textFieldButtonGrp( bones[b], l=bones[b], vis=False, ed=False, cw3=rowWidth, cl3=('left', 'left', 'left'), bl='  Add  ', bc=partial(addObject, bones[b]) )
+
+
 
 def returnBone(item):
     RTvars.bone = item
