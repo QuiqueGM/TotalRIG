@@ -32,7 +32,7 @@ reload(RT_Rename)
 reload(RT_FillTools)
 
 winWidth = 550
-winHeight = 370
+winHeight = 420 #370 #900
 margin = 10
 
 def rigginToolsUI():
@@ -41,7 +41,7 @@ def rigginToolsUI():
     elif cmds.windowPref( RTvars.winName, exists=True ):
         cmds.windowPref( RTvars.winName, remove=True )
     
-    cmds.window( RTvars.winName, wh=(winWidth+margin, winHeight), s=False, mnb=False, mxb=False, title='RIGGING TOOLS \'21' )
+    cmds.window( RTvars.winName, wh=(winWidth+margin, winHeight), s=False, mnb=False, mxb=False, title='RIGGIN TOOLS ' + RTvars.version )
     form = cmds.formLayout()
     tabs = cmds.tabLayout(innerMarginWidth=5, innerMarginHeight=5)
     cmds.formLayout( form, edit=True, attachForm=((tabs, 'top', 0), (tabs, 'left', 0), (tabs, 'bottom', 0), (tabs, 'right', 0)) )
@@ -50,7 +50,7 @@ def rigginToolsUI():
     subHeader(1, 'SIDE AND POSITION', 1)
     createRadioCollectionForRenaming('LeftSide', 'Left', True, 'RightSide', 'Right', False, 'CenterSide', 'Center', False)
     createRadioCollectionForRenaming('FrontPos', 'Front', False, 'BackPos', 'Back', False, 'NonePose', 'None', True)
-    createRadioCollectionForRenaming('UpPos', 'Up', False, 'DownPos', 'Down', False, 'NonePos', 'None', True)    
+    #createRadioCollectionForRenaming('UpPos', 'Up', False, 'DownPos', 'Down', False, 'NonePos', 'None', True)    
     verticalSpace(5)
     subHeader(1, 'PREDEFINED NAMES', 5)
     rowWidth = [winWidth*0.08, winWidth*0.35, winWidth*0.1, winWidth*0.35]
@@ -85,11 +85,11 @@ def rigginToolsUI():
     createSpaceForUtilities('---------   UTILITIES  ---------')
     createButtonAction(3,'', 'Autorename Simple Chain', autorenameSimpleChain, False)
     createButtonAction(3,'', 'Autorename Multiple Chains', autorenameMultChains, True)
-    
+
     toolHeader('limbSystemTab', '---------   LIMB SYSTEM  ---------')
     subHeader(1, 'TYPE OF LIMB', 5)
     createLegOption('Hierarchy', 'FrontLimb', 'Front Leg / Arm', True, 'BackLimb', 'Back Leg / Leg', False)
-    createLegOption('IK System', 'SimpleLeg', 'Simple IK', True, 'HingeLeg', 'Hing Leg', False)
+    createLegOption('IK System', 'SimpleLeg', 'Simple IK', True, 'HingeLeg', 'Hind Leg', False)
     rowWidth = [winWidth*0.05, winWidth*0.25, winWidth*0.3, winWidth*0.3]
     cmds.rowLayout( nc=4, cw4=rowWidth )
     cmds.radioCollection()
@@ -112,13 +112,12 @@ def rigginToolsUI():
     createCheckbox(0.1, 'UseMirrorCB', 'Actvate mirror', emptyCallback, True, True)
     createCheckbox(0.1, 'UseStretchCB', 'Create stretch system', emptyCallback, True, True)
     createLimbFields()
-    createButtonAction(10,'', 'Create Limb System', createLimbSystem, True)
-    """
+    createButtonAction(10,'', 'Create Limb System', createLimbSystem, False)
     createSpaceForUtilities('---------   UTILITIES  ---------')
-    createButtonAction(3,'', 'Create Stretch System', createStretchSystem, False)
-    createButtonAction(3,'', 'Create Space Switch for Pole Vector', createSSforPoleVector, True)
-    """
-    
+    #createButtonAction(3,'', 'Create Stretch System', createStretchSystem, False)
+    #createButtonAction(3,'', 'Create Space Switch for Pole Vector', createSSforPoleVector, True)
+    createTwoButtonsAction(3,'dwl', 'Delete whole limb', deleteLimb, 'dls', 'Delete limb system', deleteLimbSystem, True)
+
     toolHeader('ribbonSystemTab', '---------   RIBBON SYSTEM  ---------')
     subHeader(1, 'JOINTS', 5)
     createTextFieldButtonGrp('RBBottomJoint', 'Top Joint', partial(addObject, 'RBBottomJoint'), True)    
@@ -218,14 +217,14 @@ def rigginToolsUI():
     w = winWidth*0.9
     h = 30
     createDoubleButtonUtility('Create Simple Joint - World', partial(createSimpleJoint, 'World'), 'Create Simple Joint - Z Up', partial(createSimpleJoint, 'ZUp'), w, h)
-    createFourButtonUtility('Orient Simple Chain', rotateAndOrientSimpleChainZUp, 'Orient Chain', orientSimpleChain, 'Orient End Joint', orientEndJoint, ' -- EMPTY -- ', empty, w, h)   
+    createFourButtonUtility('Orient Simple Chain', rotateAndOrientSimpleChainZUp, 'Orient Chain', orientSimpleChain, 'Orient End Joint', orientEndJoint, ' -- EMPTY -- ', empty, w, h)
     createFourButtonUtility('Create Root', createRoot, 'Connect Legs', connectLegs, 'Connect Arms', connectArms, 'Connect Wings', connectWings, w, h)
     createButtonUtility('Delete References and Blend Shape Targets', deleteReferences, w, h)
     createButtonUtility('Bind skin and remove END influences', bindDragonSkinAndRemoveInfluences, w, h)
     createDoubleButtonUtility('Rename dummies and assign influences', renameDummies, 'Create Range dummy', rangeDummy, w, h)
     createSpaceForUtilities('---------   UTILITIES  ---------')
     createDoubleButtonUtility('Decrease Joint Size', partial(jointSize, -0.2), 'Increase Joint Size', partial(jointSize, 0.2), w, h)
-    createButtonUtility('Reset controllers', resetControllers, w, h)
+    createFourButtonUtility('Reset controllers', resetControllers, 'Rename Limb', renameLimb, ' -- EMPTY -- ', empty, ' -- EMPTY -- ', empty, w, h)
             
     cmds.tabLayout( tabs, edit=True, tabLabel=(('renameBonesTab', 'Rename'), ('limbSystemTab', 'Limbs'), ('ribbonSystemTab', 'Ribbons'), ('chainToolsTab', 'Chains'), ('headControllerTab', 'Head'), ('spaceSwitchTab', 'S. Switch'), ('utilitiesTab', 'Utilities'), ('controllersTab', 'Controllers')), sti=1 )
     cmds.showWindow(RTvars.winName)
@@ -315,6 +314,23 @@ def createTwoButtonsAction(space, nameBtn1, labelBtn1, callbackBtn1, nameBtn2, l
     cmds.text( l='', w=rowWidth[2] )
     cmds.button( nameBtn2, l=labelBtn2, c=callbackBtn2 , w=rowWidth[3], h=30)
     cmds.text( l='', w=rowWidth[4] )
+    cmds.setParent( '..' )
+    if endOfTab:
+        cmds.setParent( '..' )
+
+
+
+def createFourButtonsAction(space, nameBtn1, labelBtn1, callbackBtn1, nameBtn2, labelBtn2, callbackBtn2, nameBtn3, labelBtn3, callbackBtn3, nameBtn4, labelBtn4, callbackBtn4, endOfTab):
+    verticalSpace(space)
+    sp = 1
+    rowWidth = [(winWidth-buttonWidth-margin)/2, buttonWidth/4-sp, buttonWidth/4-sp, buttonWidth/4-sp, buttonWidth/4-sp,(winWidth-buttonWidth-margin)/2]
+    cmds.rowLayout( nc=6, cw6=rowWidth )
+    cmds.text( l='', w=rowWidth[0] )
+    cmds.button( nameBtn1, l=labelBtn1, c=callbackBtn1 , w=rowWidth[1], h=buttonHeight )
+    cmds.button( nameBtn2, l=labelBtn2, c=callbackBtn2 , w=rowWidth[2], h=buttonHeight )
+    cmds.button( nameBtn3, l=labelBtn3, c=callbackBtn3 , w=rowWidth[3], h=buttonHeight )
+    cmds.button( nameBtn4, l=labelBtn4, c=callbackBtn4 , w=rowWidth[4], h=buttonHeight )    
+    cmds.text( l='', w=rowWidth[5] )
     cmds.setParent( '..' )
     if endOfTab:
         cmds.setParent( '..' )
@@ -466,7 +482,10 @@ def fillArea(bones):
 
 
 def createLimbFields():
-    bones = RT_Utils.createFullLimbArray()
+    bones = []
+    bones.extend(RTvars.bonesHindArm)
+    bones.extend(RTvars.bonesHindLeg)
+
     rowWidth = [winWidth*0.2, winWidth*0.60, winWidth*0.3]
     for b in range(len(bones)):
         cmds.textFieldButtonGrp( bones[b], l=bones[b], vis=False, ed=False, cw3=rowWidth, cl3=('left', 'left', 'left'), bl='  Add  ', bc=partial(addObject, bones[b]) )
@@ -523,6 +542,14 @@ def mirrorControllers(*args):
 
 def createLimbSystem(*args):
     RT_LimbSystem.createLimbSystem()
+
+
+def deleteLimb(*args):
+    RT_LimbSystem.deleteLimb()
+
+
+def deleteLimbSystem(*args):
+    RT_LimbSystem.deleteLimbSystem()
 
 
 def createStretchSystem(*args):
@@ -655,6 +682,10 @@ def jointSize(size, *args):
 
 def resetControllers(*args):
     RT_Utilities.resetControllers()
+
+
+def renameLimb(*args):
+    RT_Utilities.renameLimb()
 
 
 
