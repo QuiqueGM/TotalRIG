@@ -6,14 +6,6 @@ import maya.cmds as cmds
 from math import pow,sqrt
 
 
-def createFullLimbArray():
-    l = []
-    l.extend(RTvars.legBones)
-    l.extend(RTvars.armBones)
-    return l
-
-
-
 def createLimbArray(limb):
     l = []
     l.extend(limb)
@@ -21,7 +13,14 @@ def createLimbArray(limb):
         l.pop()
     
     return l
-    
+
+
+def getLimbBones(limb):
+    if getIKSystem() == 'SimpleLimb':
+        limb.pop(0)
+
+    return limb
+
 
 
 def addObject(field):
@@ -79,6 +78,16 @@ def getTypeOfJoint(selection):
         return 'JNT__'
     except:
         return 'END__'
+
+
+
+def getOffsetsLib(offsetsLimb, sidePos):
+    offsets = []
+    for o in offsetsLimb:
+        offset = 'OFFSET' + sidePos + o
+        offsets.append(offset)
+    
+    return offsets
 
 
 

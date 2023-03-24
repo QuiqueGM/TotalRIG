@@ -6,7 +6,8 @@ import maya.cmds as cmds
 def autofillFromSelection():
     RT_Utils.printHeader('AUTOFILL LIMB')
 
-    bones = RT_Utils.createLimbArray(RTvars.armBones if RT_Utils.getHierarchy() == 'Arm' else RTvars.legBones)
+    bones = RT_Utils.createLimbArray(RTvars.bonesHindArm if RT_Utils.getHierarchy() == 'Arm' else RTvars.bonesHindLeg)
+    bones = RT_Utils.getLimbBones(bones)
     sel = cmds.listRelatives( cmds.ls(sl=True), ad=True )
     sel.append( cmds.ls(sl=True)[0] )
 
