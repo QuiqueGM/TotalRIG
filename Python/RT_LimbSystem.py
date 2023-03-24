@@ -10,33 +10,35 @@ import RT_Rename
 import maya.cmds as cmds
 import maya.mel as mel
 
-def assignVariables():
+def assignVariables(autoFill = True):
     global limbBones, offsetsLimb, ctrlLimbBones, reverseFoot, sidePos
-    global JNT_ClavHip, JNT_UpperLimb, JNT_LowerLimb, JNT_WristAnkle, JNT_HandFoot, JNT_FingToeInd, JNT_FingToeMid, JNT_FingToeRing, JNT_FingToeThumb, JNT_FingToePinky
-    global CTRL_ClavHip, CTRL_ClavHip_IK, CTRL_UpperLimb, CTRL_LowerLimb, CTRL_WristAnkle, CTRL_HandFoot
+    global JNT_ClavHipHead, JNT_ClavHip, JNT_UpperLimb, JNT_LowerLimb, JNT_WristAnkle, JNT_HandFoot, JNT_FingToeInd, JNT_FingToeMid, JNT_FingToeRing, JNT_FingToeThumb, JNT_FingToePinky
+    global CTRL_ClavHipHead, CTRL_ClavHip, CTRL_UpperLimb, CTRL_LowerLimb, CTRL_WristAnkle, CTRL_HandFoot
     global CTRL_FingToeInd, CTRL_FingToeMid, CTRL_FingToeRing, CTRL_FingToeThumb, CTRL_FingToePinky, CTRL_WristAnkle_IK, CTRL_UpperLimbPV, CTRL_LowerLimbPV, CTRL_LowerLimbIK, CTRL_LimbSwitch_FKIK
-    global REV_Orient, REV_Heel, REV_Ext, REV_Int, REV_Tip, REV_Ball, REV_WristAnkle, REV_JNT_WristAnkle, IKH_LowerLimb, IKH_WristAnkle, PV_UpperLine, PV_LowerLine
+    global REV_Orient, REV_Heel, REV_Ext, REV_Int, REV_Tip, REV_Ball, REV_WristAnkle, REV_JNT_WristAnkle, IKH_Group, IKH_LowerLimb, IKH_WristAnkle, PV_UpperLine, PV_LowerLine
     global snapGroups
     
     cmds.select( RTvars.limbStartingBone )
     sel = cmds.ls(sl=True)[0]
-    RT_FillTools.autofillFromSelection()
+    if autoFill: RT_FillTools.autofillFromSelection()
     sidePos = '__' + utils.getSideFromBone(sel) + utils.getPositionFromBone(sel)
 
     if utils.getHierarchy() == 'Leg':
         if utils.getIKSystem() == 'HingeLimb':
-            offsetsLimb = RTvars.offsetsHingeLeg
+            limbBones = RTvars.bonesHindLeg
+            offsetsLimb = RTvars.offsetsHindLeg
             snapGroups = RTvars.snapHingeLeg
             CTRL_UpperLimbPV = 'CTRL' + sidePos + 'UpperLeg_PV'
             PV_UpperLine = 'LINE' + sidePos + 'UpperLeg_PV'
             CTRL_LowerLimbIK = 'CTRL' + sidePos + 'LowerLeg_IK'
             IKH_LowerLimb = 'IKH' + sidePos + 'LowerLeg'
         else:
+            limbBones = RTvars.legBones
             offsetsLimb = RTvars.offsetsLeg
             snapGroups = RTvars.snapLeg
-                               
-        limbBones = RTvars.legBones
+                                 
         reverseFoot = RTvars.reverseFoot
+        JNT_ClavHipHead = cmds.textFieldGrp( 'HipHead' ,q=True, tx=True )
         JNT_ClavHip = cmds.textFieldGrp( 'Hip' ,q=True, tx=True )
         JNT_UpperLimb = cmds.textFieldGrp( 'UpperLeg' ,q=True, tx=True )
         JNT_LowerLimb = cmds.textFieldGrp( 'LowerLeg' ,q=True, tx=True )
@@ -53,23 +55,26 @@ def assignVariables():
         CTRL_LimbSwitch_FKIK = 'CTRL' + sidePos + 'LegSwitch_FKIK'
         REV_WristAnkle = 'REV' + sidePos + 'Ankle'
         REV_JNT_WristAnkle = 'REV_JNT' + sidePos + 'Ankle'
+        IKH_Group = 'IKH_SYSTEM' + sidePos + 'Ankle'
         IKH_LowerLimb = 'IKH' + sidePos + 'LowerLeg'
         IKH_WristAnkle = 'IKH' + sidePos + 'Ankle'
         
     else:
         if utils.getIKSystem() == 'HingeLimb':
-            offsetsLimb = RTvars.offsetsHingeArm
+            limbBones = RTvars.bonesHindArm
+            offsetsLimb = RTvars.offsetsHindArm
             snapGroups = RTvars.snapHingeArm
             CTRL_UpperLimbPV = 'CTRL' + sidePos + 'Arm_PV'
             PV_UpperLine = 'LINE' + sidePos + 'Arm_PV'
             CTRL_LowerLimbIK = 'CTRL' + sidePos + 'Forearm_IK'
             IKH_LowerLimb = 'IKH' + sidePos + 'Forearm'
         else:
+            limbBones = RTvars.armBones
             offsetsLimb = RTvars.offsetsArm
             snapGroups = RTvars.snapArm
             
-        limbBones = RTvars.armBones
         reverseFoot = RTvars.reverseHand
+        JNT_ClavHipHead = cmds.textFieldGrp( 'ClavicleHead' ,q=True, tx=True ) 
         JNT_ClavHip = cmds.textFieldGrp( 'Clavicle' ,q=True, tx=True ) 
         JNT_UpperLimb = cmds.textFieldGrp( 'Arm' ,q=True, tx=True )
         JNT_LowerLimb = cmds.textFieldGrp( 'Forearm' ,q=True, tx=True )
@@ -86,13 +91,15 @@ def assignVariables():
         CTRL_LimbSwitch_FKIK = 'CTRL' + sidePos + 'ArmSwitch_FKIK'
         REV_WristAnkle = 'REV' + sidePos + 'Wrist'
         REV_JNT_WristAnkle = 'REV_JNT' + sidePos + 'Wrist'
+        IKH_Group = 'IKH_SYSTEM' + sidePos + 'Wrist'
         IKH_WristAnkle = 'IKH' + sidePos + 'Wrist'
 
     if utils.getIKSystem() == 'HingeLimb':
-        ctrlLimbBones = [[limbBones[0], 'Circle', 0.1, 'World', offsetsLimb[0]], [limbBones[0], 'Circle', 0.1, 'Object', ''], [limbBones[1], 'Circle', 0.14, 'Object', ''], [limbBones[1], 'Diamond', 0.035, 'World', offsetsLimb[3]], [limbBones[2], 'Circle', 0.13, 'Object', ''], [limbBones[2], 'Diamond', 0.035, 'World', offsetsLimb[5]], [limbBones[2], 'DoubleArrow', 0.1, 'World', offsetsLimb[6]], [limbBones[3], 'Circle', 0.1, 'Object', ''], [limbBones[3], 'Box', 0.15, 'World', offsetsLimb[8]], [limbBones[3], 'Box', 0.03, 'World', offsetsLimb[9]], [limbBones[4], 'Box', 0.125, 'World', ''], [limbBones[5], 'Circle', 0.04, 'Object', ''], [limbBones[6], 'Circle', 0.04, 'Object', ''], [limbBones[7], 'Circle', 0.04, 'Object', ''], [limbBones[8], 'Circle', 0.04, 'Object', ''], [limbBones[9], 'Circle', 0.04, 'Object', '']]
+        ctrlLimbBones = [[limbBones[0], 'Circle', 0.1, 'Object', offsetsLimb[0]], [limbBones[1], 'Circle', 0.1, 'Object', ''], [limbBones[2], 'Circle', 0.14, 'Object', ''], [limbBones[2], 'Diamond', 0.035, 'World', offsetsLimb[3]], [limbBones[3], 'Circle', 0.13, 'Object', ''], [limbBones[3], 'Diamond', 0.035, 'World', offsetsLimb[5]], [limbBones[3], 'DoubleArrow', 0.1, 'World', offsetsLimb[6]], [limbBones[4], 'Circle', 0.1, 'Object', ''], [limbBones[4], 'Box', 0.15, 'World', offsetsLimb[8]], [limbBones[4], 'Box', 0.03, 'World', offsetsLimb[9]], [limbBones[5], 'Box', 0.125, 'World', ''], [limbBones[6], 'Circle', 0.04, 'Object', ''], [limbBones[7], 'Circle', 0.04, 'Object', ''], [limbBones[8], 'Circle', 0.04, 'Object', ''], [limbBones[9], 'Circle', 0.04, 'Object', ''], [limbBones[10], 'Circle', 0.04, 'Object', '']]
     else:
         ctrlLimbBones = [[limbBones[0], 'Circle', 0.1, 'World', ''], [limbBones[1], 'Circle', 0.14, 'Object', ''], [limbBones[2], 'Circle', 0.13, 'Object', ''], [limbBones[2], 'Diamond', 0.035, 'World', offsetsLimb[3]], [limbBones[3], 'Circle', 0.1, 'Object', ''], [limbBones[3], 'Box', 0.15, 'World', offsetsLimb[5]], [limbBones[3], 'Box', 0.03, 'World', offsetsLimb[6]], [limbBones[4], 'Box', 0.125, 'World', ''], [limbBones[5], 'Circle', 0.04, 'Object', ''], [limbBones[6], 'Circle', 0.04, 'Object', ''], [limbBones[7], 'Circle', 0.04, 'Object', ''], [limbBones[8], 'Circle', 0.04, 'Object', ''], [limbBones[9], 'Circle', 0.04, 'Object', '']]
     
+    CTRL_ClavHipHead = 'CTRL' + JNT_ClavHipHead[3:]
     CTRL_ClavHip = 'CTRL' + JNT_ClavHip[3:]
     CTRL_UpperLimb = 'CTRL' + JNT_UpperLimb[3:]
     CTRL_LowerLimb = 'CTRL' + JNT_LowerLimb[3:]
@@ -103,7 +110,6 @@ def assignVariables():
     CTRL_FingToeInd = 'CTRL' + JNT_FingToeInd[3:]
     CTRL_FingToeThumb = 'CTRL' + JNT_FingToeThumb[3:]
     CTRL_FingToePinky = 'CTRL' + JNT_FingToePinky[3:]
-    CTRL_ClavHip_IK = 'CTRL' + JNT_ClavHip[3:] + '_IK'
     CTRL_WristAnkle_IK = CTRL_WristAnkle + '_IK'
     
     REV_Heel = 'REV' + sidePos + reverseFoot[0]
@@ -120,6 +126,7 @@ def assignVariables():
 
 def createLimbControllers():
     RT_Rename.autorenameLimb()
+    createLimbBackUp(RTvars.limbStartingBone)
     assignVariables()
     utils.printHeader('CREATING LIMB CONTROLLERS')
     
@@ -151,6 +158,22 @@ def createLimbControllers():
         
     relocateControllers(ctrls)
     utils.lockControllers(ctrls, True)
+
+
+
+def createLimbBackUp(limb):
+    utils.printHeader('CREATING LIMB BACK-UP')
+    nameBackUpLimp = limb + '_BACK_UP'
+    backUpLimp = cmds.duplicate( limb, n=nameBackUpLimp, rc=True )
+    
+    backUpGroup = 'Back_Up_Limbs'
+    try:
+        grp = cmds.select( backUpGroup )
+    except:
+        cmds.group( em=True, n=backUpGroup )
+    
+    cmds.parent( backUpLimp[0], backUpGroup, rm=False )
+    cmds.setAttr( backUpGroup + '.visibility', 0 )   
 
 
 
@@ -327,19 +350,13 @@ def createMirror():
     cmds.select( RTvars.limbStartingBone )
     utils.printSubheader('Mirroring joint hierarchy')
     cmds.mirrorJoint( myz=True, mb=True, sr=(side, newSide) )
+    createLimbBackUp(cmds.ls(sl=True)[0])
     createMirrorControllers(side, newSide)
 
 
-side = '__L_'
-newSide = '__R_' if side == '__L_' else '__L_'
-o = 'OFFSET__L_HipHead'
 
 def createMirrorControllers(side, newSide):
-    offsets = []
-    for o in offsetsLimb:
-        offset = 'OFFSET' + sidePos + o
-        offsets.append(offset)
-
+    offsets = utils.getOffsetsLib(offsetsLimb, sidePos)
     for o, s in zip(offsets, ctrlLimbBones):
         utils.printSubheader('Mirroring controller --> ' + o)
         nameMirror = o.replace(side, newSide)
@@ -363,7 +380,7 @@ def createMirrorControllers(side, newSide):
             cmds.delete( tempGrp, mirrorGrp )
             
         else:
-            if o.find('Clavicle') > -1 or o.find('HipHead') > -1:
+            if ((o.find('Clavicle') > -1 or o.find('Hip') > -1) and utils.getIKSystem() == 'SimpleLimb') or o.find('Head') > -1:
                 cmds.refresh()
                 cmds.makeIdentity(apply=True, t=1, r=1, s=1, n=0)
                 tempGrp = cmds.group( em=True, n='TMP_GRP', w=True )
@@ -416,9 +433,20 @@ def createReverseJoint():
 
 
 
+def createControllersBackUp():
+    utils.printHeader('CREATING CONTROLLERS BACK-UP')
+    offsets = utils.getOffsetsLib(offsetsLimb, sidePos)
+    for o in offsets:
+        nameOffset = o + '_BACK_UP'
+        backUpCtrl = cmds.duplicate( o, n=nameOffset, rc=True )
+        cmds.parent( backUpCtrl[0], 'Back_Up_Limbs', rm=False )
+
+
+
 def connectLimb():
     utils.printHeader('CONNECTINC LIMB')
     assignVariables()
+    createControllersBackUp()
     createReverseJoint()
     createPoleVectorHelpers(JNT_LowerLimb, CTRL_LowerLimbPV, PV_LowerLine)
     if utils.getIKSystem() == 'HingeLimb':
@@ -426,35 +454,38 @@ def connectLimb():
     createSnapHelpers()
     
     cmds.editDisplayLayerMembers( 'JOINTS', JNT_ClavHip, nr=True )   
-
+    
     #############################
     utils.printSubheader('Setting IK System')
+    
+    cmds.group( em=True, n=IKH_Group )
+    
     if utils.getIKSystem() == 'HingeLimb':
         createIKHandlerWithGroup(JNT_ClavHip, JNT_LowerLimb)
         createIKHandlerWithGroup(JNT_UpperLimb, JNT_WristAnkle)
-        groupIKHs = 'OFFSET_IKH' + sidePos + 'HingeLeg'
-        cmds.group( em=True, n=groupIKHs )
-        cmds.parent( getOffset(IKH_LowerLimb), getOffset(IKH_WristAnkle), groupIKHs )
+        cmds.parent( getOffset(IKH_LowerLimb), getOffset(IKH_WristAnkle), IKH_Group )
         posIKH = cmds.xform( IKH_WristAnkle , ws=True, t=True, q=True)
-        cmds.move( posIKH[0], posIKH[1], posIKH[2], groupIKHs + '.scalePivot', groupIKHs + '.rotatePivot', a=True )
+        cmds.move( posIKH[0], posIKH[1], posIKH[2], IKH_Group + '.scalePivot', IKH_Group + '.rotatePivot', a=True )
         cmds.poleVectorConstraint( CTRL_UpperLimbPV, IKH_LowerLimb, n=utils.getConstraint('PoleVector', IKH_LowerLimb[3:]) )
         cmds.poleVectorConstraint( CTRL_LowerLimbPV, IKH_WristAnkle, n=utils.getConstraint('PoleVector', IKH_WristAnkle[3:]) )
-        cmds.pointConstraint( REV_WristAnkle, groupIKHs, n=utils.getConstraint('Point', groupIKHs[10:]), mo=True )
+        cmds.pointConstraint( REV_WristAnkle, IKH_Group, n=utils.getConstraint('Point', IKH_Group[10:]), mo=True )
         cmds.pointConstraint( REV_WristAnkle, 'IKH' + JNT_LowerLimb[3:], n=utils.getConstraint('Point', JNT_LowerLimb[3:]), mo=True )
         cmds.pointConstraint( REV_WristAnkle, 'IKH' + JNT_WristAnkle[3:], n=utils.getConstraint('Point', JNT_WristAnkle[3:]), mo=True )
         cmds.pointConstraint( CTRL_LowerLimbIK, 'IKH' + JNT_LowerLimb[3:], n=utils.getConstraint('Point', JNT_LowerLimb[3:]), mo=True )
         cmds.pointConstraint( CTRL_WristAnkle_IK, 'OFFSET' + CTRL_LowerLimbIK[4:], n=utils.getConstraint('Point', CTRL_LowerLimbIK[4:]), mo=True )
-        
-        cmds.parent( groupIKHs, 'Helpers' )
-        cmds.editDisplayLayerMembers( 'HELPERS', groupIKHs, nr=True )
     else:
-        createIKHandler(JNT_UpperLimb, JNT_WristAnkle)
+        createIKHandlerWithGroup(JNT_UpperLimb, JNT_WristAnkle)
+        cmds.parent( getOffset(IKH_WristAnkle), IKH_Group )
+        posIKH = cmds.xform( IKH_WristAnkle , ws=True, t=True, q=True)
+        cmds.move( posIKH[0], posIKH[1], posIKH[2], IKH_Group + '.scalePivot', IKH_Group + '.rotatePivot', a=True )
         cmds.poleVectorConstraint( CTRL_LowerLimbPV, IKH_WristAnkle, n=utils.getConstraint('PoleVector', IKH_WristAnkle[3:]) )
-        cmds.pointConstraint( REV_WristAnkle, IKH_WristAnkle, n=utils.getConstraint('Point', IKH_WristAnkle[3:]), mo=True )
-        cmds.parent( IKH_WristAnkle, 'Helpers' )
-        cmds.editDisplayLayerMembers( 'HELPERS', IKH_WristAnkle, nr=True )
+        cmds.pointConstraint( REV_WristAnkle, IKH_Group, n=utils.getConstraint('Point', IKH_Group[10:]), mo=True )
+        cmds.pointConstraint( REV_WristAnkle, 'IKH' + JNT_WristAnkle[3:], n=utils.getConstraint('Point', JNT_WristAnkle[3:]), mo=True )
+
+    cmds.parent( IKH_Group, 'Helpers' )
+    cmds.editDisplayLayerMembers( 'HELPERS', IKH_Group, nr=True )
     
-   #############################
+    #############################
     utils.printSubheader('Creating FK Constraints of the Limb')
     if utils.getIKSystem() == 'HingeLimb':
         cmds.orientConstraint( CTRL_ClavHip, JNT_ClavHip, n=utils.getConstraint('Orient', JNT_ClavHip[3:]), mo=True )
@@ -500,12 +531,9 @@ def connectLimb():
 
     ############################# 
     if utils.getIKSystem() == 'HingeLimb':
-        utils.printSubheader('Creating Double Constraint for Hip/Clavivle')
-        cmds.pointConstraint( CTRL_ClavHip_IK, CTRL_ClavHip, JNT_ClavHip, n=utils.getConstraint('Point', JNT_ClavHip[3:]), mo=True )
-        reverseHip = utils.createShadingNode('reverse', CTRL_ClavHip + '_Reverse')
-        cmds.connectAttr( CTRL_LimbSwitch_FKIK + '.FKIK', utils.getConstraint('Point', JNT_ClavHip[3:]) + '.' + CTRL_ClavHip_IK + 'W0' )
-        cmds.connectAttr( CTRL_LimbSwitch_FKIK + '.FKIK', reverseHip + '.inputX')
-        cmds.connectAttr( reverseHip + '.outputX', utils.getConstraint('Point', JNT_ClavHip[3:]) + '.' + CTRL_ClavHip + 'W1' )
+        utils.printSubheader('Creating Hip/Clavivle Head connections')
+        cmds.parentConstraint( CTRL_ClavHipHead, JNT_ClavHipHead, n=utils.getConstraint('Parent', CTRL_ClavHipHead[4:]), mo=True)
+        cmds.parent( getOffset(CTRL_ClavHip), CTRL_ClavHipHead )
 
     #############################
     utils.printSubheader('Connecting the FK hierarchy')
@@ -516,7 +544,6 @@ def connectLimb():
     #############################
     utils.printSubheader('Setting the toggle visiblity for the controllers')
     if utils.getIKSystem() == 'HingeLimb':
-        cmds.connectAttr( CTRL_LimbSwitch_FKIK + '.FKIK', CTRL_ClavHip_IK + '.visibility', f=True )
         cmds.connectAttr( reverseAnkle + '.outputY', CTRL_ClavHip + '.visibility', f=True )
         cmds.connectAttr( CTRL_LimbSwitch_FKIK + '.FKIK', CTRL_UpperLimbPV + '.visibility', f=True )
         cmds.connectAttr( CTRL_LimbSwitch_FKIK + '.FKIK', PV_UpperLine + '.visibility', f=True )
@@ -540,7 +567,7 @@ def connectLimb():
 
     if cmds.checkBox( 'UseStretchCB', q=True, v=True ):
         createStretchSystem()
-
+       
     RT_SpaceSwitch.createSpaceSwitch('LimbSpace', CTRL_LowerLimbPV, 'CTRL__Master', CTRL_WristAnkle_IK, 'Parent')
     if utils.getIKSystem() == 'HingeLimb':
         RT_SpaceSwitch.createSpaceSwitch('LimbSpace', CTRL_UpperLimbPV, 'CTRL__Master', CTRL_WristAnkle_IK, 'Parent')
@@ -557,7 +584,8 @@ def connectLimb():
         utils.lockAndHideAttribute(fingToeControllers[n], True, False)
     utils.lockAndHideAttribute(CTRL_WristAnkle_IK, False, False)
     if utils.getIKSystem() == 'HingeLimb':
-        utils.lockAndHideAttribute(CTRL_ClavHip_IK, False, True)
+        utils.lockAndHideAttribute(CTRL_ClavHipHead, False, False)
+        utils.lockAndHideAttribute(CTRL_ClavHip, True, False)
         utils.lockAndHideAttribute(CTRL_UpperLimbPV, False, True)
         utils.lockAndHideAttribute(CTRL_LowerLimbIK, False, True)
         cmds.setAttr( CTRL_LowerLimbIK + '.translateX', k=False, l=True, cb=False )
@@ -627,3 +655,140 @@ def createFootReverseSystem():
     cmds.connectAttr( multDivReverse + '.outputY', REV_Int + '.rotateZ' )
 
 
+   
+    
+"""
+JNT_ClavHip = 'JNT__L_Hip'
+JNT_UpperLimb = 'JNT__L_UpperLeg'
+JNT_LowerLimb = 'JNT__L_LowerLeg'
+JNT_WristAnkle = 'JNT__L_Ankle'
+JNT_HandFoot = 'JNT__L_Foot'
+JNT_FingToeInd = 'JNT__L_ToeIndex'
+JNT_FingToeMid = 'JNT__L_ToeMid'
+JNT_FingToeRing = 'JNT__L_ToeRing'
+
+CTRL_ClavHip = 'CTRL__L_Hip'
+CTRL_UpperLimb = 'CTRL__L_UpperLeg'
+CTRL_LowerLimbPV = 'CTRL__L_Leg_PV'
+CTRL_LowerLimb = 'CTRL__L_LowerLeg'
+CTRL_WristAnkle = 'CTRL__L_Ankle'
+CTRL_HandFoot = 'CTRL__L_Foot'
+CTRL_FingToeInd = 'CTRL__L_ToeIndex'
+CTRL_FingToeMid = 'CTRL__L_ToeMid'
+CTRL_FingToeRing = 'CTRL__L_ToeRing'
+CTRL_LimbSwitch_FKIK = 'CTRL__L_LegSwitch_FKIK'
+CTRL_WristAnkle_IK = 'CTRL__L_Ankle_IK'
+
+REV_Heel = 'REV__L_FootHeel'
+REV_Ext = 'REV__L_FootExt'
+REV_Int = 'REV__L_FootInt'
+REV_Ball = 'REV__L_FootBall'
+REV_WristAnkle = 'REV__L_Ankle'
+REV_Tip = 'REV__L_Toetip'
+REV_JNT_WristAnkle = 'REV_JNT__L_Ankle'
+
+IKH_LowerLimb = 'IKH__L_LowerLeg'
+IKH_WristAnkle = 'IKH__L_Ankle'
+"""
+"""
+sidePos = '__L_'
+JNT_ClavHip = 'JNT__L_Clavicle'
+JNT_UpperLimb = 'JNT__L_Arm'
+JNT_LowerLimb = 'JNT__L_Forearm'
+JNT_WristAnkle = 'JNT__L_Wrist'
+JNT_HandFoot = 'JNT__L_Hand'
+JNT_FingToeInd = 'JNT__L_FingerRing'
+JNT_FingToeMid = 'JNT__L_FingerMid'
+JNT_FingToeRing = 'JNT__L_FingerIndex'
+
+CTRL_ClavHip = 'CTRL__L_Clavicle'
+CTRL_UpperLimb = 'CTRL__L_Arm'
+CTRL_LowerLimb = 'CTRL__L_Forearm'
+CTRL_LowerLimbPV = 'CTRL__L_Forearm_PV'
+CTRL_WristAnkle = 'CTRL__L_Wrist'
+CTRL_HandFoot = 'CTRL__L_Hand'
+CTRL_FingToeInd = 'CTRL__L_FingerIndex'
+CTRL_FingToeMid = 'CTRL__L_FingerMid'
+CTRL_FingToeRing = 'CTRL__L_FingerRing'
+CTRL_LimbSwitch_FKIK = 'CTRL__L_ArmSwitch_FKIK'
+CTRL_WristAnkle_IK = 'CTRL__L_Wrist_IK'
+
+REV_Heel = 'REV__L_HandHeel'
+REV_Ext = 'REV__L_HandExt'
+REV_Int = 'REV__L_HandInt'
+REV_Ball = 'REV__L_HandBall'
+REV_WristAnkle = 'REV__L_Wrist'
+REV_Tip = 'REV__L_Fingertip'
+REV_JNT_WristAnkle = 'REV_JNT__L_Wrist'
+
+IKH_WristAnkle = 'IKH__L_Wrist'
+
+"""
+
+"""
+
+JNT_ClavHip = 'JNT__R_Hip'
+JNT_UpperLimb = 'JNT__R_UpperLeg'
+JNT_LowerLimb = 'JNT__R_LowerLeg'
+JNT_WristAnkle = 'JNT__R_Ankle'
+JNT_HandFoot = 'JNT__R_Foot'
+JNT_FingToeInd = 'JNT__R_ToeIndex'
+JNT_FingToeMid = 'JNT__R_ToeMid'
+JNT_FingToeRing = 'JNT__R_ToeRing'
+
+CTRL_ClavHip = 'CTRL__R_Hip'
+CTRL_UpperLimb = 'CTRL__R_UpperLeg'
+CTRL_LowerLimbPV = 'CTRL__R_Leg_PV'
+CTRL_LowerLimb = 'CTRL__R_LowerLeg'
+CTRL_WristAnkle = 'CTRL__R_Ankle'
+CTRL_HandFoot = 'CTRL__R_Foot'
+CTRL_FingToeInd = 'CTRL__R_ToeIndex'
+CTRL_FingToeMid = 'CTRL__R_ToeMid'
+CTRL_FingToeRing = 'CTRL__R_ToeRing'
+CTRL_LimbSwitch_FKIK = 'CTRL__R_LegSwitch_FKIK'
+CTRL_WristAnkle_IK = 'CTRL__R_Ankle_IK'
+
+REV_Heel = 'REV__R_FootHeel'
+REV_Ext = 'REV__R_FootExt'
+REV_Int = 'REV__R_FootInt'
+REV_Ball = 'REV__R_FootBall'
+REV_WristAnkle = 'REV__R_Ankle'
+REV_Tip = 'REV__R_Toetip'
+REV_JNT_WristAnkle = 'REV_JNT__R_Ankle'
+
+IKH_LowerLimb = 'IKH__R_LowerLeg'
+IKH_WristAnkle = 'IKH__R_Ankle'
+"""
+
+"""
+JNT_ClavHip = 'JNT__R_Clavicle'
+JNT_UpperLimb = 'JNT__R_Arm'
+JNT_LowerLimb = 'JNT__R_Forearm'
+JNT_WristAnkle = 'JNT__R_Wrist'
+JNT_HandFoot = 'JNT__R_Hand'
+JNT_FingToeInd = 'JNT__R_FingerRing'
+JNT_FingToeMid = 'JNT__R_FingerMid'
+JNT_FingToeRing = 'JNT__R_FingerIndex'
+
+CTRL_ClavHip = 'CTRL__R_Clavicle'
+CTRL_UpperLimb = 'CTRL__R_Arm'
+CTRL_LowerLimb = 'CTRL__R_Forearm'
+CTRL_LowerLimbPV = 'CTRL__R_Arm_PV'
+CTRL_WristAnkle = 'CTRL__R_Wrist'
+CTRL_HandFoot = 'CTRL__R_Hand'
+CTRL_FingToeInd = 'CTRL__R_FingerIndex'
+CTRL_FingToeMid = 'CTRL__R_FingerMid'
+CTRL_FingToeRing = 'CTRL__R_FingerRing'
+CTRL_LimbSwitch_FKIK = 'CTRL__R_ArmSwitch_FKIK'
+CTRL_WristAnkle_IK = 'CTRL__R_Wrist_IK'
+
+REV_Heel = 'REV__R_HandHeel'
+REV_Ext = 'REV__R_HandExt'
+REV_Int = 'REV__R_HandInt'
+REV_Ball = 'REV__R_HandBall'
+REV_WristAnkle = 'REV__R_Wrist'
+REV_Tip = 'REV__R_Fingertip'
+REV_JNT_WristAnkle = 'REV_JNT__R_Wrist'
+
+IKH_WristAnkle = 'IKH__R_Wrist'
+"""    
