@@ -2,20 +2,7 @@ import RiggingTools
 import RT_GlobalVariables as RTvars
 import RT_ErrorsHandler as RTeh
 import RT_Utils
-import RT_Utilities
 import maya.cmds as cmds
-
-
-def incrementNumber():
-    value = cmds.intField( 'AddNumber', q=True, v=True )
-    value = value + 1
-    cmds.intField( 'AddNumber', edit=True, v=value)
-
-
-
-def resetNumber():
-    cmds.intField( 'AddNumber', edit=True, v=1)
-
 
 
 def renameBone(add):
@@ -24,8 +11,10 @@ def renameBone(add):
 
     getBone()
     typeOfBone = RT_Utils.getTypeOfJoint(sel) if not isAnIsolatedJoint(sel) else 'JNT__'
+    #name =  typeOfBone + getSide() + getPosition() + getHeight() + RTvars.bone + getNumber()
     name =  typeOfBone + getSide() + getPosition() + RTvars.bone + getNumber()
 
+    #if (getSide() != '' or getPosition() != '' or getHeight() != '') and checkIfCentralBone(name):
     if (getSide() != '' or getPosition() != '') and checkIfCentralBone(name):        
         message = 'Are you sure you want to rename the   <b>' + sel[0] + '</b>   joint as   <b>' + name + '</b>  ?'
         if cmds.confirmDialog( t='Rename', m=message, b=['Yes','No'], db='Yes', cb='No', ds='No', p=RTvars.winName ) == 'No':
@@ -62,30 +51,30 @@ def getBone():
 def getSide():
 	if (cmds.radioButton( 'LeftSide', q=True, sl=True )):
 		return 'L_'
-	elif (cmds.radioButton( 'RightSide', q=True, sl=True )):
+   	elif (cmds.radioButton( 'RightSide', q=True, sl=True )):
 		return 'R_'
-	else:
-	    return ''
+   	else:
+   		return ''
 
 
 
 def getPosition():
 	if (cmds.radioButton( 'FrontPos', q=True, sl=True )):
 		return 'F_'
-	elif (cmds.radioButton( 'BackPos', q=True, sl=True )):
+   	elif (cmds.radioButton( 'BackPos', q=True, sl=True )):
 		return 'B_'
-	else:
-	    return ''
+   	else:
+   		return ''
 
 
 
 def getHeight():
 	if (cmds.radioButton( 'UpPos', q=True, sl=True )):
 		return 'U_'
-	elif (cmds.radioButton( 'DownPos', q=True, sl=True )):
+   	elif (cmds.radioButton( 'DownPos', q=True, sl=True )):
 		return 'D_'
-	else:
-	    return ''
+   	else:
+   		return ''
 
 
 
@@ -121,8 +110,33 @@ def isAnIsolatedJoint(sel):
 
 
 def autorenameLimb():
-    RT_Utils.printHeader('AUTORENAME LIMB')
-    RT_Utils.printSubheader('WIP...')
+    RT_Utils.printHeader('AUTORENAME LIMB -- ' + RT_Utils.getHierarchy())
+    
+    sel = cmds.ls(sl=True)
+    if RTeh.GetSelectionException(sel): return
+    
+    chain = cmds.listRelatives( sel, ad=True, type='joint' )
+    chain.append( sel[0] )
+    chain.reverse()
+    bones = RT_Utils.createLimbArray(RTvars.bonesHindArm if RT_Utils.getHierarchy() == 'Arm' else RTvars.bonesHindLeg)
+    bones = RT_Utils.getLimbBones(bones)
+    n = -1
+
+    for c in range(len(chain)):
+        cmds.select( chain[c] )
+        sel = cmds.ls( sl=True )
+        typeOfBone = RT_Utils.getTypeOfJoint(sel)
+        if typeOfBone == 'JNT__':
+            n+=1
+
+        #name =  typeOfBone + getSide() + getPosition() + getHeight() + bones[n]
+        name =  typeOfBone + getSide() + getPosition() + bones[n]
+        cmds.rename( sel, name )
+        if c==0:
+            RTvars.limbStartingBone = name
+            #print 'def autorenameLimb(limb): ' + RTvars.limbStartingBone
+            
+        cmds.select( cl=True )
 
 
 
@@ -136,18 +150,74 @@ def autorenameSimpleChain():
     chain.reverse()
     n=0
     
-    name =  RT_Utils.getTypeOfJoint(sel) + getSide() + getPosition() + RTvars.bone + getNumber()
-    if (getSide() != '' or getPosition() != '') and checkIfCentralBone(name):        
-        message = 'Are you sure you want to rename the   <b>' + sel[0] + '</b>   joint as   <b>' + name + '</b>  ?'
-        if cmds.confirmDialog( t='Rename', m=message, b=['Yes','No'], db='Yes', cb='No', ds='No', p=RTvars.winName ) == 'No':
-            return
-    
     for c in chain:
         getBone()
         cmds.select( c )
         jnt = cmds.ls( sl=True )
         n+=1
         number = "_{0:0=2d}".format(n)
+        #name =  RT_Utils.getTypeOfJoint(jnt) + getSide() + getPosition() + getHeight() + RTvars.bone + getNumber() + number
         name =  RT_Utils.getTypeOfJoint(jnt) + getSide() + getPosition() + RTvars.bone + getNumber() + number
         cmds.rename( jnt, name )
         cmds.select( cl=True )
+
+
+
+def autorenameMultChains():
+    sel = cmds.ls(sl=True)
+    if RTeh.GetNoSelectionException(sel): return
+    
+    RT_Utils.printHeader('AUTORENAME MULTIPLE CHAINS')
+    for s in sel:
+        chain = cmds.listRelatives( s, ad=True, type='joint' )
+        chain.append(s)
+        chain.reverse()
+        n=0
+        jointName = RT_Utils.getNameControl(5, s, 'lower')[1:]
+        
+        for c in chain:
+            cmds.select( c )
+            jnt = cmds.ls( sl=True )
+            n+=1
+            number = "_{0:0=2d}".format(n)
+            #name =  RT_Utils.getTypeOfJoint(jnt) + getSide() + getPosition() + getHeight() + jointName + number
+            name =  RT_Utils.getTypeOfJoint(jnt) + getSide() + getPosition() + jointName + number
+            cmds.rename( jnt, name )
+            cmds.select( cl=True )
+
+
+
+def autorenameComplexChain():
+    sel = cmds.ls(sl=True)
+    if RTeh.GetNoSelectionException(sel): return
+    
+    chain = cmds.listRelatives( sel, ad=True, type='joint' )
+    chain.append(sel[0])
+    chain.reverse()
+    index = []
+    n = 0
+    
+    for c in range(len(chain)):
+        n = n + 1
+        
+        if (chain[c].find('JNT_') > -1):
+            n = 1
+            currentName = chain[c]
+            number = "_{0:0=2d}".format(n)
+            name = currentName + number
+            cmds.rename( chain[c], name )
+            index.append(name)
+        else:  
+            number = "_{0:0=2d}".format(n)
+            name = RT_Utils.getTypeOfJoint(chain[c]) + currentName[5:] + number
+            cmds.rename( chain[c], name )
+            index[-1] = name
+            
+            if name.find('END_') > -1:
+                index.pop(-1)
+                try:
+                    num = index[-1][-2:]
+                    n = int(num)
+                    currentName = index[-1][:-3]
+                except:
+                    break
