@@ -596,6 +596,26 @@ def connectLimb():
     cmds.select( d=True )
 
 
+def createIKHandler(initJoint, endJoint):
+    limbIKH = 'IKH_' + endJoint[4:]
+    cmds.ikHandle( n=limbIKH, sj=initJoint, ee=endJoint, sol='ikRPsolver', ap=False )
+    eff = (cmds.ikHandle( limbIKH, q=True, ee=True ))
+    cmds.rename( eff, 'EFF' + limbIKH[3:] )
+    cmds.setAttr( limbIKH + '.ikBlend', 0)
+    return limbIKH
+
+
+
+
+def createIKHandlerWithGroup(initJoint, endJoint):
+    limbIKH = createIKHandler(initJoint, endJoint)
+    groupLimbIKH = 'OFFSET_' + limbIKH
+    cmds.group( em=True, n=groupLimbIKH )
+    cmds.parent( limbIKH, groupLimbIKH )
+    posIKH = cmds.xform(limbIKH, ws=True, t=True, q=True)
+    cmds.move( posIKH[0], posIKH[1], posIKH[2], groupLimbIKH + '.scalePivot', groupLimbIKH + '.rotatePivot', a=True )
+
+
 
 def addAttribute(ctrl, name, niceName, defaultV, minV, maxV):
     if niceName=='':
