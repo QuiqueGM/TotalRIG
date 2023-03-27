@@ -32,7 +32,7 @@ reload(RT_Rename)
 reload(RT_FillTools)
 
 winWidth = 550
-winHeight = 420 #370 #900
+winHeight = 370
 margin = 10
 
 def rigginToolsUI():
@@ -50,7 +50,7 @@ def rigginToolsUI():
     subHeader(1, 'SIDE AND POSITION', 1)
     createRadioCollectionForRenaming('LeftSide', 'Left', True, 'RightSide', 'Right', False, 'CenterSide', 'Center', False)
     createRadioCollectionForRenaming('FrontPos', 'Front', False, 'BackPos', 'Back', False, 'NonePose', 'None', True)
-    #createRadioCollectionForRenaming('UpPos', 'Up', False, 'DownPos', 'Down', False, 'NonePos', 'None', True)    
+    createRadioCollectionForRenaming('UpPos', 'Up', False, 'DownPos', 'Down', False, 'NonePos', 'None', True)    
     verticalSpace(5)
     subHeader(1, 'PREDEFINED NAMES', 5)
     rowWidth = [winWidth*0.08, winWidth*0.35, winWidth*0.1, winWidth*0.35]
@@ -85,38 +85,35 @@ def rigginToolsUI():
     createSpaceForUtilities('---------   UTILITIES  ---------')
     createButtonAction(3,'', 'Autorename Simple Chain', autorenameSimpleChain, False)
     createButtonAction(3,'', 'Autorename Multiple Chains', autorenameMultChains, True)
-
+    
     toolHeader('limbSystemTab', '---------   LIMB SYSTEM  ---------')
     subHeader(1, 'TYPE OF LIMB', 5)
-    createLegOption('Hierarchy', 'FrontLimb', 'Front Leg / Arm', True, 'BackLimb', 'Back Leg / Leg', False)
-    createLegOption('IK System', 'SimpleLeg', 'Simple IK', True, 'HingeLeg', 'Hind Leg', False)
-    rowWidth = [winWidth*0.05, winWidth*0.25, winWidth*0.3, winWidth*0.3]
-    cmds.rowLayout( nc=4, cw4=rowWidth )
+    rowWidth = [winWidth*0.1, winWidth*0.22, winWidth*0.22, winWidth*0.22, winWidth*0.22]
+    cmds.rowLayout( nc=5, cw5=rowWidth )
     cmds.radioCollection()
     cmds.text( l='', w=rowWidth[0] )
-    cmds.text( l='Foot Reverse', w=rowWidth[1], al='left')
-    cmds.radioButton( 'FootReverseYes', l='Yes', al='center', w=rowWidth[2], sl=True, onc=partial(enableDeleteHandFoot, False) )
-    cmds.radioButton( 'FootReverseNo', l='No', al='center', w=rowWidth[2], sl=False, onc=partial(enableDeleteHandFoot, True) )
+    cmds.radioButton( 'FrontLimb', l='Front Leg', al='center', w=rowWidth[1], sl=True )
+    cmds.radioButton( 'BackLimb', l='Back Leg', al='center', w=rowWidth[2], sl=False )
+    cmds.radioButton( 'ArmLimb', l='Arm', al='center', w=rowWidth[3], sl=False )
+    cmds.radioButton( 'LegLimb', l='Leg', al='center', w=rowWidth[3], sl=False )    
     cmds.setParent( '..' )
-    
-    rowWidth = [winWidth*0.05, winWidth*0.66]
-    cmds.rowLayout( nc=2, cw2=rowWidth )
-    cmds.radioCollection()
-    cmds.text( l='', w=rowWidth[0] )
-    cmds.intSliderGrp( 'NumFingerToes', l='Fingers / Toes', min=1, max=5, field=True, value=3, adj=1, cal=(1, "left"), w=rowWidth[1] )
-    cmds.setParent( '..' )
-    
+    #createRadioCollectionForRenaming('FrontLimb', 'Front Leg', True, 'ArmLimb', 'Arm', False, 'BackLimb', 'Back Leg', False)
     createTwoButtonsAction(7,'cc', 'Create controllers', createLimbControllers, 'mc', 'Mirror controllers', mirrorControllers, False)
     subHeader(7, 'OPTIONS', 5)
-    createCheckbox(0.1, 'UseDeleteHandFootCB', 'Remove Hand/Foot', emptyCallback, True, False)
     createCheckbox(0.1, 'UseMirrorCB', 'Actvate mirror', emptyCallback, True, True)
+    #createCheckbox(0.1, 'UseMirrorCB', 'Actvate mirror', enableMirrorField, True, True)
+    #verticalSpace(3)
+    #createCheckbox(0.2, 'BonesCB', 'Include bones when mirroring', enableControllerField, True, True)
+    #createCheckbox(0.2, 'ControllersCB', 'Include controllers when mirroring', emptyCallback, False, False)
+    #verticalSpace(5)
     createCheckbox(0.1, 'UseStretchCB', 'Create stretch system', emptyCallback, True, True)
-    createLimbFields()
+    createCheckbox(0.1, 'UseSSPoleVectorCB', 'Add Space Switch for Pole Vectors', emptyCallback, True, True)
+    createLimbFields(RTvars.armBones)
+    createLimbFields(RTvars.legBones)
     createButtonAction(10,'', 'Create Limb System', createLimbSystem, False)
     createSpaceForUtilities('---------   UTILITIES  ---------')
-    #createButtonAction(3,'', 'Create Stretch System', createStretchSystem, False)
-    #createButtonAction(3,'', 'Create Space Switch for Pole Vector', createSSforPoleVector, True)
-    createTwoButtonsAction(3,'dwl', 'Delete whole limb', deleteLimb, 'dls', 'Delete limb system', deleteLimbSystem, True)
+    createButtonAction(3,'', 'Create Stretch System', createStretchSystem, False)
+    createButtonAction(3,'', 'Create Space Switch for Pole Vector', createSSforPoleVector, True)
 
     toolHeader('ribbonSystemTab', '---------   RIBBON SYSTEM  ---------')
     subHeader(1, 'JOINTS', 5)
@@ -165,6 +162,19 @@ def rigginToolsUI():
     createSpaceForUtilities('---------   UTILITIES  ---------')
     createTwoButtonsAction(7,'cec', 'Create Eyes Controller', createEyesController, 'dec', 'Delete Eyes Controllers', deleteEyesController, False)
     createButtonAction(3,'', 'Create Squash And Stretch', createSquashAndStretch, True)
+    #createButtonAction(3,'', 'Create Blend Shapes', createFacialExpressions, True)
+    
+    """
+    toolHeader('eyesControllerTab', '---------   EYES CONTROLLER  ---------')
+    subHeader(1, 'OPTIONS', 5)
+    createCheckbox(0.1, 'ConnecetBlendShapesEyesCB', 'Connect Blend Shapes', enableCreateBlandShapes, True, True)
+    createCheckbox(0.2, 'CreateBlendShapesCB', 'Try to create the blend shapes in case they don\'t exist', emptyCallback, True, True)
+    verticalSpace(2)
+    createButtonAction(10,'', 'Create Eyes Controller', createEyesController, False)
+    createSpaceForUtilities('---------   UTILITIES  ---------')
+    createButtonAction(3,'', 'Create BlendShapes', createBlendShapes, False)
+    createButtonAction(3,'', 'Connect BlendShapes', connectBlendShapes, True)
+    """
     
     toolHeader('spaceSwitchTab', '---------   SPACE SWITCH  ---------')
     subHeader(1, 'TARGET', 1)
@@ -217,14 +227,14 @@ def rigginToolsUI():
     w = winWidth*0.9
     h = 30
     createDoubleButtonUtility('Create Simple Joint - World', partial(createSimpleJoint, 'World'), 'Create Simple Joint - Z Up', partial(createSimpleJoint, 'ZUp'), w, h)
-    createFourButtonUtility('Orient Simple Chain', rotateAndOrientSimpleChainZUp, 'Orient Chain', orientSimpleChain, 'Orient End Joint', orientEndJoint, ' -- EMPTY -- ', empty, w, h)
+    createFourButtonUtility('Orient Simple Chain', rotateAndOrientSimpleChainZUp, 'Orient Chain', orientSimpleChain, 'Orient End Joint', orientEndJoint, ' -- EMPTY -- ', empty, w, h)   
     createFourButtonUtility('Create Root', createRoot, 'Connect Legs', connectLegs, 'Connect Arms', connectArms, 'Connect Wings', connectWings, w, h)
     createButtonUtility('Delete References and Blend Shape Targets', deleteReferences, w, h)
     createButtonUtility('Bind skin and remove END influences', bindDragonSkinAndRemoveInfluences, w, h)
     createDoubleButtonUtility('Rename dummies and assign influences', renameDummies, 'Create Range dummy', rangeDummy, w, h)
     createSpaceForUtilities('---------   UTILITIES  ---------')
     createDoubleButtonUtility('Decrease Joint Size', partial(jointSize, -0.2), 'Increase Joint Size', partial(jointSize, 0.2), w, h)
-    createFourButtonUtility('Reset controllers', resetControllers, 'Rename Limb', renameLimb, ' -- EMPTY -- ', empty, ' -- EMPTY -- ', empty, w, h)
+    createButtonUtility('Reset controllers', resetControllers, w, h)
             
     cmds.tabLayout( tabs, edit=True, tabLabel=(('renameBonesTab', 'Rename'), ('limbSystemTab', 'Limbs'), ('ribbonSystemTab', 'Ribbons'), ('chainToolsTab', 'Chains'), ('headControllerTab', 'Head'), ('spaceSwitchTab', 'S. Switch'), ('utilitiesTab', 'Utilities'), ('controllersTab', 'Controllers')), sti=1 )
     cmds.showWindow(RTvars.winName)
@@ -458,7 +468,6 @@ def enableBlendShapes(*args):
     cmds.checkBox( 'EyesCB', edit=True, en=value )
 
 
-
 def fillAreas(*args):
     currentValue = cmds.optionMenu( 'AreaOM', q=True, v=True )
     joints = cmds.optionMenu( 'JointOM', q=True, ill=True )
@@ -480,17 +489,10 @@ def fillArea(bones):
     RTvars.bone = bones[0]
 
 
-
-def createLimbFields():
-    bones = []
-    bones.extend(RTvars.bonesHindArm)
-    bones.extend(RTvars.bonesHindLeg)
-
+def createLimbFields(bones):
     rowWidth = [winWidth*0.2, winWidth*0.60, winWidth*0.3]
     for b in range(len(bones)):
         cmds.textFieldButtonGrp( bones[b], l=bones[b], vis=False, ed=False, cw3=rowWidth, cl3=('left', 'left', 'left'), bl='  Add  ', bc=partial(addObject, bones[b]) )
-
-
 
 def returnBone(item):
     RTvars.bone = item
