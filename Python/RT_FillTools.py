@@ -1,3 +1,4 @@
+import RiggingTools
 import RT_GlobalVariables as RTvars
 import RT_ErrorsHandler as RTeh
 import RT_Utils
