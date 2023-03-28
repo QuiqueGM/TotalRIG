@@ -150,6 +150,12 @@ def autorenameSimpleChain():
     chain.reverse()
     n=0
     
+    name =  RT_Utils.getTypeOfJoint(sel) + getSide() + getPosition() + RTvars.bone + getNumber()
+    if (getSide() != '' or getPosition() != '') and checkIfCentralBone(name):        
+        message = 'Are you sure you want to rename the   <b>' + sel[0] + '</b>   joint as   <b>' + name + '</b>  ?'
+        if cmds.confirmDialog( t='Rename', m=message, b=['Yes','No'], db='Yes', cb='No', ds='No', p=RTvars.winName ) == 'No':
+            return
+    
     for c in chain:
         getBone()
         cmds.select( c )
