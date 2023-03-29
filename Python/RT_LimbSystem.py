@@ -568,9 +568,7 @@ def connectLimb():
     if cmds.checkBox( 'UseStretchCB', q=True, v=True ):
         createStretchSystem()
 
-    #if cmds.checkBox( 'NonRollCB', q=True, v=True ) and utils.getIKSystem() == 'SimpleLimb':
-    #    addNonRollSystem()
-        
+       
     RT_SpaceSwitch.createSpaceSwitch('LimbSpace', CTRL_LowerLimbPV, 'CTRL__Master', CTRL_WristAnkle_IK, 'Parent')
     if utils.getIKSystem() == 'HingeLimb':
         RT_SpaceSwitch.createSpaceSwitch('LimbSpace', CTRL_UpperLimbPV, 'CTRL__Master', CTRL_WristAnkle_IK, 'Parent')
@@ -602,7 +600,7 @@ def connectLimb():
 def createIKHandler(initJoint, endJoint):
     limbIKH = 'IKH_' + endJoint[4:]
     cmds.ikHandle( n=limbIKH, sj=initJoint, ee=endJoint, sol='ikRPsolver', ap=False )
-    eff = cmds.ikHandle( limbIKH, q=True, ee=True )
+    eff = (cmds.ikHandle( limbIKH, q=True, ee=True ))
     cmds.rename( eff, 'EFF' + limbIKH[3:] )
     cmds.setAttr( limbIKH + '.ikBlend', 0)
     return limbIKH
@@ -680,7 +678,67 @@ def createFootReverseSystem():
     if utils.getSideFromBone(RTvars.limbStartingBone) == 'R_':
         cmds.confirmDialog( t='Foot reverse Setup', m='Don\'t forget to swith between   <b>' + REV_Int + '</b>   and   <b>' +  REV_Ext + '</b>   anchors.', b=['OK'], p=RTvars.winName )
 
+
+
+def createStretchSystem(*args):
+    utils.printHeader('ADDING STRETCH SYSTEM')
+    
+    #############################
+    utils.printSubheader('Creating attributes and variables')
+    utils.addAttrSeparator(CTRL_WristAnkle_IK, 'StretchSeparator', 'STRETCH  SYSTEM')
+    addAttribute(CTRL_WristAnkle_IK, 'Stretch', '', 0, 0, 1)
+    addAttribute(CTRL_WristAnkle_IK, 'StretchCompensation', 'Compensation', 0, 0, 1000)
+    addAttribute(CTRL_WristAnkle_IK, 'StretchVolume', 'Volume', 0, 0, 1)
+    if utils.getIKSystem() == 'HingeLimb':
+        joints = [JNT_ClavHip, JNT_UpperLimb, JNT_LowerLimb, JNT_WristAnkle]
+    else:
+        joints = [JNT_UpperLimb, JNT_LowerLimb, JNT_WristAnkle]
+    
+    #############################
+    utils.printSubheader('Creating and connect stretch distance')
+    upperBone = cmds.xform( joints[0], q=True, m=True, ws=True )
+    lowerBone = cmds.xform( JNT_WristAnkle, q=True, m=True, ws=True )
+    upper = utils.getNameControl(6, CTRL_ClavHip, CTRL_UpperLimb, 'n')[1:]
+    lower = utils.getNameControl(6, CTRL_WristAnkle, 'n')
+    distance = utils.createDistanceMeasure(sidePos + upper + lower, joints[0][3:], JNT_WristAnkle[3:])
+    cmds.xform( distance[1], m=upperBone, ws=True )
+    cmds.pointConstraint( joints[0], distance[1], n=utils.getConstraint('Point', distance[1][3:]), mo=True )
+
+    #############################
+    utils.printSubheader('Setting MultipleDivide node')
+    multDivStretch = utils.createShadingNode('multiplyDivide', JNT_UpperLimb + '_MultDivStretch')
+    stretchComp = CTRL_WristAnkle_IK + '.StretchCompensation'
+    cmds.setAttr( multDivStretch + '.operation', 2 )
+    value = cmds.getAttr( distance[0] + '.distance' )
+    cmds.setAttr( stretchComp, value )
+    cmds.connectAttr( distance[0] + '.distance', multDivStretch + '.input1X' )
+    cmds.connectAttr( stretchComp, multDivStretch + '.input2X' )
+        
+    #############################
+    utils.printSubheader('Setting Condition node')
+    condStretch = utils.createShadingNode('condition', CTRL_WristAnkle_IK + '_ConditionStretch')
+    cmds.setAttr( condStretch + '.operation', 2 )
+    cmds.connectAttr( distance[0] + '.distance', condStretch + '.firstTerm' )
+    
+    #############################
+    utils.printSubheader('Setting Conditions to remove Stretch when switching to FK')
+    condFirst = utils.createShadingNode('condition', CTRL_LimbSwitch_FKIK + '_FirstCondition')
+    cmds.setAttr( condFirst + '.colorIfTrueR', 1 )
+    cmds.setAttr( condFirst + '.colorIfFalseR', 0 )
+    cmds.connectAttr( CTRL_LimbSwitch_FKIK + '.FKIK', condFirst + '.firstTerm' )
+    cmds.connectAttr( CTRL_WristAnkle_IK + '.Stretch', condFirst + '.secondTerm' )
+    condSecond = utils.createShadingNode('condition', CTRL_LimbSwitch_FKIK + '_SecondCondition')
+    cmds.setAttr( condSecond + '.colorIfFalseR', 0 )
+    cmds.connectAttr( condFirst + '.outColor.outColorR', condSecond + '.colorIfTrue.colorIfTrueR' )
+    cmds.connectAttr( CTRL_WristAnkle_IK + '.Stretch', condSecond + '.firstTerm' )
+    cmds.connectAttr( condFirst + '.outColor.outColorR', condSecond + '.secondTerm' )
+    
    
+
+
+
+
+    
     
 
 JNT_ClavHip = 'JNT__L_Hip'
