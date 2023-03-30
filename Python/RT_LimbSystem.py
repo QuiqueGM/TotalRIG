@@ -733,7 +733,60 @@ def createStretchSystem(*args):
     cmds.connectAttr( CTRL_WristAnkle_IK + '.Stretch', condSecond + '.firstTerm' )
     cmds.connectAttr( condFirst + '.outColor.outColorR', condSecond + '.secondTerm' )
     
-   
+   #############################
+    utils.printSubheader('Setting Blend Color node')
+    blendColTwist = utils.createShadingNode('blendColors', joints[0] + '_BlendColorStretch')
+    cmds.connectAttr( condStretch + '.outColorR', blendColTwist + '.color1R' )
+    cmds.connectAttr( condSecond + '.outColor.outColorR', blendColTwist + '.blender')
+    
+    #############################
+    utils.printSubheader('Setting Clamp node and Connecting the joints')
+    clampTwist = utils.createShadingNode('clamp', joints[0] + '_ClampTwist')
+    cmds.setAttr( clampTwist + '.minR', 1 )
+    cmds.setAttr( clampTwist + '.maxR', 999 )
+    cmds.connectAttr( blendColTwist + '.outputR', clampTwist + '.inputR')
+    cmds.cycleCheck( e=False )
+    if utils.getTypeOfLimb() == 'BackLeg':
+        cmds.connectAttr( clampTwist + '.outputR', JNT_ClavHip + '.scaleX' )
+    cmds.connectAttr( clampTwist + '.outputR', JNT_UpperLimb + '.scaleX' )
+    cmds.connectAttr( clampTwist + '.outputR', JNT_LowerLimb + '.scaleX' )
+    cmds.cycleCheck( e=True )
+    
+    #############################
+    utils.printSubheader('Creating non-stretch joints')  
+    for j in joints:
+        radius = cmds.getAttr( j + '.radius' )
+        strechJoint = j.replace( 'JNT', 'STRJNT' )
+        cmds.rename( j, strechJoint )
+        cmds.select( cl=True )
+        newJoint = cmds.joint( p=(0, 0, 0), n=j, rad=radius*2 )
+        cmds.editDisplayLayerMembers( 'JOINTS', newJoint, nr=True )
+        cmds.parent( newJoint, 'Rig' )
+        cmds.parentConstraint( strechJoint, newJoint, n=utils.getConstraint('Parent', newJoint[3:]), mo=False )
+    
+    #############################
+    utils.printSubheader('Setting connections for the volume')  
+    
+    multDivVolume = utils.createShadingNode('multiplyDivide', 'STR' + JNT_LowerLimb + '_MultDivVolume')
+    cmds.setAttr( multDivVolume + '.operation', 2 )
+    cmds.setAttr( multDivVolume + '.input1X', 1 )
+    cmds.connectAttr( clampTwist + '.output.outputR', multDivVolume + '.input2.input2X' )
+    
+    remapVolume = utils.createShadingNode('remapValue', CTRL_WristAnkle_IK + '_RemapVolume')
+    cmds.setAttr( remapVolume + '.outputMin', 1 )
+    cmds.connectAttr( CTRL_WristAnkle_IK + '.StretchVolume', remapVolume + '.inputValue' )
+    cmds.connectAttr( multDivVolume + '.outputX', remapVolume + '.outputMax' )
+    
+    for j in range(len(joints)-1):
+        cmds.connectAttr( remapVolume + '.outValue', joints[j] + '.scale.scaleY' )
+        cmds.connectAttr( remapVolume + '.outValue', joints[j] + '.scale.scaleZ' )
+
+    #############################
+    utils.printSubheader('Parenting the Hand/Foot with the Wrist/Ankle')
+    if utils.getTypeOfLimb() == 'Arm':
+        cmds.parent( JNT_FingToeInd, JNT_FingToeMid, JNT_FingToeRing, JNT_WristAnkle )
+    else:
+        cmds.parent( JNT_HandFoot, JNT_WristAnkle )
 
 
 
