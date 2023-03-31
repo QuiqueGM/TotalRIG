@@ -689,7 +689,7 @@ def createStretchSystem(*args):
     addAttribute(CTRL_WristAnkle_IK, 'Stretch', '', 0, 0, 1)
     addAttribute(CTRL_WristAnkle_IK, 'StretchCompensation', 'Compensation', 0, 0, 1000)
     addAttribute(CTRL_WristAnkle_IK, 'StretchVolume', 'Volume', 0, 0, 1)
-    if utils.getIKSystem() == 'HingeLimb':
+    if utils.getTypeOfLimb() == 'BackLeg':
         joints = [JNT_ClavHip, JNT_UpperLimb, JNT_LowerLimb, JNT_WristAnkle]
     else:
         joints = [JNT_UpperLimb, JNT_LowerLimb, JNT_WristAnkle]
@@ -698,12 +698,14 @@ def createStretchSystem(*args):
     utils.printSubheader('Creating and connect stretch distance')
     upperBone = cmds.xform( joints[0], q=True, m=True, ws=True )
     lowerBone = cmds.xform( JNT_WristAnkle, q=True, m=True, ws=True )
-    upper = utils.getNameControl(6, CTRL_ClavHip, CTRL_UpperLimb, 'n')[1:]
+    upper = utils.getNameControl(6, CTRL_ClavHip if utils.getTypeOfLimb() == 'BackLeg' else CTRL_UpperLimb, 'n')[1:]
     lower = utils.getNameControl(6, CTRL_WristAnkle, 'n')
     distance = utils.createDistanceMeasure(sidePos + upper + lower, joints[0][3:], JNT_WristAnkle[3:])
     cmds.xform( distance[1], m=upperBone, ws=True )
+    cmds.xform( distance[2], m=lowerBone, ws=True )
     cmds.pointConstraint( joints[0], distance[1], n=utils.getConstraint('Point', distance[1][3:]), mo=True )
-
+    cmds.pointConstraint( IKH_WristAnkle, distance[2], n=utils.getConstraint('Point', distance[2][3:]), mo=True )
+    
     #############################
     utils.printSubheader('Setting MultipleDivide node')
     multDivStretch = utils.createShadingNode('multiplyDivide', JNT_UpperLimb + '_MultDivStretch')
@@ -719,6 +721,8 @@ def createStretchSystem(*args):
     condStretch = utils.createShadingNode('condition', CTRL_WristAnkle_IK + '_ConditionStretch')
     cmds.setAttr( condStretch + '.operation', 2 )
     cmds.connectAttr( distance[0] + '.distance', condStretch + '.firstTerm' )
+    cmds.connectAttr( stretchComp, condStretch + '.secondTerm')
+    cmds.connectAttr( multDivStretch + '.outputX', condStretch + '.colorIfTrueR' )
     
     #############################
     utils.printSubheader('Setting Conditions to remove Stretch when switching to FK')
@@ -787,8 +791,30 @@ def createStretchSystem(*args):
         cmds.parent( JNT_FingToeInd, JNT_FingToeMid, JNT_FingToeRing, JNT_WristAnkle )
     else:
         cmds.parent( JNT_HandFoot, JNT_WristAnkle )
+  
+    #############################
+    utils.printSubheader('Calculating stretch compensation') 
+    cmds.setAttr( CTRL_LimbSwitch_FKIK + '.FKIK', 1 )
+    cmds.setAttr( CTRL_WristAnkle_IK + '.Stretch', 1 )
+    cmds.setAttr( CTRL_WristAnkle_IK + '.StretchCompensation', 1000 )
+    
+    angDiff = 90
+    oldAngle = angDiff
+    n = 0
+    inc = 0.0001 #* (-1 if utils.getSideFromBone(CTRL_WristAnkle_IK) == 'L_' else 1)
+    
+    while angDiff > 0.05:
+        n = n - inc
+        cmds.setAttr( CTRL_WristAnkle_IK + '.translateY', n )
+        angle = cmds.angleBetween( v1=(utils.getVector(JNT_UpperLimb, JNT_LowerLimb)), v2=(utils.getVector(JNT_LowerLimb, JNT_WristAnkle)) )[3]
+        angDiff = abs(oldAngle - angle)
+        oldAngle = angle
 
-
+    strComp = cmds.getAttr( distance[0] + '.distance' )
+    cmds.setAttr( CTRL_WristAnkle_IK + '.StretchCompensation', strComp, k=False, cb=False ) 
+    cmds.setAttr( CTRL_WristAnkle_IK + '.translateY', 0 )
+    cmds.setAttr( CTRL_LimbSwitch_FKIK + '.FKIK', 0 )
+    cmds.setAttr( CTRL_WristAnkle_IK + '.Stretch', 0 )
 
 
     
