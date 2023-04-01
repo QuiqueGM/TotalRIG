@@ -630,24 +630,34 @@ def createSnapHelpers():
             cmds.parent( snapGrp, 'JNT' + snapGrp[4:][:-3] )
         
         utils.hideAttributes(snapName, 0)
-
-
-	snapHelperPV('Forearm', JNT_UpperLimb, JNT_WristAnkle, JNT_LowerLimb)
+    
+    if utils.getHierarchy() == 'Arm':
+        snapHelperPV('Forearm', JNT_UpperLimb, JNT_WristAnkle, JNT_LowerLimb)
         if utils.getIKSystem() == 'HingeLimb':
             snapHelperPV('Arm', JNT_ClavHip, JNT_LowerLimb, JNT_UpperLimb)
-			
+    else:
+        snapHelperPV('LowerLeg', JNT_UpperLimb, JNT_WristAnkle, JNT_LowerLimb)
+        if utils.getIKSystem() == 'HingeLimb':
+            snapHelperPV('UpperLeg', JNT_ClavHip, JNT_LowerLimb, JNT_UpperLimb)
+
+
+
 def snapHelperPV(limb, JNT_PointUp, JNT_PointDown, JNT_PointMid):
     vectorPV = 'VECTOR' + sidePos + limb
     vector = cmds.polyCube( w=0.002, h=0.002, d=0.5, n=vectorPV )
     cmds.setAttr( vectorPV + '.translateZ', -0.25 )
-	cmds.move( 0, 0, 0, vectorPV + '.scalePivot', vectorPV + '.rotatePivot', a=True )
+    cmds.refresh()
     cmds.makeIdentity( apply=True, t=1, r=1, s=1, n=0 ) 
-
+    cmds.move( 0, 0, 0, vectorPV + '.scalePivot', vectorPV + '.rotatePivot', a=True )
+    
     snapPV = 'SNAP' + sidePos + limb + '_PV'
     snap = cmds.group( em=True, n=snapPV )
+    cmds.setAttr( snap + '.translateZ', -0.4 )
     cmds.parent( snap, vectorPV )
     cmds.pointConstraint( JNT_PointUp, JNT_PointDown, vectorPV, mo=False, n=utils.getConstraint('Point', vectorPV[6:]) )
     cmds.aimConstraint( JNT_PointMid, vectorPV, n=utils.getConstraint('Aim', vectorPV[6:]), mo=False, w=1, aim=(0, 0, -1), u=(0, 1, 0), wut='vector', wu=(0, 1, 0) )       
+    cmds.parent( vectorPV, 'Helpers' )
+    cmds.editDisplayLayerMembers( 'HELPERS', vectorPV, nr=True )
     utils.hideAttributes(vectorPV, 0)
 	
 def addAttribute(ctrl, name, niceName, defaultV, minV, maxV):
