@@ -656,9 +656,37 @@ def snapHelperPV(limb, JNT_PointUp, JNT_PointDown, JNT_PointMid):
     cmds.parent( snap, vectorPV )
     cmds.pointConstraint( JNT_PointUp, JNT_PointDown, vectorPV, mo=False, n=utils.getConstraint('Point', vectorPV[6:]) )
     cmds.aimConstraint( JNT_PointMid, vectorPV, n=utils.getConstraint('Aim', vectorPV[6:]), mo=False, w=1, aim=(0, 0, -1), u=(0, 1, 0), wut='vector', wu=(0, 1, 0) )       
-    cmds.parent( vectorPV, 'Helpers' )
-    cmds.editDisplayLayerMembers( 'HELPERS', vectorPV, nr=True )
     utils.hideAttributes(vectorPV, 0)
+
+
+
+def createPoleVectorHelpers(JNT_PV, CTRL_PV, PV_LINE):
+    utils.printHeader('CRETTING HELPERS FOR POLE VECTOR')
+         
+    p1 = cmds.xform( JNT_PV, query=True, t=True, ws=True )
+    p2 = cmds.xform( CTRL_PV, query=True, t=True, ws=True )
+    
+    cmds.curve( n=PV_LINE, d=1, p=[(p1[0], p1[1], p1[2]), (p2[0], p2[1], p2[2])], k=[0,1] )
+    PVLineShape = cmds.listRelatives(PV_LINE, s=True)
+    cmds.select( PVLineShape )
+    cmds.rename( PVLineShape[0], PV_LINE + '_Shape' )
+    col = (1, 0, 0) if utils.getSideFromBone(PV_LINE) == 'L_' else (0, 1, 0)
+    RTctrl.overrideColor(PV_LINE + '_Shape', col)
+    
+    iniCluster = createClusters(PV_LINE, JNT_PV[3:], '0')
+    endCluster = createClusters(PV_LINE, CTRL_PV[4:], '1')
+    cmds.pointConstraint( JNT_PV, iniCluster, n=utils.getConstraint('Point', iniCluster[4:][:-7]) )
+    cmds.pointConstraint( CTRL_PV, endCluster, n=utils.getConstraint('Point', endCluster[4:][:-7]) )
+
+
+
+def createClusters(line, name, index):
+    cmds.select( line + '_Shape.cv[' + index + ']' )
+    clusterName = 'CLST' + name + '_'
+    cmds.cluster( n=clusterName )
+    clh = clusterName + 'Handle'
+    return clh
+
 	
 def addAttribute(ctrl, name, niceName, defaultV, minV, maxV):
     if niceName=='':
