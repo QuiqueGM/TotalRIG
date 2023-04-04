@@ -1,15 +1,59 @@
 import maya.cmds as cmds
 from functools import partial
 
+winName = 'Snap'
+winWidth = 200
+winHeight = 95
+margin = 10
+
 PV = '_PV'
 IK = '_IK'
 switchFKIK = 'Switch_FKIK.FKIK'
 armBones = ['Arm', 'Forearm', 'Wrist']
 legBones = ['Hip', 'UpperLeg', 'LowerLeg', 'Ankle']
 
+def snapTool():
+    if cmds.window( winName, exists=True ):
+        cmds.deleteUI( winName, window=True )
+    elif cmds.windowPref( winName, exists=True ):
+        cmds.windowPref( winName, remove=True )
+    
+    cmds.window( winName, wh=(winWidth+margin, winHeight), s=False, mnb=False, mxb=False, title='SNAP FK/IK' )
+    mainCL = cmds.columnLayout()
+    rowWidth = [winWidth*0.2, winWidth*0.4, winWidth*0.4]
+    cmds.rowLayout( nc=3, cw3=rowWidth )
+    cmds.text( l='', w=rowWidth[0], h=25 )
+    cmds.text( l='Left', al='center', w=rowWidth[1], h=25 )
+    cmds.text( l='Right', al='center', w=rowWidth[2], h=25 )
+    cmds.setParent( '..' )
+    
+    btn1 = getButtonProperties('CTRL__L_ArmSwitch_FKIK.FKIK')
+    btn2 = getButtonProperties('CTRL__R_ArmSwitch_FKIK.FKIK') 
+    createTwoButtonsAction('Arm', btn1, partial(snapFKIK, 'Arm', 'L_', armBones), btn2, partial(snapFKIK, 'Arm', 'R_', armBones), rowWidth, 30)
+    
+    btn1 = getButtonProperties('CTRL__L_LegSwitch_FKIK.FKIK')
+    btn2 = getButtonProperties('CTRL__R_LegSwitch_FKIK.FKIK') 
+    createTwoButtonsAction('Leg', btn1, partial(snapFKIK, 'Leg', 'L_', legBones), btn2, partial(snapFKIK, 'Leg', 'R_', legBones), rowWidth, 30)
+    
+    cmds.showWindow( winName )
+	
+
+def getButtonProperties(ctrl):
+    label = 'To IK' if cmds.getAttr( ctrl ) == 0 else 'To FK'
+    col = (0, 1, 1) if cmds.getAttr( ctrl ) == 0 else (0.5, 1, 0.5)
+    ctrl = 'BTN' + ctrl[4:][:-5]
+    return [ctrl, label, col]
 
 
-def 'SNAP__'FKIK(limb, side, bones, *args):
+
+def createTwoButtonsAction(label, btn1, callbackBtn1, btn2, callbackBtn2, rowWidth, height):
+    cmds.rowLayout( nc=3, cw3=rowWidth )
+    cmds.text( l=label, w=rowWidth[0], h=height )
+    cmds.button( btn1[0], l=btn1[1], c=callbackBtn1, bgc=btn1[2], w=rowWidth[1], h=height )
+    cmds.button( btn2[0], l=btn2[1], c=callbackBtn2, bgc=btn2[2], w=rowWidth[2], h=height )
+    cmds.setParent( '..' )
+
+def snapFKIK(limb, side, bones, *args):
     'CTRL__' = 'CTRL__' + side + limb + switchFKIK
     if cmds.getAttr( 'CTRL__' ) == 1:
 		rot = cmds.xform( 'SNAP__' + side + b, query=True, ro=True, ws=True )
@@ -30,4 +74,4 @@ def 'SNAP__'FKIK(limb, side, bones, *args):
     
     btn = getButtonProperties('CTRL__')
     cmds.button( btn[0], e=True, l=btn[1], bgc=btn[2] )
-   
+ 
