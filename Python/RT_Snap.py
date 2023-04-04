@@ -6,6 +6,8 @@ winWidth = 200
 winHeight = 95
 margin = 10
 
+CTRL = 'CTRL__'
+SNAP = 'SNAP__'
 PV = '_PV'
 IK = '_IK'
 switchFKIK = 'Switch_FKIK.FKIK'
@@ -36,7 +38,8 @@ def snapTool():
     createTwoButtonsAction('Leg', btn1, partial(snapFKIK, 'Leg', 'L_', legBones), btn2, partial(snapFKIK, 'Leg', 'R_', legBones), rowWidth, 30)
     
     cmds.showWindow( winName )
-	
+
+
 
 def getButtonProperties(ctrl):
     label = 'To IK' if cmds.getAttr( ctrl ) == 0 else 'To FK'
@@ -53,25 +56,40 @@ def createTwoButtonsAction(label, btn1, callbackBtn1, btn2, callbackBtn2, rowWid
     cmds.button( btn2[0], l=btn2[1], c=callbackBtn2, bgc=btn2[2], w=rowWidth[2], h=height )
     cmds.setParent( '..' )
 
+
+
 def snapFKIK(limb, side, bones, *args):
-    'CTRL__' = 'CTRL__' + side + limb + switchFKIK
-    if cmds.getAttr( 'CTRL__' ) == 1:
-		rot = cmds.xform( 'SNAP__' + side + b, query=True, ro=True, ws=True )
-		cmds.xform( 'CTRL__' + side + b, ro=[rot[0], rot[1], rot[2]], ws=True )
+    ctrl = CTRL + side + limb + switchFKIK
+    if cmds.getAttr( ctrl ) == 1:
+        for b in bones:
+            rot = cmds.xform( SNAP + side + b, query=True, ro=True, ws=True )
+            cmds.xform( CTRL + side + b, ro=[rot[0], rot[1], rot[2]], ws=True )
+        cmds.setAttr( ctrl, 0 )
         
     else:
-        IKRot = cmds.xform( 'SNAP__' + side + bones[-1] + IK, query=True, ro=True, ws=True)
-        IKPos = cmds.xform( 'SNAP__' + side + bones[-1] + IK, query=True, t=True, ws=True)
+        IKRot = cmds.xform( SNAP + side + bones[-1] + IK, query=True, ro=True, ws=True)
+        IKPos = cmds.xform( SNAP + side + bones[-1] + IK, query=True, t=True, ws=True)
 
-        cmds.xform( 'CTRL__' + side + bones[-1] + IK , ro=[IKRot[0], IKRot[1], IKRot[2]], ws=True )
-        cmds.xform( 'CTRL__' + side + bones[-1] + IK , t=[IKPos[0], IKPos[1], IKPos[2]], ws=True )
+        cmds.xform( CTRL + side + bones[-1] + IK , ro=[IKRot[0], IKRot[1], IKRot[2]], ws=True )
+        cmds.xform( CTRL + side + bones[-1] + IK , t=[IKPos[0], IKPos[1], IKPos[2]], ws=True )
         
-        limb = 'Arm' if bones[0] == 'Arm' else 'Leg'
-        PVPos = cmds.xform( 'SNAP__' + side + limb + PV, query=True, t=True, ws=True)
-        cmds.xform( 'CTRL__' + side + limb + PV , t=[PVPos[0], PVPos[1], PVPos[2]], ws=True )
+        if bones[0] == 'Arm':
+            snapPV('Arm', side)
+        else:
+            snapPV(bones[1], side)
+            snapPV(bones[2], side)
             
-        cmds.setAttr( 'CTRL__', 1 )
+        cmds.setAttr( ctrl, 1 )
     
-    btn = getButtonProperties('CTRL__')
+    btn = getButtonProperties(ctrl)
     cmds.button( btn[0], e=True, l=btn[1], bgc=btn[2] )
+
+
+
+def snapPV(name, side):
+    PVPos = cmds.xform( SNAP + side + name + PV, query=True, t=True, ws=True)
+    cmds.xform( CTRL + side + name + PV , t=[PVPos[0], PVPos[1], PVPos[2]], ws=True )
+
+
+snapTool()
  
