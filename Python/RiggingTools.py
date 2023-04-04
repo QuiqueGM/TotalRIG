@@ -576,6 +576,10 @@ def createLimbSystem(*args):
     RT_LimbSystem.createLimbSystem()
 
 
+def convertIKtoObject(*args):
+    RT_LimbSystem.convertIKtoObject()
+
+
 def deleteLimb(*args):
     RT_LimbSystem.deleteLimb()
 
