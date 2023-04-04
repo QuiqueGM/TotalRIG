@@ -2,6 +2,7 @@ import RiggingTools
 import RT_GlobalVariables as RTvars
 import RT_ErrorsHandler as RTeh
 import RT_Controllers as RTctrl
+import RT_ChainTools
 import RT_Utils as utils
 import RT_FillTools
 import RT_Utilities
@@ -293,6 +294,52 @@ def checkIfFootReverseIsSet():
         return False
     else:
         return True
+
+
+
+def createSnapHelpers():
+    utils.printHeader('CREATING SNAP HELPERS')
+    
+    for sg in snapGroups:
+        snapName = 'SNAP' + sidePos + sg
+        snapGrp = cmds.group( em=True, n=snapName )
+        cmds.parentConstraint( 'CTRL' + snapName[4:], snapGrp, n='TempSnapConstraint', mo=False )
+        cmds.delete( 'TempSnapConstraint' )
+        try:
+            cmds.parent( snapGrp, 'JNT' + snapGrp[4:] )
+        except:
+            cmds.parent( snapGrp, 'JNT' + snapGrp[4:][:-3] )
+        
+        utils.hideAttributes(snapName, 0)
+    
+    if utils.getHierarchy() == 'Arm':
+        snapHelperPV('Forearm', JNT_UpperLimb, JNT_WristAnkle, JNT_LowerLimb)
+        if utils.getIKSystem() == 'HingeLimb':
+            snapHelperPV('Arm', JNT_ClavHip, JNT_LowerLimb, JNT_UpperLimb)
+    else:
+        snapHelperPV('LowerLeg', JNT_UpperLimb, JNT_WristAnkle, JNT_LowerLimb)
+        if utils.getIKSystem() == 'HingeLimb':
+            snapHelperPV('UpperLeg', JNT_ClavHip, JNT_LowerLimb, JNT_UpperLimb)
+
+
+
+def snapHelperPV(limb, JNT_PointUp, JNT_PointDown, JNT_PointMid):
+    vectorPV = 'VECTOR' + sidePos + limb
+    vector = cmds.polyCube( w=0.002, h=0.002, d=0.5, n=vectorPV )
+    cmds.setAttr( vectorPV + '.translateZ', -0.25 )
+    cmds.refresh()
+    cmds.makeIdentity( apply=True, t=1, r=1, s=1, n=0 ) 
+    cmds.move( 0, 0, 0, vectorPV + '.scalePivot', vectorPV + '.rotatePivot', a=True )
+    
+    snapPV = 'SNAP' + sidePos + limb + '_PV'
+    snap = cmds.group( em=True, n=snapPV )
+    cmds.setAttr( snap + '.translateZ', -0.4 )
+    cmds.parent( snap, vectorPV )
+    cmds.pointConstraint( JNT_PointUp, JNT_PointDown, vectorPV, mo=False, n=utils.getConstraint('Point', vectorPV[6:]) )
+    cmds.aimConstraint( JNT_PointMid, vectorPV, n=utils.getConstraint('Aim', vectorPV[6:]), mo=False, w=1, aim=(0, 0, -1), u=(0, 1, 0), wut='vector', wu=(0, 1, 0) )       
+    cmds.parent( vectorPV, 'Helpers' )
+    cmds.editDisplayLayerMembers( 'HELPERS', vectorPV, nr=True )
+    utils.hideAttributes(vectorPV, 0)
 
 
 
@@ -600,7 +647,7 @@ def connectLimb():
 def createIKHandler(initJoint, endJoint):
     limbIKH = 'IKH_' + endJoint[4:]
     cmds.ikHandle( n=limbIKH, sj=initJoint, ee=endJoint, sol='ikRPsolver', ap=False )
-    eff = (cmds.ikHandle( limbIKH, q=True, ee=True ))
+    eff = cmds.ikHandle( limbIKH, q=True, ee=True )
     cmds.rename( eff, 'EFF' + limbIKH[3:] )
     cmds.setAttr( limbIKH + '.ikBlend', 0)
     return limbIKH
@@ -616,78 +663,8 @@ def createIKHandlerWithGroup(initJoint, endJoint):
     posIKH = cmds.xform(limbIKH, ws=True, t=True, q=True)
     cmds.move( posIKH[0], posIKH[1], posIKH[2], groupLimbIKH + '.scalePivot', groupLimbIKH + '.rotatePivot', a=True )
 
-def createSnapHelpers():
-    utils.printHeader('CREATING SNAP HELPERS')
-    
-    for sg in snapGroups:
-        snapName = 'SNAP' + sidePos + sg
-        snapGrp = cmds.group( em=True, n=snapName )
-        cmds.parentConstraint( 'CTRL' + snapName[4:], snapGrp, n='TempSnapConstraint', mo=False )
-        cmds.delete( 'TempSnapConstraint' )
-        try:
-            cmds.parent( snapGrp, 'JNT' + snapGrp[4:] )
-        except:
-            cmds.parent( snapGrp, 'JNT' + snapGrp[4:][:-3] )
-        
-        utils.hideAttributes(snapName, 0)
-    
-    if utils.getHierarchy() == 'Arm':
-        snapHelperPV('Forearm', JNT_UpperLimb, JNT_WristAnkle, JNT_LowerLimb)
-        if utils.getIKSystem() == 'HingeLimb':
-            snapHelperPV('Arm', JNT_ClavHip, JNT_LowerLimb, JNT_UpperLimb)
-    else:
-        snapHelperPV('LowerLeg', JNT_UpperLimb, JNT_WristAnkle, JNT_LowerLimb)
-        if utils.getIKSystem() == 'HingeLimb':
-            snapHelperPV('UpperLeg', JNT_ClavHip, JNT_LowerLimb, JNT_UpperLimb)
 
 
-
-def snapHelperPV(limb, JNT_PointUp, JNT_PointDown, JNT_PointMid):
-    vectorPV = 'VECTOR' + sidePos + limb
-    vector = cmds.polyCube( w=0.002, h=0.002, d=0.5, n=vectorPV )
-    cmds.setAttr( vectorPV + '.translateZ', -0.25 )
-    cmds.refresh()
-    cmds.makeIdentity( apply=True, t=1, r=1, s=1, n=0 ) 
-    cmds.move( 0, 0, 0, vectorPV + '.scalePivot', vectorPV + '.rotatePivot', a=True )
-    
-    snapPV = 'SNAP' + sidePos + limb + '_PV'
-    snap = cmds.group( em=True, n=snapPV )
-    cmds.setAttr( snap + '.translateZ', -0.4 )
-    cmds.parent( snap, vectorPV )
-    cmds.pointConstraint( JNT_PointUp, JNT_PointDown, vectorPV, mo=False, n=utils.getConstraint('Point', vectorPV[6:]) )
-    cmds.aimConstraint( JNT_PointMid, vectorPV, n=utils.getConstraint('Aim', vectorPV[6:]), mo=False, w=1, aim=(0, 0, -1), u=(0, 1, 0), wut='vector', wu=(0, 1, 0) )       
-    utils.hideAttributes(vectorPV, 0)
-
-
-
-def createPoleVectorHelpers(JNT_PV, CTRL_PV, PV_LINE):
-    utils.printHeader('CRETTING HELPERS FOR POLE VECTOR')
-         
-    p1 = cmds.xform( JNT_PV, query=True, t=True, ws=True )
-    p2 = cmds.xform( CTRL_PV, query=True, t=True, ws=True )
-    
-    cmds.curve( n=PV_LINE, d=1, p=[(p1[0], p1[1], p1[2]), (p2[0], p2[1], p2[2])], k=[0,1] )
-    PVLineShape = cmds.listRelatives(PV_LINE, s=True)
-    cmds.select( PVLineShape )
-    cmds.rename( PVLineShape[0], PV_LINE + '_Shape' )
-    col = (1, 0, 0) if utils.getSideFromBone(PV_LINE) == 'L_' else (0, 1, 0)
-    RTctrl.overrideColor(PV_LINE + '_Shape', col)
-    
-    iniCluster = createClusters(PV_LINE, JNT_PV[3:], '0')
-    endCluster = createClusters(PV_LINE, CTRL_PV[4:], '1')
-    cmds.pointConstraint( JNT_PV, iniCluster, n=utils.getConstraint('Point', iniCluster[4:][:-7]) )
-    cmds.pointConstraint( CTRL_PV, endCluster, n=utils.getConstraint('Point', endCluster[4:][:-7]) )
-
-
-
-def createClusters(line, name, index):
-    cmds.select( line + '_Shape.cv[' + index + ']' )
-    clusterName = 'CLST' + name + '_'
-    cmds.cluster( n=clusterName )
-    clh = clusterName + 'Handle'
-    return clh
-
-	
 def addAttribute(ctrl, name, niceName, defaultV, minV, maxV):
     if niceName=='':
         niceName=name
