@@ -31,8 +31,8 @@ reload(RT_Utilities)
 reload(RT_Rename)
 reload(RT_FillTools)
 
-winWidth = 550
-winHeight = 430 #900
+winWidth = 560
+winHeight = 400
 margin = 10
 
 def rigginToolsUI():
@@ -88,15 +88,14 @@ def rigginToolsUI():
     toolHeader('limbSystemTab', '---------   LIMB SYSTEM  ---------')
     subHeader(1, 'TYPE OF LIMB', 5)
     createLegOption('Hierarchy', 'FrontLimb', 'Front Leg / Arm', True, 'BackLimb', 'Back Leg / Leg', False)
-    # createLegOption('IK System', 'SimpleLeg', 'Simple IK', True, 'HingeLeg', 'Hind Leg', False)
     rowWidth = [winWidth*0.05, winWidth*0.25, winWidth*0.3, winWidth*0.3]
     
     cmds.rowLayout( nc=4, cw4=rowWidth )
     cmds.radioCollection()
     cmds.text( l='', w=rowWidth[0] )
     cmds.text( l='IK System', w=rowWidth[1], al='left')
-    cmds.radioButton( 'SimpleLeg', l='Simple IK', al='center', w=rowWidth[2], sl=True, onc=partial(enableNonRollCB, True) )
-    cmds.radioButton( 'HingeLeg', l='Hind Leg', al='center', w=rowWidth[2], sl=False, onc=partial(enableNonRollCB, False) )
+    cmds.radioButton( 'SimpleLeg', l='Simple IK', al='center', w=rowWidth[2], sl=True ) #, onc=partial(enableNonRollCB, True) )
+    cmds.radioButton( 'HindLeg', l='Hind Leg', al='center', w=rowWidth[2], sl=False ) #, onc=partial(enableNonRollCB, False) )
     cmds.setParent( '..' )
     
     cmds.rowLayout( nc=4, cw4=rowWidth )
@@ -107,24 +106,20 @@ def rigginToolsUI():
     cmds.radioButton( 'FootReverseNo', l='No', al='center', w=rowWidth[2], sl=False, onc=partial(enableDeleteHandFoot, True) )
     cmds.setParent( '..' )
     
-    rowWidth = [winWidth*0.05, winWidth*0.66]
-    cmds.rowLayout( nc=2, cw2=rowWidth )
-    cmds.text( l='', w=rowWidth[0] )
-    cmds.intSliderGrp( 'NumFingerToes', l='Fingers / Toes', min=1, max=5, field=True, value=3, adj=1, cal=(1, "left"), w=rowWidth[1] )
-    cmds.setParent( '..' )
-    
     createTwoButtonsAction(7,'cc', 'Create controllers', createLimbControllers, 'mc', 'Mirror controllers', mirrorControllers, False)
     subHeader(7, 'OPTIONS', 5)
     createCheckbox(0.1, 'UseDeleteHandFootCB', 'Remove Hand/Foot', emptyCallback, True, False)
     createCheckbox(0.1, 'UseMirrorCB', 'Actvate mirror', emptyCallback, True, True)  # True, True)
     createCheckbox(0.1, 'UseStretchCB', 'Create stretch system', emptyCallback, True, True) # True, True)
     
+    """
     rowWidth = [winWidth*0.1, winWidth*0.4, winWidth*0.3]
     cmds.rowLayout( nc=3, cw3=rowWidth )
     cmds.text( l='', w=rowWidth[0] )
     cmds.checkBox( 'NonRollCB', l='Add roll bone system', w=rowWidth[1], cc=enableNumNonRollJoints, v=False, en=True ) # v=False
     cmds.intSliderGrp( 'NumNonRollJoints', min=2, max=5, field=True, value=1, adj=1, cal=(1, "left"), w=rowWidth[2], en=False )
     cmds.setParent( '..' )
+    """
     
     createLimbFields()
     createButtonAction(10,'', 'Create Limb System', createLimbSystem, False)
@@ -249,16 +244,16 @@ def rigginToolsUI():
     w = winWidth*0.9
     h = 30
     createDoubleButtonUtility('Create Simple Joint - World', partial(createSimpleJoint, 'World'), 'Create Simple Joint - Z Up', partial(createSimpleJoint, 'ZUp'), w, h)
-    createFourButtonUtility('Orient Simple Chain', rotateAndOrientSimpleChainZUp, 'Orient Chain', orientSimpleChain, 'Orient End Joint', orientEndJoint, ' -- EMPTY -- ', empty, w, h)
+    createFourButtonUtility('Orient Simple Chain', rotateAndOrientSimpleChainZUp, 'Orient Chain', orientSimpleChain, 'Orient End Joint', orientEndJoint, ' -- EMPTY -- ', emptyCallback, w, h)
     createFourButtonUtility('Create Root', createRoot, 'Connect Legs', connectLegs, 'Connect Arms', connectArms, 'Connect Wings', connectWings, w, h)
     createButtonUtility('Delete References and Blend Shape Targets', deleteReferences, w, h)
     createButtonUtility('Bind skin and remove END influences', bindDragonSkinAndRemoveInfluences, w, h)
     createDoubleButtonUtility('Rename dummies and assign influences', renameDummies, 'Create Range dummy', rangeDummy, w, h)
     createSpaceForUtilities('---------   UTILITIES  ---------')
     createDoubleButtonUtility('Decrease Joint Size', partial(jointSize, -0.2), 'Increase Joint Size', partial(jointSize, 0.2), w, h)
-    createFourButtonUtility('Reset controllers', resetControllers, 'Rename Limb', renameLimb, ' -- EMPTY -- ', empty, ' -- EMPTY -- ', empty, w, h)
+    createFourButtonUtility('Reset controllers', resetControllers, 'Rename Limb', renameLimb, ' -- EMPTY -- ', emptyCallback, ' -- EMPTY -- ', emptyCallback, w, h)
             
-    cmds.tabLayout( tabs, edit=True, tabLabel=(('renameBonesTab', 'Rename'), ('limbSystemTab', 'Limbs'), ('ribbonSystemTab', 'Ribbons'), ('chainToolsTab', 'Chains'), ('headControllerTab', 'Head'), ('spaceSwitchTab', 'S. Switch'), ('utilitiesTab', 'Utilities'), ('controllersTab', 'Controllers')), sti=2 )
+    cmds.tabLayout( tabs, edit=True, tabLabel=(('renameBonesTab', 'Rename'), ('limbSystemTab', 'Limbs'), ('handsSetupTab', 'Hands'), ('ribbonSystemTab', 'Ribbons'), ('chainToolsTab', 'Chains'), ('headControllerTab', 'Head'), ('spaceSwitchTab', 'S. Switch'), ('utilitiesTab', 'Utilities'), ('controllersTab', 'Controllers')), sti=1 )
     cmds.showWindow(RTvars.winName)
     return
 
@@ -355,14 +350,13 @@ def createTwoButtonsAction(space, nameBtn1, labelBtn1, callbackBtn1, nameBtn2, l
 def createFourButtonsAction(space, nameBtn1, labelBtn1, callbackBtn1, nameBtn2, labelBtn2, callbackBtn2, nameBtn3, labelBtn3, callbackBtn3, nameBtn4, labelBtn4, callbackBtn4, endOfTab):
     verticalSpace(space)
     sp = 1
-    rowWidth = [(winWidth-buttonWidth-margin)/2, buttonWidth/4-sp, buttonWidth/4-sp, buttonWidth/4-sp, buttonWidth/4-sp,(winWidth-buttonWidth-margin)/2]
-    cmds.rowLayout( nc=6, cw6=rowWidth )
-    cmds.text( l='', w=rowWidth[0] )
-    cmds.button( nameBtn1, l=labelBtn1, c=callbackBtn1 , w=rowWidth[1], h=buttonHeight )
-    cmds.button( nameBtn2, l=labelBtn2, c=callbackBtn2 , w=rowWidth[2], h=buttonHeight )
-    cmds.button( nameBtn3, l=labelBtn3, c=callbackBtn3 , w=rowWidth[3], h=buttonHeight )
-    cmds.button( nameBtn4, l=labelBtn4, c=callbackBtn4 , w=rowWidth[4], h=buttonHeight )    
-    cmds.text( l='', w=rowWidth[5] )
+    rowWidth = [(winWidth-margin)/4.1 ,(winWidth-margin)/4.1, (winWidth-margin)/4.1, (winWidth-margin)/4.1]
+    cmds.rowLayout( nc=4, cw4=rowWidth )
+    cmds.button( nameBtn1, l=labelBtn1, c=callbackBtn1 , w=rowWidth[0], h=30 )
+    cmds.button( nameBtn2, l=labelBtn2, c=callbackBtn2 , w=rowWidth[1], h=30 )
+    cmds.button( nameBtn3, l=labelBtn3, c=callbackBtn3 , w=rowWidth[2], h=30 )
+    cmds.button( nameBtn4, l=labelBtn4, c=callbackBtn4 , w=rowWidth[3], h=30 )
+  
     cmds.setParent( '..' )
     if endOfTab:
         cmds.setParent( '..' )
@@ -437,25 +431,47 @@ def createSpaceForUtilities(utilities):
     verticalSpace(5)
 
 
+def fillAreas(*args):
+    currentValue = cmds.optionMenu( 'AreaOM', q=True, v=True )
+    joints = cmds.optionMenu( 'JointOM', q=True, ill=True )
+    
+    if joints: cmds.deleteUI( joints )
+    
+    if currentValue == 'Head': fillArea(RTvars.headBones)
+    elif currentValue == 'Leg': fillArea(RTvars.legBones)
+    elif currentValue == 'Arm': fillArea(RTvars.armBones)      
+    elif currentValue == 'Body': fillArea(RTvars.bodyBones)
+        
+    cmds.setParent( '..' )
 
-def incrementNumber(*args):
-    value = cmds.intField( 'AddNumber', q=True, v=True )
-    value = value + 1
-    cmds.intField( 'AddNumber', edit=True, v=value)
+
+def fillArea(bones):
+    for b in bones:
+        cmds.menuItem( p='JointOM', l=b )
+    RTvars.bone = bones[0]
 
 
+def createLimbFields():
+    bones = []
+    bones.extend(RTvars.bonesHindArm)
+    bones.extend(RTvars.simpleHand)
+    bones.extend(RTvars.hand)
+    bones.extend(RTvars.bonesHindLeg)
+    bones.extend(RTvars.simpleFoot)
+    bones.extend(RTvars.foot)
 
-def resetNumber(*args):
-    cmds.intField( 'AddNumber', edit=True, v=1)
+    rowWidth = [winWidth*0.2, winWidth*0.60, winWidth*0.3]
+    for b in range(len(bones)):
+        cmds.textFieldButtonGrp( bones[b], l=bones[b], vis=False, ed=False, cw3=rowWidth, cl3=('left', 'left', 'left'), bl='  Add  ', bc=partial(addObject, bones[b]), h=20 )
 
 
+####################################### VALIDATORS #####################################
 
 def changeIntField(*args):
     value = cmds.checkBox( 'UseAddNumberCB', q=True, v=True )
     cmds.intField( 'AddNumber', edit=True, en=value )
     cmds.button( 'IncButton', edit=True, en=value )
     cmds.button( 'ResetButton', edit=True, en=value )
-
 
 
 def enableFields(*args):
@@ -483,133 +499,85 @@ def enableCreateEyes(*args):
     cmds.floatSliderGrp( 'EyesControllerDist', edit=True, en=value )
 
 
-
 def enableBlendShapes(*args):
     value = cmds.checkBox( 'BlendShapesCB', q=True, v=True )
     cmds.checkBox( 'FacialExpressionsCB', edit=True, en=value )
     cmds.checkBox( 'EyesCB', edit=True, en=value )
 
 
+####################################### CALLBACKS #####################################
 
-def fillAreas(*args):
-    currentValue = cmds.optionMenu( 'AreaOM', q=True, v=True )
-    joints = cmds.optionMenu( 'JointOM', q=True, ill=True )
-    
-    if joints: cmds.deleteUI( joints )
-    
-    if currentValue == 'Head': fillArea(RTvars.headBones)
-    elif currentValue == 'Leg': fillArea(RTvars.legBones)
-    elif currentValue == 'Arm': fillArea(RTvars.armBones)      
-    elif currentValue == 'Body': fillArea(RTvars.bodyBones)
-        
-    cmds.setParent( '..' )
+### GLOBAL VARIABLES & UTILS
 
-
-
-def fillArea(bones):
-    for b in bones:
-        cmds.menuItem( p='JointOM', l=b )
-    RTvars.bone = bones[0]
-
-
-
-def createLimbFields():
-    bones = []
-    bones.extend(RTvars.bonesHindArm)
-    bones.extend(RTvars.bonesHindLeg)
-
-    rowWidth = [winWidth*0.2, winWidth*0.60, winWidth*0.3]
-    for b in range(len(bones)):
-        cmds.textFieldButtonGrp( bones[b], l=bones[b], vis=False, ed=False, cw3=rowWidth, cl3=('left', 'left', 'left'), bl='  Add  ', bc=partial(addObject, bones[b]) )
-
-
+def emptyCallback(*args):
+    print 'Empty callback'
 
 def returnBone(item):
     RTvars.bone = item
-
-
-def renameBone(add, *args):
-    RT_Rename.renameBone(add)
-    
-
-def autorenameLimb(limb, *args):
-    RT_Rename.autorenameLimb(limb)
-
-
-def autorenameSimpleChain(*args):
-    RT_Rename.autorenameSimpleChain()
-
-
-def autorenameMultChains(*args):
-    RT_Rename.autorenameMultChains()
-
-
-def autorenameComplexChain(*args):
-    RT_Rename.autorenameComplexChain()
-
 
 def addObject(nameBone, *args):
     RT_Utils.addObject(nameBone)
 
 
-def assignColor(col, *args):
-    RT_Controllers.assignColor(col)
+### RENAME
+
+def incrementNumber(*args):
+    RT_Rename.incrementNumber()
+
+def resetNumber(*args):
+    RT_Rename.resetNumber()
+
+def renameBone(add, *args):
+    RT_Rename.renameBone(add)
+
+def autorenameLimb(limb, *args):
+    RT_Rename.autorenameLimb(limb)
+
+def autorenameSimpleChain(*args):
+    RT_Rename.autorenameSimpleChain()
+
+def autorenameMultChains(*args):
+    RT_Rename.autorenameMultChains()
+
+def autorenameComplexChain(*args):
+    RT_Rename.autorenameComplexChain()
 
 
-def colorizeController(*args):
-    RT_Controllers.colorizeController()
-
-
-def createController(sh, col, scl, ori, lblFrom, lblTo, *args):
-    RT_Controllers.createController(sh, col, scl, ori, lblFrom, lblTo)
-
+### LIMB SYSTEM
 
 def createLimbControllers(*args):
     RT_LimbSystem.createLimbControllers()
 
-
 def mirrorControllers(*args):
     RT_LimbSystem.mirrorControllers()
-
 
 def createLimbSystem(*args):
     RT_LimbSystem.createLimbSystem()
 
-
 def convertIKtoObject(*args):
     RT_LimbSystem.convertIKtoObject()
-
 
 def deleteLimb(*args):
     RT_LimbSystem.deleteLimb()
 
-
 def deleteLimbSystem(*args):
     RT_LimbSystem.deleteLimbSystem()
 
-
 def createStretchSystem(*args):
     RT_LimbSystem.createStretchSystem(*args)
-
 
 def createSSforPoleVector(*args):
     RT_LimbSystem.createSSforPoleVector()
 
 
-def redefineChain(*args):
-    RT_ChainTools.redefineChain()
-
- 
-def createChainControllers(*args):
-    RT_ChainTools.createChainControllers(False)
 
 
-def createChainSystem(*args):
-    RT_ChainTools.createChainSystem(False)
-    
+def dragonLayout(*args):
+    RT_HandsSetup.dragonLayout()
 
-def createSpaceSwitch(pName, pCtrl, pFrom0, pTo1, type, *args):
-    RT_SpaceSwitch.createSpaceSwitch(pName, pCtrl, pFrom0, pTo1, type)
+def simple3Layout(*args):
+    RT_HandsSetup.simple3Layout()
+
 
 
 def createSpaceSwitchForHead(*args):
@@ -644,84 +612,88 @@ def createSimpleJoint(orientation, *args):
     RT_Utilities.createSimpleJoint(orientation, '')
 
 
+
+### SPACE SWITCH
+
+def createSpaceSwitch(pName, pCtrl, pFrom0, pTo1, type, *args):
+    RT_SpaceSwitch.createSpaceSwitch(pName, pCtrl, pFrom0, pTo1, type)
+
+def createSpaceSwitchForHead(*args):
+    RT_SpaceSwitch.createSpaceSwitchForHead()
+
+def createSpaceSwitchForTail(*args):
+    RT_SpaceSwitch.createSpaceSwitchForTail()
+
+
+### CONTROLLERS
+
+def assignColor(col, *args):
+    RT_Controllers.assignColor(col)
+
+def colorizeController(*args):
+    RT_Controllers.colorizeController()
+
+def changeController(*args):
+    RT_Controllers.changeController()
+
+def createController(sh, col, scl, ori, lblFrom, lblTo, *args):
+    RT_Controllers.createController(sh, col, scl, ori, lblFrom, lblTo)
+
+
+### UTILITIES
+
+def createSimpleJoint(orientation, *args):
+    RT_Utilities.createSimpleJoint(orientation, '')
+
 def rotateAndOrientSimpleChainZUp(*args):
     RT_Utilities.rotateAndOrientSimpleChainZUp()
-
 
 def orientSimpleChain(*args):
     RT_Utilities.orientSimpleChain()
 
-
 def orientEndJoint(*args):
     RT_Utilities.orientEndJoint()
-
-
-def empty(*args):
-    print 'Empty callback'
-
-
-def createFacialExpressions(*args):
-    RT_HeadUtilities.createFacialExpressions()
-
-
-def createSquashAndStretch(*args):
-    RT_HeadUtilities.createSquashAndStretch()
-
-
-def createHead(*args):
-    RT_HeadUtilities.createHead()
-
 
 def createRoot(*args):
     RT_Utilities.createRoot()
 
-
 def connectLegs(*args):
     RT_Utilities.connectLegs()
-
 
 def connectArms(*args):
     RT_Utilities.connectArms()
 
-
 def connectWings(*args):
     RT_Utilities.connectWings()
-
 
 def connectBodyToCtrlMaster(*args):
     RT_Utilities.connectBodyToCtrlMaster()
 
-
 def deleteReferences(*args):
     RT_Utilities.deleteReferences()
-
 
 def bindDragonSkinAndRemoveInfluences(*args):
     RT_Utilities.bindDragonSkinAndRemoveInfluences()
 
-
 def removeInfluences(*args):
     RT_Utilities.removeInfluences()
-
 
 def renameDummies(*args):
     RT_Utilities.renameDummies()
 
-
 def rangeDummy(*args):
     RT_Utilities.rangeDummy()
-
 
 def jointSize(size, *args):
     RT_Utilities.jointSize(size)
 
-
 def resetControllers(*args):
     RT_Utilities.resetControllers()
 
-
 def renameLimb(*args):
     RT_Utilities.renameLimb()
+
+
 
 
 
