@@ -25,10 +25,10 @@ def assignVariables(autoFill = True):
     sidePos = '__' + utils.getSideFromBone(sel) + utils.getPositionFromBone(sel)
 
     if utils.getHierarchy() == 'Leg':
-        if utils.getIKSystem() == 'HingeLimb':
+        if utils.getIKSystem() == 'HindLimb':
             limbBones = RTvars.bonesHindLeg
             offsetsLimb = RTvars.offsetsHindLeg
-            snapGroups = RTvars.snapHingeLeg
+            snapGroups = RTvars.snapHindLeg
             CTRL_UpperLimbPV = 'CTRL' + sidePos + 'UpperLeg_PV'
             PV_UpperLine = 'LINE' + sidePos + 'UpperLeg_PV'
             CTRL_LowerLimbIK = 'CTRL' + sidePos + 'LowerLeg_IK'
@@ -61,10 +61,10 @@ def assignVariables(autoFill = True):
         IKH_WristAnkle = 'IKH' + sidePos + 'Ankle'
         
     else:
-        if utils.getIKSystem() == 'HingeLimb':
+        if utils.getIKSystem() == 'HindLimb':
             limbBones = RTvars.bonesHindArm
             offsetsLimb = RTvars.offsetsHindArm
-            snapGroups = RTvars.snapHingeArm
+            snapGroups = RTvars.snapHindArm
             CTRL_UpperLimbPV = 'CTRL' + sidePos + 'Arm_PV'
             PV_UpperLine = 'LINE' + sidePos + 'Arm_PV'
             CTRL_LowerLimbIK = 'CTRL' + sidePos + 'Forearm_IK'
@@ -95,10 +95,10 @@ def assignVariables(autoFill = True):
         IKH_Group = 'IKH_SYSTEM' + sidePos + 'Wrist'
         IKH_WristAnkle = 'IKH' + sidePos + 'Wrist'
 
-    if utils.getIKSystem() == 'HingeLimb':
-        ctrlLimbBones = [[limbBones[0], 'Circle', 0.1, 'Object', offsetsLimb[0]], [limbBones[1], 'Circle', 0.1, 'Object', ''], [limbBones[2], 'Circle', 0.14, 'Object', ''], [limbBones[2], 'Diamond', 0.035, 'World', offsetsLimb[3]], [limbBones[3], 'Circle', 0.13, 'Object', ''], [limbBones[3], 'Diamond', 0.035, 'World', offsetsLimb[5]], [limbBones[3], 'DoubleArrow', 0.1, 'World', offsetsLimb[6]], [limbBones[4], 'Circle', 0.1, 'Object', ''], [limbBones[4], 'Box', 0.15, 'World', offsetsLimb[8]], [limbBones[4], 'Box', 0.03, 'World', offsetsLimb[9]], [limbBones[5], 'Box', 0.125, 'World', ''], [limbBones[6], 'Circle', 0.04, 'Object', ''], [limbBones[7], 'Circle', 0.04, 'Object', ''], [limbBones[8], 'Circle', 0.04, 'Object', ''], [limbBones[9], 'Circle', 0.04, 'Object', ''], [limbBones[10], 'Circle', 0.04, 'Object', '']]
+    if utils.getIKSystem() == 'HindLimb':
+        ctrlLimbBones = [[limbBones[0], 'Circle', 0.1, 'Object', offsetsLimb[0]], [limbBones[1], 'Circle', 0.1, 'Object', ''], [limbBones[2], 'Circle', 0.14, 'Object', ''], [limbBones[2], 'Diamond', 0.035, 'World', offsetsLimb[3]], [limbBones[3], 'Circle', 0.13, 'Object', ''], [limbBones[3], 'Diamond', 0.035, 'World', offsetsLimb[5]], [limbBones[3], 'DoubleArrow', 0.1, 'World', offsetsLimb[6]], [limbBones[4], 'Circle', 0.1, 'Object', ''], [limbBones[4], 'Box', 0.15, 'World', offsetsLimb[8]], [limbBones[4], 'Box', 0.03, 'World', offsetsLimb[9]], [limbBones[5], 'Box', 0.125, 'World', '']]#, [limbBones[6], 'Circle', 0.04, 'Object', ''], [limbBones[7], 'Circle', 0.04, 'Object', ''], [limbBones[8], 'Circle', 0.04, 'Object', ''], [limbBones[9], 'Circle', 0.04, 'Object', ''], [limbBones[10], 'Circle', 0.04, 'Object', '']]
     else:
-        ctrlLimbBones = [[limbBones[0], 'Circle', 0.1, 'World', ''], [limbBones[1], 'Circle', 0.14, 'Object', ''], [limbBones[2], 'Circle', 0.13, 'Object', ''], [limbBones[2], 'Diamond', 0.035, 'World', offsetsLimb[3]], [limbBones[3], 'Circle', 0.1, 'Object', ''], [limbBones[3], 'Box', 0.15, 'World', offsetsLimb[5]], [limbBones[3], 'Box', 0.03, 'World', offsetsLimb[6]], [limbBones[4], 'Box', 0.125, 'World', ''], [limbBones[5], 'Circle', 0.04, 'Object', ''], [limbBones[6], 'Circle', 0.04, 'Object', ''], [limbBones[7], 'Circle', 0.04, 'Object', ''], [limbBones[8], 'Circle', 0.04, 'Object', ''], [limbBones[9], 'Circle', 0.04, 'Object', '']]
+        ctrlLimbBones = [[limbBones[0], 'Circle', 0.1, 'World', ''], [limbBones[1], 'Circle', 0.14, 'Object', ''], [limbBones[2], 'Circle', 0.13, 'Object', ''], [limbBones[2], 'Diamond', 0.035, 'World', offsetsLimb[3]], [limbBones[3], 'Circle', 0.1, 'Object', ''], [limbBones[3], 'Box', 0.15, 'World', offsetsLimb[5]], [limbBones[3], 'Box', 0.03, 'World', offsetsLimb[6]], [limbBones[4], 'Box', 0.125, 'World', '']]#, [limbBones[5], 'Circle', 0.04, 'Object', ''], [limbBones[6], 'Circle', 0.04, 'Object', ''], [limbBones[7], 'Circle', 0.04, 'Object', ''], [limbBones[8], 'Circle', 0.04, 'Object', ''], [limbBones[9], 'Circle', 0.04, 'Object', '']]
     
     CTRL_ClavHipHead = 'CTRL' + JNT_ClavHipHead[3:]
     CTRL_ClavHip = 'CTRL' + JNT_ClavHip[3:]
@@ -129,24 +129,24 @@ def createLimbControllers():
     RT_Rename.autorenameLimb()
     createLimbBackUp(RTvars.limbStartingBone)
     assignVariables()
+    
     utils.printHeader('CREATING LIMB CONTROLLERS')
-    
-    
-    cmds.select( RTvars.limbStartingBone )
-    cmds.refresh()
-    cmds.makeIdentity(apply=True, t=1, r=1, s=1, n=0)
+    numFingers = len(newLimbBones) - len(limbBones)
     
     for b in range(len(ctrlLimbBones)): 
         utils.printSubheader('Creating controller --> ' + offsetsLimb[b])
         cmds.select( cmds.textFieldGrp( ctrlLimbBones[b][0], q=True, tx=True ))
         sel = cmds.ls(sl=True)
-        ctrl = RTctrl.createController( ctrlLimbBones[b][1], utils.getColorFromSide(sel[0]), ctrlLimbBones[b][2], ctrlLimbBones[b][3], ctrlLimbBones[b][0], ctrlLimbBones[b][4] )[1]
+        
+        doubleOffset = True if b >= len(ctrlLimbBones)-numFingers else False
+        hideAndLockOffset = False if ctrlLimbBones[b][4].find('_PV') > -1 else True
+        ctrl = RTctrl.createController( ctrlLimbBones[b][1], utils.getColorFromSide(sel[0]), ctrlLimbBones[b][2], ctrlLimbBones[b][3], ctrlLimbBones[b][0], ctrlLimbBones[b][4], doubleOffset, hideAndLockOffset )[1]
         
     ctrls = getListControllers()
     createShape()
 
     if utils.getFootReverse() == 'Yes':
-        if utils.getIKSystem() == 'HingeLimb':
+        if utils.getIKSystem() == 'HindLimb':
             createReverseFootSetUp(ctrls[8])
         else:
             createReverseFootSetUp(ctrls[5])
@@ -156,7 +156,7 @@ def createLimbControllers():
         utils.setTransformAndRotationToZero(grp)
         cmds.parent( grp, CTRL_WristAnkle_IK )
         utils.setTransformAndRotationToZero(grp)
-        
+
     relocateControllers(ctrls)
     utils.lockControllers(ctrls, True)
 
@@ -185,30 +185,30 @@ def createShape():
     wrist = cmds.xform( JNT_WristAnkle, query=True, t=True, ws=True )
     
     cmds.polyCreateFacet( p=[(upper[0]*100, upper[1]*100, upper[2]*100), (lower[0]*100, lower[1]*100, lower[2]*100), (wrist[0]*100, wrist[1]*100, wrist[2]*100)] )
-    if utils.getIKSystem() == 'HingeLimb':
+    if utils.getIKSystem() == 'HindLimb':
         cmds.polyCreateFacet( p=[(hip[0]*100, hip[1]*100, hip[2]*100), (upper[0]*100, upper[1]*100, upper[2]*100), (lower[0]*100, lower[1]*100, lower[2]*100)] )   
 
 
 
 def relocateControllers(ctrls):
-    if (utils.getIKSystem() == 'SimpleLimb' and utils.getFootReverse() == 'Yes') or utils.getIKSystem() == 'HingeLimb':
+    if (utils.getIKSystem() == 'SimpleLimb' and utils.getFootReverse() == 'Yes') or utils.getIKSystem() == 'HindLimb':
         cmds.select( ctrls[0] + 'Shape.cv[0:7]' )
         cmds.move( 0.2, 0, 0, r=True, os=True, wd=True)
         cmds.select( d=True )
- 
-        
-    if utils.getIKSystem() == 'HingeLimb':
+    
+    if utils.getIKSystem() == 'HindLimb':
         cmds.select( ctrls[9] + '_Shape.cv[0:16]' )
     else:
         cmds.select( ctrls[6] + '_Shape.cv[0:16]' )
 
     cmds.move( 0, -0.05, -0.17, r=True, os=True, wd=True)
+    
+    if cmds.checkBox( 'ControllersAlongBonesCB', q=True, v=True ):
+        controlsToRelocate = len(newLimbBones) - len(limbBones)
+        for n in range(len(ctrls)-controlsToRelocate, len(ctrls)):
+            rotateToeController(ctrls[n])     
 
-    for n in range(cmds.intSliderGrp( 'NumFingerToes', q=True, v=True )):
-        if utils.getIKSystem() == 'HingeLimb':
-            rotateToeController(ctrls[11 + n])     
-        else:
-            rotateToeController(ctrls[8 + n])
+    cmds.select( d=True )
 
 
 
@@ -255,6 +255,10 @@ def createReverseFootSetUp(wristAnkleIK):
     cmds.move( ball[0], ball[1], ball[2], rev[4]+'.scalePivot', rev[4]+'.rotatePivot', a=True )
     wristAnkle = cmds.xform(wristAnkleIK, ws=True, t=True, q=True)
     cmds.move( wristAnkle[0], wristAnkle[1], wristAnkle[2], rev[5]+'.scalePivot', rev[5]+'.rotatePivot', a=True )
+    
+    for rf in reverseFoot:
+        rev = 'REV' + sidePos + rf
+        utils.lockAndHideOffset(rev, True)
 
 
 
@@ -275,11 +279,11 @@ def createLimbSystem():
     utils.lockControllers(getListControllers(), False)
     if cmds.checkBox( 'UseMirrorCB', q=True, v=True ):
         createMirror()
-        connectLimb()
+        connectLimb(False)
         RT_FillTools.reloadMirror(limbBones)
-        connectLimb()
+        connectLimb(True)
     else:
-        connectLimb()
+        connectLimb(False)
 
 
 
@@ -314,11 +318,11 @@ def createSnapHelpers():
     
     if utils.getHierarchy() == 'Arm':
         snapHelperPV('Forearm', JNT_UpperLimb, JNT_WristAnkle, JNT_LowerLimb)
-        if utils.getIKSystem() == 'HingeLimb':
+        if utils.getIKSystem() == 'HindLimb':
             snapHelperPV('Arm', JNT_ClavHip, JNT_LowerLimb, JNT_UpperLimb)
     else:
         snapHelperPV('LowerLeg', JNT_UpperLimb, JNT_WristAnkle, JNT_LowerLimb)
-        if utils.getIKSystem() == 'HingeLimb':
+        if utils.getIKSystem() == 'HindLimb':
             snapHelperPV('UpperLeg', JNT_ClavHip, JNT_LowerLimb, JNT_UpperLimb)
 
 
@@ -403,9 +407,15 @@ def createMirror():
 
 
 def createMirrorControllers(side, newSide):
-    offsets = utils.getOffsetsLib(offsetsLimb, sidePos)
+    offsets = utils.getOffsetsLimb(offsetsLimb, sidePos)
     for o, s in zip(offsets, ctrlLimbBones):
         utils.printSubheader('Mirroring controller --> ' + o)
+        utils.lockAndHideOffset(o, False)
+        if utils.getFootReverse() == 'Yes':
+            for rf in reverseFoot:
+                rev = 'REV' + sidePos + rf
+                utils.lockAndHideOffset(rev, False)
+        
         nameMirror = o.replace(side, newSide)
         mirror = cmds.duplicate( o, n=nameMirror, rc=True )
         mirrorGrp = cmds.group( em=True, n='MIRROR_GRP', w=True )
@@ -452,7 +462,10 @@ def createMirrorControllers(side, newSide):
             newName = n.replace(side, newSide)[:-1]
             cmds.rename( n, newName )
             col = (0, 1, 0) if side == '__L_' else (1, 0, 0)
-            RTctrl.overrideColor(newName, col)
+            try:
+                RTctrl.overrideColor(newName, col)
+            except:
+                pass
 
 
 
@@ -482,24 +495,30 @@ def createReverseJoint():
 
 def createControllersBackUp():
     utils.printHeader('CREATING CONTROLLERS BACK-UP')
-    offsets = utils.getOffsetsLib(offsetsLimb, sidePos)
+    offsets = utils.getOffsetsLimb(offsetsLimb, sidePos)
     for o in offsets:
+        utils.lockAndHideOffset(o, True)
         nameOffset = o + '_BACK_UP'
         backUpCtrl = cmds.duplicate( o, n=nameOffset, rc=True )
         cmds.parent( backUpCtrl[0], 'Back_Up_Limbs', rm=False )
 
 
 
-def connectLimb():
+def connectLimb(isMirror):
     utils.printHeader('CONNECTINC LIMB')
+    
     assignVariables()
     createControllersBackUp()        
     createReverseJoint()
     createPoleVectorHelpers(JNT_LowerLimb, CTRL_LowerLimbPV, PV_LowerLine)
-    if utils.getIKSystem() == 'HingeLimb':
+    if utils.getIKSystem() == 'HindLimb':
         createPoleVectorHelpers(JNT_UpperLimb, CTRL_UpperLimbPV, PV_UpperLine)
     createSnapHelpers()
     
+    offsets = utils.getOffsetsLimb(offsetsLimb, sidePos)
+    for o in offsets:
+        utils.lockAndHideOffset(o, False)
+        
     cmds.editDisplayLayerMembers( 'JOINTS', JNT_ClavHip, nr=True )   
     
     #############################
@@ -507,7 +526,7 @@ def connectLimb():
     
     cmds.group( em=True, n=IKH_Group )
     
-    if utils.getIKSystem() == 'HingeLimb':
+    if utils.getIKSystem() == 'HindLimb':
         createIKHandlerWithGroup(JNT_ClavHip, JNT_LowerLimb)
         createIKHandlerWithGroup(JNT_UpperLimb, JNT_WristAnkle)
         cmds.parent( getOffset(IKH_LowerLimb), getOffset(IKH_WristAnkle), IKH_Group )
@@ -534,7 +553,7 @@ def connectLimb():
     
     #############################
     utils.printSubheader('Creating FK Constraints of the Limb')
-    if utils.getIKSystem() == 'HingeLimb':
+    if utils.getIKSystem() == 'HindLimb':
         cmds.orientConstraint( CTRL_ClavHip, JNT_ClavHip, n=utils.getConstraint('Orient', JNT_ClavHip[3:]), mo=True )
     else:
         cmds.parentConstraint( CTRL_ClavHip, JNT_ClavHip, n=utils.getConstraint('Parent', JNT_ClavHip[3:]), mo=True )
@@ -565,7 +584,7 @@ def connectLimb():
     utils.printSubheader('Creating the Ankle/Wrist connections for FKIK')
     cmds.parentConstraint( JNT_WristAnkle, getOffset(CTRL_LimbSwitch_FKIK), n=utils.getConstraint('Parent', CTRL_LimbSwitch_FKIK[4:]), mo=True)
     addAttribute(CTRL_LimbSwitch_FKIK, 'FKIK', 'Switch FK/IK', 0, 0, 1)
-    if utils.getIKSystem() == 'HingeLimb':
+    if utils.getIKSystem() == 'HindLimb':
         cmds.connectAttr( CTRL_LimbSwitch_FKIK + '.FKIK', IKH_LowerLimb + '.ikb') 
     cmds.connectAttr( CTRL_LimbSwitch_FKIK + '.FKIK', IKH_WristAnkle + '.ikb')
     reverseAnkle = utils.createShadingNode('reverse', CTRL_LimbSwitch_FKIK + '_Reverse')
@@ -577,7 +596,7 @@ def connectLimb():
     cmds.connectAttr( CTRL_LimbSwitch_FKIK + '.FKIK', utils.getConstraint('Orient', JNT_WristAnkle[3:]) + '.' + REV_WristAnkle + 'W0' )  
 
     ############################# 
-    if utils.getIKSystem() == 'HingeLimb':
+    if utils.getIKSystem() == 'HindLimb':
         utils.printSubheader('Creating Hip/Clavivle Head connections')
         cmds.parentConstraint( CTRL_ClavHipHead, JNT_ClavHipHead, n=utils.getConstraint('Parent', CTRL_ClavHipHead[4:]), mo=True)
         cmds.parent( getOffset(CTRL_ClavHip), CTRL_ClavHipHead )
@@ -590,7 +609,7 @@ def connectLimb():
     
     #############################
     utils.printSubheader('Setting the toggle visiblity for the controllers')
-    if utils.getIKSystem() == 'HingeLimb':
+    if utils.getIKSystem() == 'HindLimb':
         cmds.connectAttr( reverseAnkle + '.outputY', CTRL_ClavHip + '.visibility', f=True )
         cmds.connectAttr( CTRL_LimbSwitch_FKIK + '.FKIK', CTRL_UpperLimbPV + '.visibility', f=True )
         cmds.connectAttr( CTRL_LimbSwitch_FKIK + '.FKIK', PV_UpperLine + '.visibility', f=True )
@@ -628,10 +647,13 @@ def connectLimb():
     utils.lockAndHideAttribute(CTRL_WristAnkle, True, False)
     if utils.getFootReverse() == 'Yes' or not cmds.checkBox( 'UseDeleteHandFootCB', q=True, v=True ):
         utils.lockAndHideAttribute(CTRL_HandFoot, True, False)
-    for n in range(cmds.intSliderGrp( 'NumFingerToes', q=True, v=True )): 
-        utils.lockAndHideAttribute(fingToeControllers[n], True, False)
+    '''
+    for f in handFoot:
+        for p in f:
+            utils.lockAndHideAttribute('CTRL' + sidePos + p, True, False)
+    '''
     utils.lockAndHideAttribute(CTRL_WristAnkle_IK, False, False)
-    if utils.getIKSystem() == 'HingeLimb':
+    if utils.getIKSystem() == 'HindLimb':
         utils.lockAndHideAttribute(CTRL_ClavHipHead, False, False)
         utils.lockAndHideAttribute(CTRL_ClavHip, True, False)
         utils.lockAndHideAttribute(CTRL_UpperLimbPV, False, True)
@@ -640,7 +662,10 @@ def connectLimb():
         cmds.setAttr( CTRL_LowerLimbIK + '.translateY', k=False, l=True, cb=False )  
     utils.lockAndHideAttribute(CTRL_LowerLimbPV, False, True)
     utils.lockAndHideAttribute(CTRL_LimbSwitch_FKIK, True, True)
-
+    
+    for o in offsets:
+        utils.lockAndHideOffset(o, True)
+        
     cmds.select( d=True )
 
 
@@ -677,8 +702,14 @@ def getOffset(ctrl):
 
 
 
-def createFootReverseSystem():
+def createFootReverseSystem(isMirror):
     utils.printHeader('ADDING REVERSE FOOT')
+    
+    #############################
+    utils.printSubheader('Unlocking attributes')
+    for rf in reverseFoot:
+        rev = 'REV' + sidePos + rf
+        utils.lockAndHideOffset(rev, False)
     
     #############################
     utils.printSubheader('Adding attributes')
@@ -721,9 +752,26 @@ def createFootReverseSystem():
     cmds.connectAttr( conditionBalance + '.outColorG', multDivReverse + '.input1Y' )
     cmds.connectAttr( multDivReverse + '.outputX', REV_Ext + '.rotateZ' )
     cmds.connectAttr( multDivReverse + '.outputY', REV_Int + '.rotateZ' )
-    
-    if utils.getSideFromBone(RTvars.limbStartingBone) == 'R_':
-        cmds.confirmDialog( t='Foot reverse Setup', m='Don\'t forget to swith between   <b>' + REV_Int + '</b>   and   <b>' +  REV_Ext + '</b>   anchors.', b=['OK'], p=RTvars.winName )
+
+    #############################
+    if isMirror:
+        utils.printSubheader('Swaping int and ext pivots')
+        posExt = cmds.xform( REV_Ext , ws=True, piv=True, q=True)
+        posInt = cmds.xform( REV_Int , ws=True, piv=True, q=True)
+        cmds.move( posExt[0], posExt[1], posExt[2], REV_Int + '.scalePivot', REV_Int + '.rotatePivot', a=True )
+        cmds.move( posInt[0], posInt[1], posInt[2], REV_Ext + '.scalePivot', REV_Ext + '.rotatePivot', a=True )
+        tmpExt = REV_Ext + 'tmp'
+        cmds.rename( REV_Ext, tmpExt )
+        cmds.rename( REV_Int, REV_Ext )
+        cmds.rename( tmpExt, REV_Int )
+        cmds.select(d=True)
+
+    #############################
+    utils.printSubheader('Locking and hidding unused attributes')
+    for rf in reverseFoot:
+        rev = 'REV' + sidePos + rf
+        cmds.setAttr( rev + '.visibility', 0 )
+        utils.lockAndHideOffset(rev, True)
 
 
 
@@ -736,7 +784,7 @@ def createStretchSystem(*args):
     addAttribute(CTRL_WristAnkle_IK, 'Stretch', '', 0, 0, 1)
     addAttribute(CTRL_WristAnkle_IK, 'StretchCompensation', 'Compensation', 0, 0, 1000)
     addAttribute(CTRL_WristAnkle_IK, 'StretchVolume', 'Volume', 0, 0, 1)
-    if utils.getIKSystem() == 'HingeLimb':
+    if utils.getIKSystem() == 'HindLimb':
         joints = [JNT_ClavHip, JNT_UpperLimb, JNT_LowerLimb, JNT_WristAnkle]
     else:
         joints = [JNT_UpperLimb, JNT_LowerLimb, JNT_WristAnkle]
@@ -745,7 +793,7 @@ def createStretchSystem(*args):
     utils.printSubheader('Creating and connect stretch distance')
     upperBone = cmds.xform( joints[0], q=True, m=True, ws=True )
     lowerBone = cmds.xform( JNT_WristAnkle, q=True, m=True, ws=True )
-    upper = utils.getNameControl(6, CTRL_ClavHip if utils.getIKSystem() == 'HingeLimb' else CTRL_UpperLimb, 'n')[1:]
+    upper = utils.getNameControl(6, CTRL_ClavHip if utils.getIKSystem() == 'HindLimb' else CTRL_UpperLimb, 'n')[1:]
     lower = utils.getNameControl(6, CTRL_WristAnkle, 'n')
     distance = utils.createDistanceMeasure(sidePos + upper + lower, joints[0][3:], JNT_WristAnkle[3:])
     cmds.xform( distance[1], m=upperBone, ws=True )
@@ -796,7 +844,7 @@ def createStretchSystem(*args):
     cmds.setAttr( clampTwist + '.minR', 1 )
     cmds.setAttr( clampTwist + '.maxR', 999 )
     cmds.connectAttr( blendColTwist + '.outputR', clampTwist + '.inputR')
-    if utils.getIKSystem() == 'HingeLimb':
+    if utils.getIKSystem() == 'HindLimb':
         cmds.connectAttr( clampTwist + '.outputR', JNT_ClavHip + '.scaleX' )
     cmds.connectAttr( clampTwist + '.outputR', JNT_UpperLimb + '.scaleX' )
     cmds.connectAttr( clampTwist + '.outputR', JNT_LowerLimb + '.scaleX' )
@@ -834,9 +882,10 @@ def createStretchSystem(*args):
     if utils.getFootReverse() == 'Yes' or not cmds.checkBox( 'UseDeleteHandFootCB', q=True, v=True ):
         cmds.parent( JNT_HandFoot, JNT_WristAnkle )
     else:
-        fingToeJoints = [ JNT_FingToeRing, JNT_FingToeMid, JNT_FingToeInd, JNT_FingToeThumb, JNT_FingToePinky ]
-        for n in range(cmds.intSliderGrp( 'NumFingerToes', q=True, v=True )):
-            cmds.parent( fingToeJoints[n], JNT_WristAnkle )
+        handFoot = RThands.getHandFootHierarchy()
+        for f in handFoot:
+            f.reverse()
+            cmds.parent( 'JNT' + sidePos + f[0], JNT_WristAnkle )
 
     #############################
     utils.printSubheader('Calculating stretch compensation') 
