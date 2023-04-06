@@ -912,7 +912,46 @@ def createStretchSystem(*args):
     cmds.setAttr( CTRL_WristAnkle_IK + '.Stretch', 0 )
 
 
+def convertIKtoObject():
+    CTRL_Wrist_IK = sel[0]
+    OFFSET_Wrist_IK = 'OFFSET' + CTRL_Wrist_IK[4:]
+    CTRL_Wrist_O = CTRL_Wrist_IK[:-3]
+    OFFSET_Wrist_O = 'OFFSET' + CTRL_Wrist_O[4:]
+    CTRL_Wrist_IK_World = CTRL_Wrist_IK + '_World'
+    OFFSET_Wrist_IK_World = OFFSET_Wrist_IK + '_World'
+    SNAP_Wrist_IK_World = 'SNAP' + CTRL_Wrist_IK[4:]
     
+    cmds.rename( OFFSET_Wrist_IK, OFFSET_Wrist_IK_World)
+    cmds.rename( CTRL_Wrist_IK, CTRL_Wrist_IK_World)
+    
+    cmds.duplicate( OFFSET_Wrist_O, n=OFFSET_Wrist_IK, rc=True )
+    cmds.parent( OFFSET_Wrist_IK, w=True )
+    chld = cmds.listRelatives( OFFSET_Wrist_IK, ad=True )
+    cmds.delete( chld )
+    cmds.duplicate( CTRL_Wrist_IK_World, n=CTRL_Wrist_IK, rc=True )
+    chld = cmds.listRelatives( CTRL_Wrist_IK, ad=True )
+    
+    for c in range(len(chld)):
+        if c==0:
+            pass
+        else: 
+            cmds.delete( chld[c] )
+    
+    cmds.parent( CTRL_Wrist_IK, OFFSET_Wrist_IK )
+    cmds.refresh()
+    cmds.makeIdentity(apply=True, t=1, r=1, n=0)
+    cmds.parent( OFFSET_Wrist_IK_World, CTRL_Wrist_IK )
+    cmds.select( CTRL_Wrist_IK_World + '_Shape.cv[0:16]' )
+    
+    cmds.connectAttr( CTRL_Wrist_IK + '.Stretch', CTRL_Wrist_IK_World + '.Stretch' )
+    cmds.connectAttr( CTRL_Wrist_IK + '.StretchVolume', CTRL_Wrist_IK_World + '.StretchVolume' )
+    cmds.connectAttr( CTRL_Wrist_IK_World + '.visibility', CTRL_Wrist_IK + '.visibility' )
+    
+    cmds.delete( SNAP_Wrist_IK_World )
+    cmds.duplicate( 'SNAP' + CTRL_Wrist_O[4:], n=SNAP_Wrist_IK_World )
+    
+    cmds.select( CTRL_Wrist_IK )
+
     
 
 JNT_ClavHip = 'JNT__L_Hip'
