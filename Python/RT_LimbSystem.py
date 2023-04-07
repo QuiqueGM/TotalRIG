@@ -963,11 +963,22 @@ def convertIKtoObject():
 
 
 def deleteLimbSystem():
+    utils.printHeader('DELETING LIMB SYSTEM...')
+    sel = cmds.ls(sl=True)
+    if RTeh.GetSelectionException(sel): return
+
     RTvars.limbStartingBone = sel[0]
     assignVariables(False)
 
+    utils.printSubheader('Deleting helpers...')
     cmds.delete( 'VECTOR' + sidePos + offsetsLimb[2] )
-    cmds.delete( 'IKH_SYSTEM' + sidePos + offsetsLimb[7] )
+    
+    
+    if utils.getIKSystem() == 'SimpleLimb':
+        cmds.delete( 'IKH_SYSTEM' + sidePos + offsetsLimb[4] )
+    else:
+        cmds.delete( 'VECTOR' + sidePos + offsetsLimb[4] )
+        cmds.delete( 'IKH_SYSTEM' + sidePos + offsetsLimb[7] )
         
     utils.printSubheader('Deleting PV...')
     PV = sidePos + offsetsLimb[3]
@@ -975,26 +986,40 @@ def deleteLimbSystem():
     cmds.delete( 'CLST' + sidePos + offsetsLimb[2] + '_Handle' )
     cmds.delete( 'CLST' + PV + '_Handle' )
     cmds.delete( 'SPSW_PARENT' + PV + '_MASTER' )
+    
+    if utils.getIKSystem() == 'HindLimb':
+        PV = sidePos + offsetsLimb[5]
+        cmds.delete( 'LINE' + PV )
+        cmds.delete( 'CLST' + sidePos + offsetsLimb[4] + '_Handle' )
+        cmds.delete( 'CLST' + PV + '_Handle' )
+        cmds.delete( 'SPSW_PARENT' + PV + '_MASTER' )
         
+    utils.printSubheader('Deleting limb...')
     cmds.delete( RTvars.limbStartingBone )
     
     try:
         cmds.delete( 'LOC' + sidePos + offsetsLimb[1] )
+        cmds.delete( 'LOC' + sidePos + offsetsLimb[4 if utils.getIKSystem() == 'SimpleLimb' else 7] )
         
         for n in range(0, 5):
             try:
                 cmds.delete( 'JNT' + sidePos + limbBones[n] )
             except:
                 pass
+    except:
+        print ('No stretch system found...')
 
+    utils.printSubheader('Deleting controllers...')
     for o in offsetsLimb:
         try:
             cmds.delete( 'OFFSET' + sidePos + o )
         except:
             pass
     
+    utils.printSubheader('Deleting unused nodes...') 
     mel.eval('MLdeleteUnused;')
-
+    
+    utils.printSubheader('Restoring joint hierarchy...')
     cmds.parent( RTvars.limbStartingBone + '_BACK_UP', w=True )
     cmds.refresh()
     cmds.makeIdentity(apply=True, t=1, r=1, s=1, n=0)
@@ -1004,6 +1029,7 @@ def deleteLimbSystem():
     for n in cmds.listRelatives( RTvars.limbStartingBone, ad=True, s=False ):
         cmds.rename( n, n[:-1] )
             
+    utils.printSubheader('Restoring controllers hierarchy...')
     for o in offsetsLimb:
         name = 'OFFSET' + sidePos + o
         backUp = name + '_BACK_UP'
@@ -1012,10 +1038,29 @@ def deleteLimbSystem():
         for n in cmds.listRelatives( name, ad=True, s=False ):
             cmds.rename( n, n[:-1] )
 
+    utils.printSubheader('Deleting groups...')
     try:
-		cmds.delete( 'SPSW_ORIENT' + sidePos + 'Arm_MASTER' )
-		cmds.delete( 'ARM' + sidePos[:-1] )
+        if utils.getHierarchy() == 'Arm':
+            cmds.delete( 'SPSW_ORIENT' + sidePos + 'Arm_MASTER' )
+            cmds.delete( 'ARM' + sidePos[:-1] )
+        else:
+            cmds.delete( 'SPSW_ORIENT' + sidePos + 'Hip_MASTER' )
+            cmds.delete( 'LEG' + sidePos[:-1] )
+    except:
+        print ('No groups found')
 
+
+def deleteLimb():
+    utils.printHeader('DELETING WHOLE LIMB...')
+    deleteLimbSystem()
+    
+    cmds.delete( RTvars.limbStartingBone + '_BACK_UP' )
+    cmds.select( RTvars.limbStartingBone )
+    RT_Utilities.renameLimb()
+    utils.printSubheader('Deleting Controllers...')
+    for o in offsetsLimb:
+        cmds.delete( 'OFFSET' + sidePos + o )
+ 
 
 JNT_ClavHip = 'JNT__L_Hip'
 JNT_UpperLimb = 'JNT__L_UpperLeg'
