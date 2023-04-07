@@ -913,6 +913,11 @@ def createStretchSystem(*args):
 
 
 def convertIKtoObject():
+    sel = cmds.ls(sl=True)
+    if RTeh.GetSelectionException(sel): return
+    
+    utils.printHeader('CHANGING IK WORLD TO OBJECT')
+    utils.printSubheader('Defining variables...')
     CTRL_Wrist_IK = sel[0]
     OFFSET_Wrist_IK = 'OFFSET' + CTRL_Wrist_IK[4:]
     CTRL_Wrist_O = CTRL_Wrist_IK[:-3]
@@ -921,6 +926,7 @@ def convertIKtoObject():
     OFFSET_Wrist_IK_World = OFFSET_Wrist_IK + '_World'
     SNAP_Wrist_IK_World = 'SNAP' + CTRL_Wrist_IK[4:]
     
+    utils.printSubheader('Creating new Object controller...')
     cmds.rename( OFFSET_Wrist_IK, OFFSET_Wrist_IK_World)
     cmds.rename( CTRL_Wrist_IK, CTRL_Wrist_IK_World)
     
@@ -942,17 +948,20 @@ def convertIKtoObject():
     cmds.makeIdentity(apply=True, t=1, r=1, n=0)
     cmds.parent( OFFSET_Wrist_IK_World, CTRL_Wrist_IK )
     cmds.select( CTRL_Wrist_IK_World + '_Shape.cv[0:16]' )
+    cmds.scale( 0.001, 0.001, 0.001 )
     
+    utils.printSubheader('Setting connections with the IK controller...')
     cmds.connectAttr( CTRL_Wrist_IK + '.Stretch', CTRL_Wrist_IK_World + '.Stretch' )
     cmds.connectAttr( CTRL_Wrist_IK + '.StretchVolume', CTRL_Wrist_IK_World + '.StretchVolume' )
     cmds.connectAttr( CTRL_Wrist_IK_World + '.visibility', CTRL_Wrist_IK + '.visibility' )
     
+    utils.printSubheader('Setting new snap...')
     cmds.delete( SNAP_Wrist_IK_World )
     cmds.duplicate( 'SNAP' + CTRL_Wrist_O[4:], n=SNAP_Wrist_IK_World )
     
     cmds.select( CTRL_Wrist_IK )
 
-    
+
 
 JNT_ClavHip = 'JNT__L_Hip'
 JNT_UpperLimb = 'JNT__L_UpperLeg'
