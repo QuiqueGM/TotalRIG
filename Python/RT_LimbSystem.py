@@ -962,6 +962,60 @@ def convertIKtoObject():
     cmds.select( CTRL_Wrist_IK )
 
 
+def deleteLimbSystem():
+    RTvars.limbStartingBone = sel[0]
+    assignVariables(False)
+
+    cmds.delete( 'VECTOR' + sidePos + offsetsLimb[2] )
+    cmds.delete( 'IKH_SYSTEM' + sidePos + offsetsLimb[7] )
+        
+    utils.printSubheader('Deleting PV...')
+    PV = sidePos + offsetsLimb[3]
+    cmds.delete( 'LINE' + PV )
+    cmds.delete( 'CLST' + sidePos + offsetsLimb[2] + '_Handle' )
+    cmds.delete( 'CLST' + PV + '_Handle' )
+    cmds.delete( 'SPSW_PARENT' + PV + '_MASTER' )
+        
+    cmds.delete( RTvars.limbStartingBone )
+    
+    try:
+        cmds.delete( 'LOC' + sidePos + offsetsLimb[1] )
+        
+        for n in range(0, 5):
+            try:
+                cmds.delete( 'JNT' + sidePos + limbBones[n] )
+            except:
+                pass
+
+    for o in offsetsLimb:
+        try:
+            cmds.delete( 'OFFSET' + sidePos + o )
+        except:
+            pass
+    
+    mel.eval('MLdeleteUnused;')
+
+    cmds.parent( RTvars.limbStartingBone + '_BACK_UP', w=True )
+    cmds.refresh()
+    cmds.makeIdentity(apply=True, t=1, r=1, s=1, n=0)
+    cmds.rename( RTvars.limbStartingBone + '_BACK_UP', RTvars.limbStartingBone )
+    
+    createLimbBackUp(RTvars.limbStartingBone)
+    for n in cmds.listRelatives( RTvars.limbStartingBone, ad=True, s=False ):
+        cmds.rename( n, n[:-1] )
+            
+    for o in offsetsLimb:
+        name = 'OFFSET' + sidePos + o
+        backUp = name + '_BACK_UP'
+        cmds.parent( backUp, w=True )
+        cmds.rename( backUp, name )
+        for n in cmds.listRelatives( name, ad=True, s=False ):
+            cmds.rename( n, n[:-1] )
+
+    try:
+		cmds.delete( 'SPSW_ORIENT' + sidePos + 'Arm_MASTER' )
+		cmds.delete( 'ARM' + sidePos[:-1] )
+
 
 JNT_ClavHip = 'JNT__L_Hip'
 JNT_UpperLimb = 'JNT__L_UpperLeg'
