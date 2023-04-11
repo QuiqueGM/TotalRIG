@@ -2,6 +2,30 @@ import RT_Utils as utils
 import maya.cmds as cmds
 
 
+def addHandLayout(value, reset=False):
+    if reset == True:
+        RTvars.handLayout = value
+    else:
+        RTvars.handLayout += value
+    
+    if RTvars.handLayout <= 50:
+        cmds.checkBox( 'UseSimpleNameCB', edit=True, en=True, v=True )
+    else:
+        cmds.checkBox( 'UseSimpleNameCB', edit=True, en=False, v=False )
+        
+    if RTvars.handLayout >= 1000:
+        cmds.checkBox( 'CreateDoubleOffsetCB', edit=True, en=True, v=True )
+        cmds.floatSliderGrp( 'OverrideControllerSize', edit=True, en=True )
+    else:
+        cmds.checkBox( 'CreateDoubleOffsetCB', edit=True, en=True, v=False )
+        cmds.floatSliderGrp( 'OverrideControllerSize', edit=True, en=False )
+
+
+
+def getFingerSizeController():
+	return cmds.floatSliderGrp( 'OverrideControllerSize', q=True, v=True )
+		
+
 
 def simple3Layout():
     setLayout(False, False, False, True, False, False, True, False, False, True, False, False, False, False, False, 30)
