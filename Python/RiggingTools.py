@@ -127,6 +127,45 @@ def rigginToolsUI():
     createButtonAction(3,'', 'Convert IK World to IK Object', convertIKtoObject, False)
     createTwoButtonsAction(3,'dwl', 'Delete whole limb', deleteLimb, 'dls', 'Delete limb system', deleteLimbSystem, True)
 
+	toolHeader('handsSetupTab', '---------   HANDS SET-UP  ---------')
+    mainCL = cmds.columnLayout() 
+    colsWidth = [winWidth*0.4, winWidth*0.05, winWidth*0.55] 
+    cmds.rowLayout(w=winWidth, nc=3, cw3=colsWidth, rowAttach=(3, 'top', 0))
+    cmds.columnLayout(w=colsWidth[0])
+    subHeader(1, 'PRESSETS', 3)
+    #pressetButton(colsWidth[0], 'Clear layout', clearLayout)
+    pressetButton(colsWidth[0], 'Basic hand (3)', simple3Layout)
+    pressetButton(colsWidth[0], 'Basic hand (4)', simple4Layout)        
+    pressetButton(colsWidth[0], 'Dragon (4/1)', dragonLayout)
+    pressetButton(colsWidth[0], 'Simple hand (4/1/1)', simpleHandLayout)
+    pressetButton(colsWidth[0], 'Full hand (5/1/1)', fullHandLayout)  
+    cmds.setParent('..')
+    cmds.columnLayout(w=colsWidth[1])
+    cmds.setParent('..')
+    cmds.columnLayout(w=colsWidth[2])
+    subHeader(1, 'LAYOUT', 3)
+    cmds.text(label='          Proximal           Middle              Distal', w=colsWidth[2])
+    verticalSpace(7)
+    layoutFinger(colsWidth[2], 'Thumb', False)
+    layoutFinger(colsWidth[2], 'Index', True)
+    layoutFinger(colsWidth[2], 'Middle', True)
+    layoutFinger(colsWidth[2], 'Ring', True)
+    layoutFinger(colsWidth[2], 'Pinky', True)
+    cmds.setParent(mainCL)
+    verticalSpace(5)
+    createThreeRadioCollection('HandsParentConst', 'Parent constraint', False, 'HandsOrientConst', 'Orient constraint', True, 'HandsPointConst', 'Point constraint', False, 0.1)
+    verticalSpace(1)
+    createCheckbox(0.2, 'UseSimpleNameCB', 'Use short naming convention', emptyCallback, True, True)
+    createCheckbox(0.2, 'CreateDoubleOffsetCB', 'Create double offset in fingers / toes', emptyCallback, False, True)
+    createCheckbox(0.2, 'ControllersAlongBonesCB', 'Orient controllers along the bones', emptyCallback, True, True)
+    rowWidth = [winWidth*0.2, winWidth*0.3, winWidth*.3 ]
+    cmds.rowLayout( nc=3, cw3=rowWidth )
+    cmds.text( l='', w=rowWidth[0] )
+    cmds.checkBox( 'OverideFingerControllerSizeCB', l='Override controller size', w=rowWidth[1], cc=enableOverrideSize, v=False, en=True )          
+    cmds.floatSliderGrp( 'OverrideControllerSize', min=0.001, max=0.05, s=0.005, field=True, value=0.015, adj=1, cal=(1, "left"), w=rowWidth[2], en=False )
+    cmds.setParent( '..' )
+    cmds.setParent('..')
+	
     toolHeader('ribbonSystemTab', '---------   RIBBON SYSTEM  ---------')
     subHeader(1, 'JOINTS', 5)
     createTextFieldButtonGrp('RBBottomJoint', 'Top Joint', partial(addObject, 'RBBottomJoint'), True)    
@@ -570,13 +609,30 @@ def createSSforPoleVector(*args):
     RT_LimbSystem.createSSforPoleVector()
 
 
+### HANDS
 
+def addHandLayout(value, *args):
+    RT_HandsSetup.addHandLayout(value)
+    
+def clearLayout(*args):
+    RT_HandsSetup.clearLayout()
 
 def dragonLayout(*args):
     RT_HandsSetup.dragonLayout()
 
 def simple3Layout(*args):
     RT_HandsSetup.simple3Layout()
+
+def simple4Layout(*args):
+    RT_HandsSetup.simple4Layout()
+
+def simpleHandLayout(*args):
+    RT_HandsSetup.simpleHandLayout()
+
+def fullHandLayout(*args):
+    RT_HandsSetup.fullHandLayout()
+
+
 
 
 
