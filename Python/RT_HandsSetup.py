@@ -1,5 +1,47 @@
+import RT_GlobalVariables as RTvars
+import RT_ErrorsHandler as RTeh
 import RT_Utils as utils
 import maya.cmds as cmds
+
+
+def getFullHandFootHierarchy():
+    fingerToe = 'Finger' if utils.getHierarchy() == 'Arm' else 'Toe'
+
+    handFoot = []
+    for n in RTvars.fingersToes:
+        for p in RTvars.phalanges:
+            if cmds.checkBox( n + p + 'CB', q=True, v=True ):
+                if cmds.checkBox( 'UseSimpleNameCB', q=True, v=True ):
+                    handFoot.append( fingerToe + n )
+                else:
+                    handFoot.append( fingerToe + n + p )
+                    
+    return handFoot
+
+
+
+def getHandFootHierarchy():
+    fingerToe = 'Finger' if utils.getHierarchy() == 'Arm' else 'Toe'
+    handFoot = []
+    fingersToes = []
+    for n in RTvars.fingersToes:
+        for p in RTvars.phalanges:
+            if cmds.checkBox( n + p + 'CB', q=True, v=True ):
+                if cmds.checkBox( 'UseSimpleNameCB', q=True, v=True ):
+                    fingersToes.append( fingerToe + n )
+                else:
+                    fingersToes.append( fingerToe + n + p )
+                    
+        if len(fingersToes) > 0:         
+            handFoot.append(fingersToes)
+            
+        fingersToes = []
+    
+    for f in handFoot:
+        f.reverse()
+    
+    return handFoot
+
 
 
 def addHandLayout(value, reset=False):
@@ -15,15 +57,20 @@ def addHandLayout(value, reset=False):
         
     if RTvars.handLayout >= 1000:
         cmds.checkBox( 'CreateDoubleOffsetCB', edit=True, en=True, v=True )
+        cmds.checkBox( 'OverideFingerControllerSizeCB', edit=True, v=True )
         cmds.floatSliderGrp( 'OverrideControllerSize', edit=True, en=True )
     else:
         cmds.checkBox( 'CreateDoubleOffsetCB', edit=True, en=True, v=False )
+        cmds.checkBox( 'OverideFingerControllerSizeCB', edit=True, v=False )
         cmds.floatSliderGrp( 'OverrideControllerSize', edit=True, en=False )
 
 
 
 def getFingerSizeController():
-	return cmds.floatSliderGrp( 'OverrideControllerSize', q=True, v=True )
+        if cmds.checkBox( 'OverideFingerControllerSizeCB', q=True, v=True ):
+            return cmds.floatSliderGrp( 'OverrideControllerSize', q=True, v=True )
+        else:
+            return RTvars.fingerControllerSizeDefault
 		
 
 
@@ -71,6 +118,21 @@ def setLayout(thumbProx, thumbInt, thumbDist, indexProx, indexInt, indexDist, mi
 
 
 
-def createHandFoot():
-    utils.printHeader('CREATE HAND / FOOT')
-    utils.printSubheader('WIP...')
+def getHierarchyLayout():
+    utils.printHeader('GET HIERARCHY LAYOUT')
+    
+    sel = cmds.ls(sl=True)
+    if RTeh.GetSelectionException(sel): return
+    
+    fingerToe = 'Finger' if sel[0].find('Hand') > -1 else 'Toe'
+    pattern = 'OFFSET__' + utils.getSideFromBone(sel[0]) + utils.getPositionFromBone(sel[0]) + fingerToe
+            
+    dk = getListOfDrivenKeys(pattern)
+    
+    clearLayout()
+    
+    for n in RTvars.fingersToes:
+        for p in RTvars.phalanges:
+            for d in dk:
+                if d.find(n + p) > -1:
+                    cmds.checkBox( n+p+'CB', edit=True, v=True )
