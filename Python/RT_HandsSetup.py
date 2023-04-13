@@ -74,6 +74,11 @@ def getFingerSizeController():
 		
 
 
+def clearLayout():
+    setLayout(False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, 0)
+
+
+
 def simple3Layout():
     setLayout(False, False, False, True, False, False, True, False, False, True, False, False, False, False, False, 30)
 
@@ -115,6 +120,7 @@ def setLayout(thumbProx, thumbInt, thumbDist, indexProx, indexInt, indexDist, mi
     cmds.checkBox( 'PinkyProximalCB', edit=True, v=pinkyProx )
     cmds.checkBox( 'PinkyMiddleCB', edit=True, v=pinkyInt )
     cmds.checkBox( 'PinkyDistalCB', edit=True, v=pinkyDist )                
+    addHandLayout(layoutValue, True)
 
 
 
@@ -136,3 +142,84 @@ def getHierarchyLayout():
             for d in dk:
                 if d.find(n + p) > -1:
                     cmds.checkBox( n+p+'CB', edit=True, v=True )
+					
+
+def saveHand(state):
+    dks = []
+    for s in sel:
+        dk = []
+        dk.append(s)
+        dk.append(cmds.xform( s, query=True, ro=True, os=True ))
+        dks.append(dk)
+
+    if state == 'CLOSED':
+        RTvars.drivenKeyClosed= dks
+    else:
+        RTvars.drivenKeyOpen = dks
+
+
+
+def saveDrivenKeysHand():    
+    handFoot = 'HAND' if sel[0].find('Arm') > -1 else 'FOOT'
+    utils.addAttrSeparator(sel[0], 'HandBehaviourSeparator', handFoot)
+    cmds.addAttr( ln='Hand', nn='Open / Close', at="long", k=True, dv=0, min=-100, max=100 )
+    hand = sel[0] + '.Hand'
+    
+    for phalange in RTvars.drivenKeyClosed:
+        resetDrivenKeyToPhalange(hand, sel, phalange)
+
+    for phalange in RTvars.drivenKeyClosed:
+        connectDrivenKeyToPhalange(hand, sel, phalange, 100)
+
+    for phalange in RTvars.drivenKeyOpen:
+        connectDrivenKeyToPhalange(hand, sel, phalange, -100)
+
+    cmds.setAttr( hand, 0 )
+
+    
+
+
+def resetDrivenKeyToPhalange(hand, sel, phalange):
+    cmds.setAttr( hand, 0 )
+    for r in RTvars.rotAttr:
+        cmds.setAttr( phalange[0] + r, 0 )
+        cmds.setDrivenKeyframe( phalange[0] + r, cd=hand )    
+
+
+
+def connectDrivenKeyToPhalange(hand, sel, phalange, value):
+    cmds.setAttr( hand, value )
+    cmds.setAttr( phalange[0] + '.rotateX', phalange[1][0] )
+    cmds.setAttr( phalange[0] + '.rotateY', phalange[1][1] )
+    cmds.setAttr( phalange[0] + '.rotateZ', phalange[1][2] )
+    for r in RTvars.rotAttr:
+        cmds.setDrivenKeyframe( phalange[0] + r, cd=hand )   
+
+
+def getListOfDrivenKeys(pattern):  
+    sidePos = utils.getSideFromBone(sel[0])
+    children = cmds.listRelatives(ad=True)
+    dk = []
+    for c in children:
+        if c.find(pattern) > -1:
+            dk.append(c)
+
+    return dk    
+
+
+
+def mirrorDrivenKeysHand():
+    hand = 'CTRL__L_ArmSwitch_FKIK.Hand'
+    cmds.setAttr( hand, 100 )
+    cmds.select( 'OFFSET__L_Hand' )
+    selectDrivenKeys('DRIVEN_KEY')
+    
+    saveHand('CLOSED')
+    cmds.setAttr( hand, -100 )
+    saveHand('OPEN')
+    
+    for phalange in RTvars.drivenKeyClosed:
+        phalange[0] = phalange[0].replace('__L_', '__R_')
+    
+    cmds.select( 'CTRL__R_ArmSwitch_FKIK' )
+        					
