@@ -8,6 +8,7 @@ import RT_Rename
 import RT_Controllers
 import RT_FillTools
 import RT_LimbSystem
+import RT_HandsSetup
 import RT_ChainTools
 import RT_SpaceSwitch
 import RT_RibbonSystem
@@ -16,11 +17,14 @@ import RT_HeadUtilities
 import RT_Utilities
 import maya.cmds as cmds
 from functools import partial
+from importlib import reload
 
 reload(RTvars)
+reload(RTeh)
 reload(RT_Utils)
 reload(RT_RibbonSystem)
 reload(RT_LimbSystem)
+reload(RT_HandsSetup)
 reload(RT_RibbonSystem)
 reload(RT_ChainTools)
 reload(RT_Controllers)
@@ -31,8 +35,9 @@ reload(RT_Utilities)
 reload(RT_Rename)
 reload(RT_FillTools)
 
+
 winWidth = 560
-winHeight = 400
+winHeight = 420
 margin = 10
 
 def rigginToolsUI():
@@ -48,18 +53,18 @@ def rigginToolsUI():
     
     toolHeader('renameBonesTab', '---------   RENAME BONES   ---------')
     subHeader(1, 'SIDE AND POSITION', 1)
-    createRadioCollectionForRenaming('LeftSide', 'Left', True, 'RightSide', 'Right', False, 'CenterSide', 'Center', False)
-    createRadioCollectionForRenaming('FrontPos', 'Front', False, 'BackPos', 'Back', False, 'NonePose', 'None', True)
+    createThreeRadioCollection('LeftSide', 'Left', True, 'RightSide', 'Right', False, 'CenterSide', 'Center', False)
+    createThreeRadioCollection('FrontPos', 'Front', False, 'BackPos', 'Back', False, 'NonePose', 'None', True)
     verticalSpace(5)
     subHeader(1, 'PREDEFINED NAMES', 5)
     rowWidth = [winWidth*0.08, winWidth*0.35, winWidth*0.1, winWidth*0.35]
     cmds.rowLayout( nc=4, cw4=rowWidth )
     cmds.text( l='', w=rowWidth[0])
     cmds.optionMenu( 'AreaOM', w=rowWidth[1], l='Area   ', cc=fillAreas)
-    cmds.menuItem( l='Arm' )    
-    cmds.menuItem( l='Leg' )
     cmds.menuItem( l='Body' )
     cmds.menuItem( l='Head' )
+    cmds.menuItem( l='Arm' )    
+    cmds.menuItem( l='Leg' )    
     cmds.text( l='', w=rowWidth[2])
     cmds.optionMenu( 'JointOM', w=rowWidth[3], l='Joint   ', cc=returnBone )
     fillAreas()
@@ -111,7 +116,6 @@ def rigginToolsUI():
     createCheckbox(0.1, 'UseDeleteHandFootCB', 'Remove Hand/Foot', emptyCallback, True, False)
     createCheckbox(0.1, 'UseMirrorCB', 'Actvate mirror', emptyCallback, True, True)  # True, True)
     createCheckbox(0.1, 'UseStretchCB', 'Create stretch system', emptyCallback, True, True) # True, True)
-    
     """
     rowWidth = [winWidth*0.1, winWidth*0.4, winWidth*0.3]
     cmds.rowLayout( nc=3, cw3=rowWidth )
@@ -127,7 +131,7 @@ def rigginToolsUI():
     createButtonAction(3,'', 'Convert IK World to IK Object', convertIKtoObject, False)
     createTwoButtonsAction(3,'dwl', 'Delete whole limb', deleteLimb, 'dls', 'Delete limb system', deleteLimbSystem, True)
 
-	toolHeader('handsSetupTab', '---------   HANDS SET-UP  ---------')
+    toolHeader('handsSetupTab', '---------   HANDS SET-UP  ---------')
     mainCL = cmds.columnLayout() 
     colsWidth = [winWidth*0.4, winWidth*0.05, winWidth*0.55] 
     cmds.rowLayout(w=winWidth, nc=3, cw3=colsWidth, rowAttach=(3, 'top', 0))
@@ -165,23 +169,32 @@ def rigginToolsUI():
     cmds.floatSliderGrp( 'OverrideControllerSize', min=0.001, max=0.05, s=0.005, field=True, value=0.015, adj=1, cal=(1, "left"), w=rowWidth[2], en=False )
     cmds.setParent( '..' )
     cmds.setParent('..')
-	
+    createSpaceForUtilities('---------   UTILITIES  ---------')
+    createTwoButtonsAction(3,'selectDrivenKeys', 'Selecy Driven Key Offsets', selectDrivenKeys, 'getHierarchyLayout', 'Get hierarchy layout', getHierarchyLayout, False)
+    createTwoButtonsAction(3,'saveClosedHand', 'Save Closed', saveCloseHand, 'saveOpenHand', 'Save Open', saveOpenHand,  False)
+    createTwoButtonsAction(3,'saveDrivenKeysHand', 'Create Driven Keys', saveDrivenKeysHand, 'mirrorDrivenKeysHand', 'Mirror Driven Keys', mirrorDrivenKeysHand, True)
+
     toolHeader('ribbonSystemTab', '---------   RIBBON SYSTEM  ---------')
     subHeader(1, 'JOINTS', 5)
     createTextFieldButtonGrp('RBBottomJoint', 'Top Joint', partial(addObject, 'RBBottomJoint'), True)    
     createTextFieldButtonGrp('RBTopJoint', 'Bottom  Joint', partial(addObject, 'RBTopJoint'), True)
     subHeader(7, 'OPTIONS', 5)
     rowWidth = [winWidth*0.1, winWidth*0.42, winWidth*0.42]
-    colWidth = [rowWidth[1]*0.2, rowWidth[1]*0.25, rowWidth[1]*0.3]
+    colWidth = [rowWidth[1]*0.3, rowWidth[1]*0.25, rowWidth[1]*0.3]
     cmds.rowLayout( nc=3, cw3=rowWidth )
     cmds.text( l='', w=rowWidth[0] )
     cmds.intSliderGrp( 'RBSpawns', l='Spawns', min=3, max=20, f=True, value=5, s=2, adj=1, cal=(1, "left"), cw3=colWidth )
     cmds.floatSliderGrp( 'RBRWidth', l='Width   ', f=True, min=0.05, max=0.5, v=0.10, s=0.05, cal=(1, "right"), cw3=colWidth )
     cmds.setParent( '..' )
+    cmds.rowLayout( nc=3, cw3=rowWidth )
+    cmds.text( l='', w=rowWidth[0] )
+    cmds.floatSliderGrp( 'RBSizeBottom', l='Bottom Size   ', f=True, min=0.05, max=0.5, v=0.30, s=0.01, cal=(1, "right"), cw3=colWidth )
+    cmds.floatSliderGrp( 'RBSizeTop', l='Top Size', f=True, min=0.05, max=0.5, v=0.30, s=0.01, cal=(1, "left"), cw3=colWidth )
+    cmds.setParent( '..' )
     verticalSpace(3)
     createButtonAction(10,'', 'Create Ribbon System', createRibbonSystem, False)
     createSpaceForUtilities('---------   UTILITIES  ---------')
-    createTwoButtonsAction(3,'dwl', 'Delete whole ribbon', deleteRibbon, 'dls', 'Delete but keep controllers', deleteRibbonKeepControllers, True)
+    createTwoButtonsAction(3,'dwl', 'Delete whole ribbon', deleteWholeRibbon, 'dls', 'Delete but keep controllers', deleteRibbonKeepControllers, True)
 
     toolHeader('chainToolsTab', '---------   CHAIN TOOLS  ---------')
     subHeader(1, 'REDEFINE CHAIN', 5)
@@ -198,7 +211,7 @@ def rigginToolsUI():
     createButtonAction(3,'', 'Create Chain Controllers', createChainControllers, False)
     subHeader(7, 'OPTIONS', 5)
     createCheckbox(0.1, 'UseMirrorChainCB', 'Activate mirror', emptyCallback, True, True)
-    createRadioCollectionForRenaming('ParentConst', 'Parent constraint', True, 'OrientConst', 'Orient constraint', False, 'PointConst', 'Point constraint', False, 0.1)
+    createThreeRadioCollection('ParentConst', 'Parent constraint', True, 'OrientConst', 'Orient constraint', False, 'PointConst', 'Point constraint', False, 0.1)
     createButtonAction(10,'', 'Create Chain System', createChainSystem, True)
 
     toolHeader('headControllerTab', '---------   HEAD CONTROLLER  ---------')
@@ -272,7 +285,7 @@ def rigginToolsUI():
     cmds.radioButton( 'DiamondCtrl', l='Diamond', w=rowWidth[3] )
     cmds.setParent( '..' )
     subHeader(5, 'ORIENTATION', 9)
-    createRadioCollection('ObjectCtrl', 'OBJECT orientation', 'WorldCtrl', 'WORLD orientation')
+    createRadioCollection('ObjectCtrl', 'Object', 'WorldCtrl', 'World')
     createButtonAction(3, '', 'Create Controller', partial(createController, '', '', '', '', '', ''), False)
     createSpaceForUtilities('---------   UTILITIES  ---------')
     createButtonAction(3, 'colorizeCtrl', 'Colorize Controller', partial(colorizeController), False)
@@ -282,23 +295,24 @@ def rigginToolsUI():
     verticalSpace(5)
     w = winWidth*0.9
     h = 30
-    createDoubleButtonUtility('Create Simple Joint - World', partial(createSimpleJoint, 'World'), 'Create Simple Joint - Z Up', partial(createSimpleJoint, 'ZUp'), w, h)
-    createFourButtonUtility('Orient Simple Chain', rotateAndOrientSimpleChainZUp, 'Orient Chain', orientSimpleChain, 'Orient End Joint', orientEndJoint, ' -- EMPTY -- ', emptyCallback, w, h)
+    createFourButtonUtility('Joint - World', partial(createSimpleJoint, 'World'), 'Joint - Z Up', partial(createSimpleJoint, 'ZUp'), 'Ribbon joints', createRibbonJoints, ' -- EMPTY -- ', emptyCallback, w, h)
+    createFourButtonUtility('Orient Simple Chain', rotateAndOrientSimpleChainZUp, 'Orient Chain', orientSimpleChain, 'Orient End Joint', orientEndJoint, ' Show/Hide LRA ', localRotationAxes, w, h)
     createFourButtonUtility('Create Root', createRoot, 'Connect Legs', connectLegs, 'Connect Arms', connectArms, 'Connect Wings', connectWings, w, h)
     createButtonUtility('Delete References and Blend Shape Targets', deleteReferences, w, h)
     createButtonUtility('Bind skin and remove END influences', bindDragonSkinAndRemoveInfluences, w, h)
     createDoubleButtonUtility('Rename dummies and assign influences', renameDummies, 'Create Range dummy', rangeDummy, w, h)
     createSpaceForUtilities('---------   UTILITIES  ---------')
     createDoubleButtonUtility('Decrease Joint Size', partial(jointSize, -0.2), 'Increase Joint Size', partial(jointSize, 0.2), w, h)
-    createFourButtonUtility('Reset controllers', resetControllers, 'Rename Limb', renameLimb, ' -- EMPTY -- ', emptyCallback, ' -- EMPTY -- ', emptyCallback, w, h)
+    createFourButtonUtility('Reset controllers', resetControllers, 'Rename Limb', renameLimb, 'Unlock OFFSET', unlockOffset, 'Lock OFFSET', lockOffset, w, h)
             
     cmds.tabLayout( tabs, edit=True, tabLabel=(('renameBonesTab', 'Rename'), ('limbSystemTab', 'Limbs'), ('handsSetupTab', 'Hands'), ('ribbonSystemTab', 'Ribbons'), ('chainToolsTab', 'Chains'), ('headControllerTab', 'Head'), ('spaceSwitchTab', 'S. Switch'), ('utilitiesTab', 'Utilities'), ('controllersTab', 'Controllers')), sti=1 )
     cmds.showWindow(RTvars.winName)
+    RT_HandsSetup.simple3Layout()
     return
 
 
 
-def createRadioCollectionForRenaming(name1, label1, state1, name2, label2, state2, name3, label3, state3, initPos=0.15):
+def createThreeRadioCollection(name1, label1, state1, name2, label2, state2, name3, label3, state3, initPos=0.15):
     rowWidth = [winWidth*initPos, winWidth*0.3, winWidth*0.3, winWidth*0.3]
     cmds.rowLayout( nc=4, cw4=rowWidth )
     cmds.radioCollection()
@@ -440,8 +454,24 @@ def createTextFieldButtonGrp(name, label, callback, visible):
 
 
 
-def emptyCallback(*args):
-    return
+def pressetButton(column, labelButton, callback):
+    rowWidth = [column*0.1, column*0.9]
+    cmds.rowLayout( nc=2, cw2=rowWidth )
+    cmds.text(label='', w=rowWidth[0])
+    cmds.button( l=labelButton, c=callback, w=rowWidth[1], h=24 )
+    cmds.setParent('..')
+
+
+
+def layoutFinger(column, finger, value):
+    rowWidth = [column*0.28, column*0.24, column*0.24, column*0.24]
+    cmds.rowLayout( nc=4, cw4=rowWidth )
+    cmds.text(label=finger + '          ', w=rowWidth[0], al='right')
+    cmds.checkBox( finger + 'ProximalCB', l='', w=rowWidth[1], onc=partial(addHandLayout, 10), ofc=partial(addHandLayout, -10), v=True, en=True )
+    cmds.checkBox( finger + 'MiddleCB', l='', w=rowWidth[2], onc=partial(addHandLayout, 100), ofc=partial(addHandLayout, -100), v=value, en=True )
+    cmds.checkBox( finger + 'DistalCB', l='', w=rowWidth[3], onc=partial(addHandLayout, 1000), ofc=partial(addHandLayout, -1000) , v=True, en=True )        
+    cmds.setParent('..')
+    verticalSpace(7)
 
 
 
@@ -520,16 +550,18 @@ def enableFields(*args):
     cmds.textField( 'AlternativeName', edit=True, en=value )
 
 
-
 def enableCtrlScaleChain(*args):
     value = cmds.checkBox( 'UseCreateControllersCB', q=True, v=True )
     cmds.floatSliderGrp( 'CtrlScaleChain', edit=True, en=value )
 
 
+def enableOverrideSize(*args):
+    value = cmds.checkBox( 'OverideFingerControllerSizeCB', q=True, v=True )
+    cmds.floatSliderGrp( 'OverrideControllerSize', edit=True, en=value )
+
 
 def enableDeleteHandFoot(value, *args):
     cmds.checkBox( 'UseDeleteHandFootCB', edit=True, en=value )
-
 
 
 def enableCreateEyes(*args):
@@ -549,7 +581,7 @@ def enableBlendShapes(*args):
 ### GLOBAL VARIABLES & UTILS
 
 def emptyCallback(*args):
-    print 'Empty callback'
+    print ('Empty callback')
 
 def returnBone(item):
     RTvars.bone = item
@@ -632,17 +664,26 @@ def simpleHandLayout(*args):
 def fullHandLayout(*args):
     RT_HandsSetup.fullHandLayout()
 
+def getHierarchyLayout(*args):
+    RT_HandsSetup.getHierarchyLayout()
+
+def selectDrivenKeys(*args):
+    RT_HandsSetup.selectDrivenKeys('DRIVEN_KEY')
+
+def saveCloseHand(*args):
+    RT_HandsSetup.saveHand('CLOSED')
+
+def saveOpenHand(*args):
+    RT_HandsSetup.saveHand('OPEN')
+
+def saveDrivenKeysHand(*args):
+    RT_HandsSetup.saveDrivenKeysHand()
+    
+def mirrorDrivenKeysHand(*args):
+    RT_HandsSetup.mirrorDrivenKeysHand()
 
 
-
-
-def createSpaceSwitchForHead(*args):
-    RT_SpaceSwitch.createSpaceSwitchForHead()
-
-
-def createSpaceSwitchForTail(*args):
-    RT_SpaceSwitch.createSpaceSwitchForTail()
-
+### RIBBON
 
 def createRibbonSystem(*args):
     RT_RibbonSystem.createRibbonSystem()
