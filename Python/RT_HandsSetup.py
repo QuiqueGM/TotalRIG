@@ -3,7 +3,6 @@ import RT_ErrorsHandler as RTeh
 import RT_Utils as utils
 import maya.cmds as cmds
 
-
 def getFullHandFootHierarchy():
     fingerToe = 'Finger' if utils.getHierarchy() == 'Arm' else 'Toe'
 
@@ -142,9 +141,14 @@ def getHierarchyLayout():
             for d in dk:
                 if d.find(n + p) > -1:
                     cmds.checkBox( n+p+'CB', edit=True, v=True )
-					
+
+
 
 def saveHand(state):
+    utils.printHeader('SAVING HAND - ' + state)
+    sel = cmds.ls(sl=True)
+    if RTeh.GetNoSelectionException(sel): return
+  
     dks = []
     for s in sel:
         dk = []
@@ -157,12 +161,27 @@ def saveHand(state):
     else:
         RTvars.drivenKeyOpen = dks
 
+    utils.printSubheader('Hand ' + state.lower() + ' successfully saved!')
 
 
-def saveDrivenKeysHand():    
+
+def saveDrivenKeysHand():
+    utils.printHeader('CREATING DRIVEN KEYS')
+    
+    sel = cmds.ls(sl=True)
+    if RTeh.GetSelectionException(sel): return
+    
     handFoot = 'HAND' if sel[0].find('Arm') > -1 else 'FOOT'
     utils.addAttrSeparator(sel[0], 'HandBehaviourSeparator', handFoot)
     cmds.addAttr( ln='Hand', nn='Open / Close', at="long", k=True, dv=0, min=-100, max=100 )
+    
+    if len(RTvars.drivenKeyClosed) == 0:
+        print ('No closed keys saved')
+        return
+    elif len(RTvars.drivenKeyOpen) == 0:
+        print ('No open keys saved')
+        return
+    
     hand = sel[0] + '.Hand'
     
     for phalange in RTvars.drivenKeyClosed:
@@ -175,7 +194,7 @@ def saveDrivenKeysHand():
         connectDrivenKeyToPhalange(hand, sel, phalange, -100)
 
     cmds.setAttr( hand, 0 )
-
+    utils.printSubheader('Driven keys succesfully created!!')
     
 
 
@@ -196,7 +215,17 @@ def connectDrivenKeyToPhalange(hand, sel, phalange, value):
         cmds.setDrivenKeyframe( phalange[0] + r, cd=hand )   
 
 
-def getListOfDrivenKeys(pattern):  
+
+def selectDrivenKeys(pattern):
+    dk = getListOfDrivenKeys(pattern)
+    cmds.select (dk)
+
+
+
+def getListOfDrivenKeys(pattern):
+    sel = cmds.ls(sl=True)
+    if RTeh.GetSelectionException(sel): return
+    
     sidePos = utils.getSideFromBone(sel[0])
     children = cmds.listRelatives(ad=True)
     dk = []
@@ -209,6 +238,8 @@ def getListOfDrivenKeys(pattern):
 
 
 def mirrorDrivenKeysHand():
+    utils.printHeader('MIRRORING DRIVEN KEYS')
+ 
     hand = 'CTRL__L_ArmSwitch_FKIK.Hand'
     cmds.setAttr( hand, 100 )
     cmds.select( 'OFFSET__L_Hand' )
@@ -220,6 +251,10 @@ def mirrorDrivenKeysHand():
     
     for phalange in RTvars.drivenKeyClosed:
         phalange[0] = phalange[0].replace('__L_', '__R_')
+        
+    for phalange in RTvars.drivenKeyOpen:
+        phalange[0] = phalange[0].replace('__L_', '__R_')
     
     cmds.select( 'CTRL__R_ArmSwitch_FKIK' )
-        					
+    saveDrivenKeysHand()
+        
