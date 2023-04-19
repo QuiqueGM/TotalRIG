@@ -18,7 +18,7 @@ def createRibbonSystem():
     dist = dist + (dist/spawns)
     ratio = dist / width
     
-    # Create una superficie nurbs a partir de la distancia dels ossos i un nombre de divisions
+	utils.printSubheader('Creating nurbs surface')
     cmds.nurbsPlane( n=ribbonName, w=width, lr=ratio ,d=3, u=1, v=spawns, ax=[0,1,0], p=[0,0,0], ch=0 )
     cmds.rebuildSurface( ch=0, rpo=1, rt=0, end=1, kr=0, kcp=0, kc=0, su=1, du=1, sv=spawns, dv=3, tol=0, fr=0, dir=2)
     cmds.select( ribbonName )
@@ -30,7 +30,7 @@ def createRibbonSystem():
     cmds.makeIdentity( apply=True, t=1, r=1, s=1, n=0 )
     cmds.editDisplayLayerMembers( 'HELPERS', ribbonName, nr=True )
     
-    #Crea els follicles i posa un os a cada Follicle
+    utils.printSubheader('Creating follicles')
     ch = "createHair 1 " + str(spawns) + " 5 0 0 0 0 5 0 1 1 1;"
     language.Mel.eval( ch )
     hairSystem = PyNode("hairSystem1")
@@ -70,7 +70,7 @@ def createRibbonSystem():
     cmds.xform( offset, m=locatorCentral[0], ws=True)
     cmds.parent( locatorCentral[1], offset )
     
-    #Orientacio del control central
+	utils.printSubheader('Orienting central controller')
     locOrientTop = 'LOC' + name + '_TOP_ORIENTATION'
     locOrientBottom = 'LOC' + name + '_BOTTOM_ORIENTATION'
     ctrlOrientCentral = 'GRP_CTRL_LOCATORS' + name
@@ -92,14 +92,14 @@ def createRibbonSystem():
     cmds.parentConstraint( locOrientTop, locOrientBottom, offset, mo=True )
     cmds.select(d=True)
     
-    # Crea locators i distance dimension i els posiciona als extrems del ribbon
+	utils.printSubheader('Creating locators and distance dimension')
     topLoc = cmds.xform( locatorTop[1], q=True, m=True, ws=True )
     bottomLoc = cmds.xform( locatorBottom[1], q=True, m=True, ws=True )
     distance = utils.createDistanceMeasure(name, name + '_DIST_TOP', name + '_DIST_BOTTOM')
     cmds.xform( distance[1], m=topLoc, ws=True )
     cmds.xform( distance[2], m=bottomLoc, ws=True )
     
-    #Conectarem el parametre distance del DistanceDimension a un multiplyDivide.
+	utils.printSubheader('Connecting distance dimension --> multiplyDivide')
     RBMultDivStretch = locatorTop[1] + '_MultiplyDivideStretch'
     cmds.shadingNode( 'multiplyDivide', au=True, n=RBMultDivStretch )
     cmds.connectAttr( distance[0] + '.distance', RBMultDivStretch + '.input1X')
@@ -107,7 +107,7 @@ def createRibbonSystem():
     cmds.setAttr( RBMultDivStretch + '.input2X', distValue )
     cmds.setAttr( RBMultDivStretch + '.operation', 2 )
     
-    #Crearem un BlendColors i el sistema Stretch
+	utils.printSubheader('Creating BlendColors and stretch system')
     RBBlendCol = locatorTop[1] + '_BlendColor'
     RBClamp = locatorTop[1] + '_Clamp'
     cmds.select( locatorTop[1] )
@@ -120,14 +120,14 @@ def createRibbonSystem():
     cmds.setAttr( RBClamp + '.maxR', 999 )
     cmds.connectAttr( RBMultDivStretch + '.outputX', RBBlendCol + '.color1R')
     
-    #Crearem un node MultiplyDivide per controlar la escala Y i Z
+	utils.printSubheader('Controlloing stretch system throughout the scale')
     RBMultDivStretch2 = name[2:] + '_MultiplyDivideStretch2'
     cmds.shadingNode( 'multiplyDivide', au=True, n=RBMultDivStretch2 )
     cmds.connectAttr( RBClamp + '.outputR', RBMultDivStretch2 + '.input2X' )
     cmds.setAttr( RBMultDivStretch2 + '.input1X', 1 )
     cmds.setAttr( RBMultDivStretch2 + '.operation', 2 )
-        
-    #Connetem amb les escales
+    
+	utils.printSubheader('Connecting scales')
     for j in range(len(jointsRibbon)-1):
         cmds.connectAttr( RBMultDivStretch2 + '.outputX', jointsRibbon[j] + '.scaleY')
         cmds.connectAttr( RBMultDivStretch2 + '.outputX', jointsRibbon[j] + '.scaleZ')
@@ -140,7 +140,7 @@ def createRibbonSystem():
     cmds.xform( locatorTop[1], t=topJointPos, ws=True )
     cmds.xform( locatorBottom[1], t=bottomJointPos, ws=True )
     
-    #Emparentem els locators amb els joints i creem els constraints i fem els constraints
+	utils.printSubheader('Parenting locators and create and connect constraints')
     controlTop = createRibbonJointConnection(locatorTop[1], topJoint)
     createRibbonJointConnection(locatorBottom[1], bottomJoint)
     centralJointRibbon = 'RBNJNT' + name + '_CENTRAL'
@@ -152,7 +152,7 @@ def createRibbonSystem():
     cmds.delete( ctrl[0] + '1' )
     cmds.select(d=True)
     
-    #Connectem l'stretch del locatorTop amb el controlador Top
+	utils.printSubheader('Connecting stretch system with locators')
     cmds.select( controlTop )
     cmds.addAttr( ln='Stretch', at="float", k=True, dv=0, min=0, max=1 )
     cmds.connectAttr( controlTop + '.Stretch', locatorTop[1] + '.Stretch' )
