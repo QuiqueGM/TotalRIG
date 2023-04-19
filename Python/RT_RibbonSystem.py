@@ -1,5 +1,8 @@
+import RT_Controllers as RTctrl
 import RT_Utils as utils
 import maya.cmds as cmds
+from pymel.core import language,PyNode
+import maya.mel as mel
 
 
 def createRibbonSystem():
@@ -106,28 +109,28 @@ def createRibbonSystem():
     
     #Crearem un BlendColors i el sistema Stretch
     RBBlendCol = locatorTop[1] + '_BlendColor'
-    ClampInv = locatorTop[1] + '_Clamp'
+    RBClamp = locatorTop[1] + '_Clamp'
     cmds.select( locatorTop[1] )
-    cmds.addAttr( ln='Stretch', at="float", k=False, dv=0, min=0, max=1 )
+    cmds.addAttr( ln='Stretch', at="float", k=True, dv=0, min=0, max=1 )
     cmds.shadingNode( 'blendColors', au=True, n=RBBlendCol )
     cmds.connectAttr( locatorTop[1] + '.Stretch', RBBlendCol + '.blender')
-    cmds.shadingNode( 'clamp', au=True, n=ClampInv )
-    cmds.connectAttr( RBBlendCol + '.outputR', ClampInv + '.inputR' )
-    cmds.setAttr( ClampInv + '.minR', 1 )
-    cmds.setAttr( ClampInv + '.maxR', 999 )
+    cmds.shadingNode( 'clamp', au=True, n=RBClamp )
+    cmds.connectAttr( RBBlendCol + '.outputR', RBClamp + '.inputR' )
+    cmds.setAttr( RBClamp + '.minR', 1 )
+    cmds.setAttr( RBClamp + '.maxR', 999 )
     cmds.connectAttr( RBMultDivStretch + '.outputX', RBBlendCol + '.color1R')
     
     #Crearem un node MultiplyDivide per controlar la escala Y i Z
     RBMultDivStretch2 = name[2:] + '_MultiplyDivideStretch2'
     cmds.shadingNode( 'multiplyDivide', au=True, n=RBMultDivStretch2 )
-    cmds.connectAttr( ClampInv + '.outputR', RBMultDivStretch2 + '.input2X' )
-    cmds.setAttr( RBMultDivStretch2 + '.input2X', 1 )
-    cmds.setAttr( RBMultDivStretch2 + '.outputR', 0 )
+    cmds.connectAttr( RBClamp + '.outputR', RBMultDivStretch2 + '.input2X' )
+    cmds.setAttr( RBMultDivStretch2 + '.input1X', 1 )
+    cmds.setAttr( RBMultDivStretch2 + '.operation', 2 )
         
     #Connetem amb les escales
     for j in range(len(jointsRibbon)-1):
-        cmds.connectAttr( RBMultDivStretch2 + '.outputY', jointsRibbon[j] + '.scaleZ')
         cmds.connectAttr( RBMultDivStretch2 + '.outputX', jointsRibbon[j] + '.scaleY')
+        cmds.connectAttr( RBMultDivStretch2 + '.outputX', jointsRibbon[j] + '.scaleZ')
             
     cmds.pointConstraint( jointsRibbon[0], distance[1], mo=True )
     cmds.pointConstraint( jointsRibbon[-1], distance[2], mo=True )
@@ -136,6 +139,32 @@ def createRibbonSystem():
     bottomJointPos = cmds.xform( bottomJoint, q=True, t=True, ws=True )
     cmds.xform( locatorTop[1], t=topJointPos, ws=True )
     cmds.xform( locatorBottom[1], t=bottomJointPos, ws=True )
+    
+    #Emparentem els locators amb els joints i creem els constraints i fem els constraints
+    controlTop = createRibbonJointConnection(locatorTop[1], topJoint)
+    createRibbonJointConnection(locatorBottom[1], bottomJoint)
+    centralJointRibbon = 'RBNJNT' + name + '_CENTRAL'
+    cmds.select( centralJointRibbon )
+    cmds.rename ( centralJointRibbon, centralJointRibbon[3:] )
+    ctrl = RTctrl.createController('Circle', (1, 1, 0), 0.3, 'Object', '', '')
+    cmds.parent( ctrl[1], offset )
+    cmds.parent( locatorCentral[1], ctrl[1] )
+    cmds.delete( ctrl[0] + '1' )
+    cmds.select(d=True)
+    
+    #Connectem l'stretch del locatorTop amb el controlador Top
+    cmds.select( controlTop )
+    cmds.addAttr( ln='Stretch', at="float", k=True, dv=0, min=0, max=1 )
+    cmds.connectAttr( controlTop + '.Stretch', locatorTop[1] + '.Stretch' )
+    
+    
+
+def createRibbonJointConnection(locCtrl, bone):
+    cmds.parent( locCtrl, bone )
+    cmds.select( bone )
+    ctrl =  RTctrl.createController('Box', (1, 1, 0), 0.35, 'World', '', '')
+    cmds.parentConstraint( ctrl[1], bone, mo=True )
+    return ctrl[1]
 
 
 
@@ -158,5 +187,3 @@ def createLocator(influence):
     utils.setLocalScaleLocators(locator[0])
     cmds.editDisplayLayerMembers( 'HELPERS', locator, nr=True )
     return [sel, locator[0]]
-    
-    
