@@ -1,5 +1,9 @@
+import RiggingTools
 import RT_Controllers as RTctrl
+import RT_GlobalVariables as RTvars
+import RT_ErrorsHandler as RTeh
 import RT_Utils as utils
+import RT_SpaceSwitch
 import maya.cmds as cmds
 from pymel.core import language,PyNode
 import maya.mel as mel
@@ -7,18 +11,27 @@ import maya.mel as mel
 
 def createRibbonSystem():
     utils.printHeader('CREATING RIBBON SYSTEM')
+    
+    
+    #############################
+    utils.printSubheader('Deleting unused nodes')
     mel.eval('MLdeleteUnused;')
+    
+    #############################
+    utils.printSubheader('Defining and declaring variables')
     topJoint = cmds.textFieldGrp( 'RBTopJoint', q=True, tx=True )
     bottomJoint = cmds.textFieldGrp( 'RBBottomJoint', q=True, tx=True )
     spawns = cmds.intSliderGrp( 'RBSpawns', q=True, v=True )
     width = cmds.floatSliderGrp( 'RBRWidth', q=True, v=True )
-    name = '__' + utils.getNameControl(5, topJoint, 'lower') + utils.getNameControl(5, bottomJoint, 'lower') 
+    name1 = utils.getNameControl(5, topJoint, 'lower') + utils.getNameControl(5, bottomJoint, 'lower')
+    name = '_' + utils.getNameControl(5, topJoint, 'lower') + utils.getNameControl(5, bottomJoint, 'lower')
     ribbonName = 'RBN' + name
     dist = utils.getDistance(topJoint, bottomJoint)
     dist = dist + (dist/spawns)
     ratio = dist / width
-    
-	utils.printSubheader('Creating nurbs surface')
+
+    #############################
+    utils.printSubheader('Creating nurb surface')
     cmds.nurbsPlane( n=ribbonName, w=width, lr=ratio ,d=3, u=1, v=spawns, ax=[0,1,0], p=[0,0,0], ch=0 )
     cmds.rebuildSurface( ch=0, rpo=1, rt=0, end=1, kr=0, kcp=0, kc=0, su=1, du=1, sv=spawns, dv=3, tol=0, fr=0, dir=2)
     cmds.select( ribbonName )
@@ -29,7 +42,9 @@ def createRibbonSystem():
     cmds.refresh()
     cmds.makeIdentity( apply=True, t=1, r=1, s=1, n=0 )
     cmds.editDisplayLayerMembers( 'HELPERS', ribbonName, nr=True )
-    
+    cmds.parent( ribbonName, 'Helpers' )
+
+    #############################
     utils.printSubheader('Creating follicles')
     ch = "createHair 1 " + str(spawns) + " 5 0 0 0 0 5 0 1 1 1;"
     language.Mel.eval( ch )
@@ -38,15 +53,22 @@ def createRibbonSystem():
     cmds.delete( 'pfxHair1' )
     cmds.delete( 'nucleus1' )
     cmds.select( 'hairSystem1Follicles', r=True )
-    cmds.rename( 'hairSystem1Follicles', 'HSF' + name )
-    curvesGroup = cmds.listRelatives( 'HSF' + name, ad=True )
-    
+    hairSystemFollicle =  'HSF' + name
+    cmds.rename( 'hairSystem1Follicles', hairSystemFollicle )
+    curvesGroup = cmds.listRelatives( hairSystemFollicle, ad=True )
+    cmds.parent( hairSystemFollicle, 'Rig' )
+    cmds.editDisplayLayerMembers( 'JOINTS', hairSystemFollicle, nr=True )
+
+    #############################
+    utils.printSubheader('Creating ribbon joints')    
     x = 1
     jointsRibbon = []
     
     for i in curvesGroup:
         if i==('curve' + str(x)):
             cmds.select( i )
+            p = cmds.listRelatives( i, p=True )
+            cmds.rename( p, 'FLC' + name + '_' + str(x) )
             cmds.rename( i, 'CRV' + name + '_' + str(x) )
             bone = cmds.joint( n='JNT_RBN' + name + '_' + str(x) )
             jointsRibbon.append(bone)
@@ -54,11 +76,13 @@ def createRibbonSystem():
             cmds.makeIdentity( apply=True, t=1, r=1, s=1, n=0 ) 
             x += 1
     x -= 1
-    
+
+    #############################
+    utils.printSubheader('Creating controllers')      
     influences = []
-    influences.append(createBoneController(jointsRibbon[0], name + '_TOP'))
-    influences.append(createBoneController(jointsRibbon[x//2], name + '_CENTRAL'))
-    influences.append(createBoneController(jointsRibbon[-1], name + '_BOTTOM'))
+    influences.append(createBoneController(jointsRibbon[0], name + '__TOP'))
+    influences.append(createBoneController(jointsRibbon[x//2], name + '__CENTRAL'))   
+    influences.append(createBoneController(jointsRibbon[-1], name + '__BOTTOM'))
     
     skinCluster = cmds.skinCluster( influences, ribbonName, n='SKCL' + name, tsb=True, bindMethod=0, skinMethod=0, normalizeWeights=1, mi=2 )[0]
     
@@ -69,11 +93,12 @@ def createRibbonSystem():
     offset = cmds.group( n = 'OFFSET' + locatorCentral[1][3:], em=1 )
     cmds.xform( offset, m=locatorCentral[0], ws=True)
     cmds.parent( locatorCentral[1], offset )
-    
-	utils.printSubheader('Orienting central controller')
-    locOrientTop = 'LOC' + name + '_TOP_ORIENTATION'
-    locOrientBottom = 'LOC' + name + '_BOTTOM_ORIENTATION'
-    ctrlOrientCentral = 'GRP_CTRL_LOCATORS' + name
+
+    #############################
+    utils.printSubheader('Orienting central controller')
+    locOrientTop = 'LOC' + name + '__TOP_ORIENT'
+    locOrientBottom = 'LOC' + name + '__BOTTOM_ORIENT'
+    ctrlOrientCentral = 'GRP_LOC' + name
     
     locatorOriTop = cmds.spaceLocator( n=locOrientTop )
     locatorOriBottom = cmds.spaceLocator( n=locOrientBottom )
@@ -86,90 +111,113 @@ def createRibbonSystem():
     cmds.parent( locOrientBottom, ctrlOrientCentral )
     
     cmds.xform( ctrlOffsetOriLocators, m=locatorCentral[0], ws=True )
-    cmds.pointConstraint( locatorTop[1], locatorBottom[1], ctrlOrientCentral, mo=True)
-    cmds.aimConstraint( locatorTop[1], locOrientTop, mo=False, wut='object', wuo=locatorTop[1], aim=[-1,0,0], u=[0,0,1] )
-    cmds.aimConstraint( locatorBottom[1], locOrientBottom, mo=False, wut="object", wuo=locatorBottom[1], aim=[1,0,0], u=[0,0,1] )
-    cmds.parentConstraint( locOrientTop, locOrientBottom, offset, mo=True )
+    cmds.pointConstraint( locatorTop[1], locatorBottom[1], ctrlOrientCentral, n=utils.getConstraint('Point', ctrlOrientCentral[7:]), mo=True)
+    cmds.aimConstraint( locatorTop[1], locOrientTop, n=utils.getConstraint('Aim', locOrientTop[3:]), mo=False, wut='object', wuo=locatorTop[1], aim=[-1,0,0], u=[0,0,1] )
+    cmds.aimConstraint( locatorBottom[1], locOrientBottom, n=utils.getConstraint('Aim', locOrientBottom[3:]), mo=False, wut="object", wuo=locatorBottom[1], aim=[1,0,0], u=[0,0,1] )
+    cmds.parentConstraint( locOrientTop, locOrientBottom, offset, n=utils.getConstraint('Parent', locOrientBottom[3:]), mo=True )
     cmds.select(d=True)
-    
-	utils.printSubheader('Creating locators and distance dimension')
+
+    #############################
+    utils.printSubheader('Creating distance dimension and helpers')
     topLoc = cmds.xform( locatorTop[1], q=True, m=True, ws=True )
     bottomLoc = cmds.xform( locatorBottom[1], q=True, m=True, ws=True )
-    distance = utils.createDistanceMeasure(name, name + '_DIST_TOP', name + '_DIST_BOTTOM')
+    distance = utils.createDistanceMeasure(name, name + '__DIST_TOP', name + '__DIST_BOTTOM')
     cmds.xform( distance[1], m=topLoc, ws=True )
     cmds.xform( distance[2], m=bottomLoc, ws=True )
-    
-	utils.printSubheader('Connecting distance dimension --> multiplyDivide')
-    RBMultDivStretch = locatorTop[1] + '_MultiplyDivideStretch'
-    cmds.shadingNode( 'multiplyDivide', au=True, n=RBMultDivStretch )
-    cmds.connectAttr( distance[0] + '.distance', RBMultDivStretch + '.input1X')
+
+    #############################
+    utils.printSubheader('Setting Distance Dimension connections')
+    RBMultDivStretch = utils.createShadingNode('multiplyDivide', locatorTop[1] + '_MultDivStretch')    
     distValue = cmds.getAttr( distance[0] + '.distance' )
     cmds.setAttr( RBMultDivStretch + '.input2X', distValue )
     cmds.setAttr( RBMultDivStretch + '.operation', 2 )
+    cmds.connectAttr( distance[0] + '.distance', RBMultDivStretch + '.input1X')
     
-	utils.printSubheader('Creating BlendColors and stretch system')
-    RBBlendCol = locatorTop[1] + '_BlendColor'
-    RBClamp = locatorTop[1] + '_Clamp'
+    #############################
+    utils.printSubheader('Setting Stretch System')
     cmds.select( locatorTop[1] )
     cmds.addAttr( ln='Stretch', at="float", k=True, dv=0, min=0, max=1 )
-    cmds.shadingNode( 'blendColors', au=True, n=RBBlendCol )
-    cmds.connectAttr( locatorTop[1] + '.Stretch', RBBlendCol + '.blender')
-    cmds.shadingNode( 'clamp', au=True, n=RBClamp )
-    cmds.connectAttr( RBBlendCol + '.outputR', RBClamp + '.inputR' )
-    cmds.setAttr( RBClamp + '.minR', 1 )
-    cmds.setAttr( RBClamp + '.maxR', 999 )
-    cmds.connectAttr( RBMultDivStretch + '.outputX', RBBlendCol + '.color1R')
     
-	utils.printSubheader('Controlloing stretch system throughout the scale')
-    RBMultDivStretch2 = name[2:] + '_MultiplyDivideStretch2'
-    cmds.shadingNode( 'multiplyDivide', au=True, n=RBMultDivStretch2 )
-    cmds.connectAttr( RBClamp + '.outputR', RBMultDivStretch2 + '.input2X' )
-    cmds.setAttr( RBMultDivStretch2 + '.input1X', 1 )
-    cmds.setAttr( RBMultDivStretch2 + '.operation', 2 )
+    RBPower = utils.createShadingNode('multiplyDivide', name[2:] + '_Power')
+    cmds.setAttr( RBPower + '.operation', 3 )
+    cmds.connectAttr( locatorTop[1] + '.Stretch', RBPower + '.input2.input2X')
+    cmds.connectAttr( RBMultDivStretch + '.outputX', RBPower + '.input1.input1X')
     
-	utils.printSubheader('Connecting scales')
+    RBDivide = utils.createShadingNode('multiplyDivide', name[2:] + '_Divide')
+    cmds.setAttr( RBDivide + '.input1X', 1 )
+    cmds.setAttr( RBDivide + '.operation', 2 )
+    cmds.connectAttr( RBPower + '.outputX', RBDivide + '.input2.input2X')
+
+        
+    #############################
+    utils.printSubheader('Connecting scales')
     for j in range(len(jointsRibbon)-1):
-        cmds.connectAttr( RBMultDivStretch2 + '.outputX', jointsRibbon[j] + '.scaleY')
-        cmds.connectAttr( RBMultDivStretch2 + '.outputX', jointsRibbon[j] + '.scaleZ')
+        cmds.connectAttr( RBDivide + '.outputX', jointsRibbon[j] + '.scaleY')
+        cmds.connectAttr( RBDivide + '.outputX', jointsRibbon[j] + '.scaleZ')
             
-    cmds.pointConstraint( jointsRibbon[0], distance[1], mo=True )
-    cmds.pointConstraint( jointsRibbon[-1], distance[2], mo=True )
+    cmds.pointConstraint( jointsRibbon[0], distance[1], n=utils.getConstraint('Point', distance[1][3:]), mo=True )
+    cmds.pointConstraint( jointsRibbon[-1], distance[2], n=utils.getConstraint('Point', distance[2][3:]), mo=True )
     
     topJointPos = cmds.xform( topJoint, q=True, t=True, ws=True )
     bottomJointPos = cmds.xform( bottomJoint, q=True, t=True, ws=True )
     cmds.xform( locatorTop[1], t=topJointPos, ws=True )
     cmds.xform( locatorBottom[1], t=bottomJointPos, ws=True )
-    
-	utils.printSubheader('Parenting locators and create and connect constraints')
+
+    #############################
+    utils.printSubheader('Parenting locators and setting constraints')
     controlTop = createRibbonJointConnection(locatorTop[1], topJoint)
-    createRibbonJointConnection(locatorBottom[1], bottomJoint)
-    centralJointRibbon = 'RBNJNT' + name + '_CENTRAL'
+    controlBottom = createRibbonJointConnection(locatorBottom[1], bottomJoint)
+    centralJointRibbon = 'JNT_RBN' + name + '__CENTRAL'
     cmds.select( centralJointRibbon )
-    cmds.rename ( centralJointRibbon, centralJointRibbon[3:] )
-    ctrl = RTctrl.createController('Circle', (1, 1, 0), 0.3, 'Object', '', '')
+    ctrl = RTctrl.createController('Circle', (1, 1, 0), 0.3, 'Object', 'OFFSET', 'AUX')
     cmds.parent( ctrl[1], offset )
+    utils.setTransformAndRotationToZero(ctrl[1]) 
     cmds.parent( locatorCentral[1], ctrl[1] )
-    cmds.delete( ctrl[0] + '1' )
-    cmds.select(d=True)
-    
-	utils.printSubheader('Connecting stretch system with locators')
+    cmds.delete( ctrl[0] )
+    cmds.parent( topJoint, bottomJoint, 'Rig' )
+
+    #############################
+    utils.printSubheader('Connecting stretch system')
     cmds.select( controlTop )
-    cmds.addAttr( ln='Stretch', at="float", k=True, dv=0, min=0, max=1 )
+    utils.addAttrSeparator(controlTop, 'StretchSeparator', 'STRETCH  VOLUME')
+    cmds.addAttr( ln='Stretch', nn='Influence', at="float", k=True, dv=0, min=0, max=1 )
     cmds.connectAttr( controlTop + '.Stretch', locatorTop[1] + '.Stretch' )
-    
-    
+    cmds.parent( 'OFFSET' + topJoint[3:], 'OFFSET' + bottomJoint[3:], 'OFFSET' + name + '__CENTRAL', 'CTRL__Master' )
+    cmds.parent('GRP_LOC' + name, 'CTRL' + topJoint[3:] )
+
+    #############################
+    cmds.refresh()
+    if name.find('Head') > -1 and len(cmds.ls('CTRL__Neck')) == 1:
+        result = cmds.confirmDialog( t='Space Switch', m='Do you want to create an <b>Point/Orient</b> space switch between the <b>Head</b> and the <b>Neck</b>?', b=['Yes','No'], db='Yes', cb='No', ds='No', p=RTvars.winName )
+        if result == 'Yes':
+            RT_SpaceSwitch.createSpaceSwitch('NeckSpace', 'CTRL__Head', 'CTRL__Master', 'CTRL__Neck', 'PointOrient')
+
+    if name.find('Neck') > -1 and len(cmds.ls('CTRL__Chest')) == 1:
+        result = cmds.confirmDialog( t='Space Switch', m='Do you want to create an <b>Point/Orient</b> space switch between the <b>Neck</b> and the <b>Chest</b>?', b=['Yes','No'], db='Yes', cb='No', ds='No', p=RTvars.winName )
+        if result == 'Yes':
+            RT_SpaceSwitch.createSpaceSwitch('ChestSpace', 'CTRL__Neck', 'CTRL__Master', 'CTRL__Chest', 'PointOrient')
+
+    #############################
+    utils.printSubheader('Locking and hidding unused attributes')
+    utils.lockAndHideAttribute(controlTop, False, False)
+    utils.lockAndHideAttribute(ctrl[1], False, False)
+    utils.lockAndHideAttribute(controlBottom, False, False)
+    ctrlName = ctrl[1].replace('CTRL_RBN__', 'CTRL__')
+    cmds.rename( ctrl[1], ctrlName )
+
+
 
 def createRibbonJointConnection(locCtrl, bone):
     cmds.parent( locCtrl, bone )
     cmds.select( bone )
-    ctrl =  RTctrl.createController('Box', (1, 1, 0), 0.35, 'World', '', '')
-    cmds.parentConstraint( ctrl[1], bone, mo=True )
+    ctrl =  RTctrl.createController('Mesh', (1, 1, 0), 0.35, 'World', '', '')
+    cmds.parentConstraint( ctrl[1], bone, n=utils.getConstraint('Parent', bone[3:]), mo=True )
     return ctrl[1]
 
 
 
 def createBoneController(bone, pName):
-    ctrlName = 'RBNJNT' + pName
+    ctrlName = 'JNT_RBN' + pName
     ctrl = cmds.duplicate( bone )    
     cmds.rename( ctrl, ctrlName )
     cmds.select( ctrlName ) 
@@ -180,10 +228,12 @@ def createBoneController(bone, pName):
 
 
 def createLocator(influence):
-    locator = cmds.spaceLocator( n='LOC' + influence[6:] )
+    print influence
+    name = 'LOC' + influence[7:]
+    print name
+    locator = cmds.spaceLocator( n='LOC' + influence[7:] )
     sel = cmds.xform( influence, q=True, m=True, ws=True )
     cmds.xform( locator, m=sel, ws=True )
     cmds.parent( influence, locator )
     utils.setLocalScaleLocators(locator[0])
     cmds.editDisplayLayerMembers( 'HELPERS', locator, nr=True )
-    return [sel, locator[0]]
