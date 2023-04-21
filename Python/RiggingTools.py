@@ -688,6 +688,14 @@ def mirrorDrivenKeysHand(*args):
 def createRibbonSystem(*args):
     RT_RibbonSystem.createRibbonSystem()
 
+def deleteRibbonKeepControllers(*args):
+    RT_RibbonSystem.deleteRibbon(True)
+
+def deleteWholeRibbon(*args):
+    RT_RibbonSystem.deleteRibbon(False)
+
+
+### CHAINS
 
 def createEyesController(*args):
     RT_EyesController.createEyesController()
