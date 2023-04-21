@@ -237,6 +237,7 @@ def createLocator(influence):
     cmds.parent( influence, locator )
     utils.setLocalScaleLocators(locator[0])
     cmds.editDisplayLayerMembers( 'HELPERS', locator, nr=True )
+    return [sel, locator[0]]
 
 
 
