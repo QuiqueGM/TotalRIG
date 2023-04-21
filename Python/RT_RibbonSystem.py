@@ -237,3 +237,38 @@ def createLocator(influence):
     cmds.parent( influence, locator )
     utils.setLocalScaleLocators(locator[0])
     cmds.editDisplayLayerMembers( 'HELPERS', locator, nr=True )
+
+
+
+def deleteRibbonKeepControllers():
+    utils.printHeader('DELETING RIBBON SYSTEM...')
+    sel = cmds.ls(sl=True)
+    if RTeh.GetSelectionException(sel): return
+    
+    ribbon = sel[0][5:]
+    topJoint = sel[0][5:].split('_')[0]
+    btmJoint = sel[0][5:].split('_')[1]
+    
+    utils.printSubheader('Deleting helpers...')
+    cmds.delete( 'LOC__' + ribbon + '*' )
+    cmds.delete( sel )
+    
+    utils.printSubheader('Deleting rig connections...')
+    cmds.delete( 'HSF__' + ribbon )
+    cmds.delete( 'JNT__' + topJoint )
+    cmds.delete( 'JNT__' + btmJoint )
+    
+    utils.printSubheader('Deleting controllers...')
+    cmds.delete( 'OFFSET__' + ribbon + '__CENTRAL' )
+    cmds.delete( 'GRP_LOC__' + ribbon )
+    cmds.delete( 'OFFSET__' + topJoint )
+    cmds.delete( 'OFFSET__' + btmJoint )
+    
+    utils.printSubheader('Deleting unused nodes...') 
+    mel.eval('MLdeleteUnused;')
+
+
+def deleteRibbon(*args):
+    utils.printHeader('DELETING WHOLE RIBBON...')
+    deleteRibbonKeepControllers()
+    print 'WIP - deleteRibbon'
