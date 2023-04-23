@@ -223,26 +223,12 @@ def rigginToolsUI():
     createCheckbox(0.1, 'ConnectTongueCB', 'Connect tongue', emptyCallback, True, True)
     createCheckbox(0.1, 'SquashAndStretchCB', 'Create Squash and Stretch', emptyCallback, True, True)
     createCheckbox(0.1, 'BlendShapesCB', 'Create Blend Shapes', enableBlendShapes, True, True)
-    createCheckbox(0.2, 'FacialExpressionsCB', 'Facial Expressions', emptyCallback, True, True)
     createCheckbox(0.2, 'EyesCB', 'Eyes', emptyCallback, True, True)
     verticalSpace(2)
     createButtonAction(10,'', 'Create Head', createHead, False)
     createSpaceForUtilities('---------   UTILITIES  ---------')
     createTwoButtonsAction(7,'cec', 'Create Eyes Controller', createEyesController, 'dec', 'Delete Eyes Controllers', deleteEyesController, False)
     createButtonAction(3,'', 'Create Squash And Stretch', createSquashAndStretch, True)
-    #createButtonAction(3,'', 'Create Blend Shapes', createFacialExpressions, True)
-    
-    """
-    toolHeader('eyesControllerTab', '---------   EYES CONTROLLER  ---------')
-    subHeader(1, 'OPTIONS', 5)
-    createCheckbox(0.1, 'ConnecetBlendShapesEyesCB', 'Connect Blend Shapes', enableCreateBlandShapes, True, True)
-    createCheckbox(0.2, 'CreateBlendShapesCB', 'Try to create the blend shapes in case they don\'t exist', emptyCallback, True, True)
-    verticalSpace(2)
-    createButtonAction(10,'', 'Create Eyes Controller', createEyesController, False)
-    createSpaceForUtilities('---------   UTILITIES  ---------')
-    createButtonAction(3,'', 'Create BlendShapes', createBlendShapes, False)
-    createButtonAction(3,'', 'Connect BlendShapes', connectBlendShapes, True)
-    """
     
     toolHeader('spaceSwitchTab', '---------   SPACE SWITCH  ---------')
     subHeader(1, 'TARGET', 1)
@@ -697,24 +683,35 @@ def deleteWholeRibbon(*args):
 
 ### CHAINS
 
-def createEyesController(*args):
-    RT_EyesController.createEyesController()
+def redefineChain(*args):
+    RT_ChainTools.redefineChain(False, True, False)
 
+def createChainControllers(*args):
+    RT_ChainTools.createChainControllers(False)
+
+def createChainSystem(*args):
+    RT_ChainTools.createChainSystem(False)
+
+
+### EYES & HEAD
+
+def createEyesController(*args):
+    RT_HeadUtilities.createEyesController()
 
 def deleteEyesController(*args):
-    RT_EyesController.deleteEyesController()
-
+    RT_HeadUtilities.deleteEyesController()
 
 def createBlendShapes(*args):
-    RT_EyesController.createBlendShapes()
-
+    RT_HeadUtilities.createBlendShapes()
 
 def connectBlendShapes(*args):
-    RT_EyesController.connectBlendShapes()
+    RT_HeadUtilities.connectBlendShapes()
 
+def createSquashAndStretch(*args):
+    RT_HeadUtilities.createSquashAndStretch()
 
-def createSimpleJoint(orientation, *args):
-    RT_Utilities.createSimpleJoint(orientation, '')
+def createHead(*args):
+    RT_HeadUtilities.createHead()
 
 
 
