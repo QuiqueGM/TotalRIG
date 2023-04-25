@@ -68,18 +68,57 @@ def createEyesController():
     cmds.parent( locator, 'JNT__Head' )
     cmds.aimConstraint( 'CTRL__L_Eye', eyes[0], mo=False, w=1, aim=(0, 0, 1), u=(0, 1, 0), wut='objectrotation', wu=(0, 1, 0), wuo=locator[0] )
     cmds.parent( eye, 'JNT__Head' )
-	
+    
+    if cmds.checkBox( 'UseBlendShapesCB', q=True, v=True ):
+        connectBlendShapes()
+
     cmds.select( d=True )
 
 
 
-def createBlendShapes(*args):
-    utils.printHeader('createBlendShapes')
-    utils.printSubheader('WIP...')
-
-def connectBlendShapes(*args):
-    utils.printHeader('connectBlendShapes')
-    utils.printSubheader('WIP...')
+def connectBlendShapes():
+    utils.printHeader('CONNECTING BLEND SHAPES')
+	
+    cmds.setAttr( 'CTRL__L_Eye' + '.Eye', 0 )
+    cmds.setAttr( 'BS__Eyes.' + 'L_Eye_Opened', 0 )
+    cmds.setAttr( 'BS__Eyes.' + 'L_Eye_Closed', 0 )
+    cmds.setDrivenKeyframe( 'BS__Eyes.' + 'L_Eye_Opened', cd='CTRL__L_Eye' + '.Eye' )
+    cmds.setDrivenKeyframe( 'BS__Eyes.' + 'L_Eye_Closed', cd='CTRL__L_Eye' + '.Eye' )
+	
+    cmds.setAttr( 'CTRL__L_Eye' + '.Eye', 10 )
+    cmds.setAttr( 'BS__Eyes.' + 'L_Eye_Opened', 1 )
+    cmds.setAttr( 'BS__Eyes.' + 'L_Eye_Closed', 0 )
+    cmds.setDrivenKeyframe( 'BS__Eyes.' + 'L_Eye_Opened', cd='CTRL__L_Eye' + '.Eye' )
+    cmds.setDrivenKeyframe( 'BS__Eyes.' + 'L_Eye_Closed', cd='CTRL__L_Eye' + '.Eye' )
+	
+    cmds.setAttr( 'CTRL__L_Eye' + '.Eye', -10 )
+    cmds.setAttr( 'BS__Eyes.' + 'L_Eye_Opened', 0 )
+    cmds.setAttr( 'BS__Eyes.' + 'L_Eye_Closed', 1 )
+    cmds.setDrivenKeyframe( 'BS__Eyes.' + 'L_Eye_Opened', cd='CTRL__L_Eye' + '.Eye' )
+    cmds.setDrivenKeyframe( 'BS__Eyes.' + 'L_Eye_Closed', cd='CTRL__L_Eye' + '.Eye' )
+	
+	cmds.setAttr( 'CTRL__R_Eye' + '.Eye', 0 )
+    cmds.setAttr( 'BS__Eyes.' + 'R_Eye_Opened', 0 )
+    cmds.setAttr( 'BS__Eyes.' + 'R_Eye_Closed', 0 )
+    cmds.setDrivenKeyframe( 'BS__Eyes.' + 'R_Eye_Opened', cd='CTRL__R_Eye' + '.Eye' )
+    cmds.setDrivenKeyframe( 'BS__Eyes.' + 'R_Eye_Closed', cd='CTRL__R_Eye' + '.Eye' )
+	
+    cmds.setAttr( 'CTRL__R_Eye' + '.Eye', 10 )
+    cmds.setAttr( 'BS__Eyes.' + 'R_Eye_Opened', 1 )
+    cmds.setAttr( 'BS__Eyes.' + 'R_Eye_Closed', 0 )
+    cmds.setDrivenKeyframe( 'BS__Eyes.' + 'R_Eye_Opened', cd='CTRL__R_Eye' + '.Eye' )
+    cmds.setDrivenKeyframe( 'BS__Eyes.' + 'R_Eye_Closed', cd='CTRL__R_Eye' + '.Eye' )
+	
+    cmds.setAttr( 'CTRL__R_Eye' + '.Eye', -10 )
+    cmds.setAttr( 'BS__Eyes.' + 'R_Eye_Opened', 0 )
+    cmds.setAttr( 'BS__Eyes.' + 'R_Eye_Closed', 1 )
+    cmds.setDrivenKeyframe( 'BS__Eyes.' + 'R_Eye_Opened', cd='CTRL__R_Eye' + '.Eye' )
+    cmds.setDrivenKeyframe( 'BS__Eyes.' + 'R_Eye_Closed', cd='CTRL__R_Eye' + '.Eye' )
+	
+    cmds.setAttr( 'CTRL__L_Eye.Eye', 0 )
+    cmds.setAttr( 'CTRL__R_Eye.Eye', 0 )
+	
+	
 
 def createSquashAndStretch(*args):
     utils.printHeader('createSquashAndStretch')
