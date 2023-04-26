@@ -13,24 +13,18 @@ def createHead():
 
 
 def createEyesController():
-	utils.printHeader('CREATING EYES CONTROLLER')
+    utils.printHeader('CREATING EYES CONTROLLER')
     eyes = []
-    ctrlSize = 0.08
+    ctrlSize = 0.04
     distance = cmds.floatSliderGrp( 'EyesControllerDist', q=True, v=True )
     
-	cmds.select( 'JNT__L_Eye' )
-    sel = cmds.ls(sl=True)
-    eyes.append(sel)
-
+    addEye('JNT__L_Eye', eyes)
     cmds.select( eyes[0] )
     cmds.mirrorJoint( myz=True, mb=True, sr=('_L_', '_R_') )
-	
-	cmds.select( 'JNT__R_Eye' )
-    sel = cmds.ls(sl=True)
-    eyes.append(sel)
+    addEye('JNT__R_Eye', eyes)
 
-    cmds.setAttr( 'JNT__R_Eye.jointOrientX', 90 )
-    cmds.setAttr( 'JNT__R_Eye.jointOrientY', 90 )
+    cmds.setAttr( 'JNT__R_Eye.jointOrientX', -90 )
+    cmds.setAttr( 'JNT__R_Eye.jointOrientY', -90 )
     
     for e in eyes:
         cmds.select( e )
@@ -46,78 +40,48 @@ def createEyesController():
     cmds.setAttr( JNT_Eyes + '.translateX', 0 )
     cmds.select( JNT_Eyes )
     ctrl = RTctrl.createController('Circle', utils.getColorFromSide(JNT_Eyes), ctrlSize, 'World', '', '')
-    cmds.select ( ctrl[1] + 'Shape.cv[0:6]' )
+    cmds.select ( ctrl[1] + 'Shape.cv[0:7]' )
     cmds.rotate( 0, '90deg', 0 )
-    cmds.scale( 2, 1.5, 1 )
+    cmds.scale( 2.65, 1.6, 1 )
     cmds.select( d=True )
     cmds.delete( JNT_Eyes )
     cmds.parent( 'OFFSET__L_Eye', ctrl[1] )
     cmds.parent( 'OFFSET__R_Eye', ctrl[1] )
     cmds.setAttr( ctrl[0] + '.translateZ', distance )
-
-    locator = cmds.spaceLocator( n='LOC__L_Eye' )
-    utils.setLocalScaleLocators(locator[0])
-    cmds.xform( locator[0], m=cmds.xform( eye, q=True, m=True, ws=True ), ws=True )
-    cmds.parent( locator, 'JNT__Head' )
-    cmds.aimConstraint( 'CTRL__L_Eye', eyes[0], mo=False, w=1, aim=(0, 0, 1), u=(0, 1, 0), wut='objectrotation', wu=(0, 1, 0), wuo=locator[0] )
-    cmds.parent( eye, 'JNT__Head' )
-	
-	locator = cmds.spaceLocator( n='LOC__L_Eye' )
-    utils.setLocalScaleLocators(locator[0])
-    cmds.xform( locator[0], m=cmds.xform( eye, q=True, m=True, ws=True ), ws=True )
-    cmds.parent( locator, 'JNT__Head' )
-    cmds.aimConstraint( 'CTRL__L_Eye', eyes[0], mo=False, w=1, aim=(0, 0, 1), u=(0, 1, 0), wut='objectrotation', wu=(0, 1, 0), wuo=locator[0] )
-    cmds.parent( eye, 'JNT__Head' )
     
     if cmds.checkBox( 'UseBlendShapesCB', q=True, v=True ):
         connectBlendShapes()
-
+    
     cmds.select( d=True )
+
+
+
+def addEye(eye, eyes):
+    cmds.select( eye )
+    sel = cmds.ls(sl=True)
+    eyes.append(sel)
 
 
 
 def connectBlendShapes():
     utils.printHeader('CONNECTING BLEND SHAPES')
-	
-    cmds.setAttr( 'CTRL__L_Eye' + '.Eye', 0 )
-    cmds.setAttr( 'BS__Eyes.' + 'L_Eye_Opened', 0 )
-    cmds.setAttr( 'BS__Eyes.' + 'L_Eye_Closed', 0 )
-    cmds.setDrivenKeyframe( 'BS__Eyes.' + 'L_Eye_Opened', cd='CTRL__L_Eye' + '.Eye' )
-    cmds.setDrivenKeyframe( 'BS__Eyes.' + 'L_Eye_Closed', cd='CTRL__L_Eye' + '.Eye' )
-	
-    cmds.setAttr( 'CTRL__L_Eye' + '.Eye', 10 )
-    cmds.setAttr( 'BS__Eyes.' + 'L_Eye_Opened', 1 )
-    cmds.setAttr( 'BS__Eyes.' + 'L_Eye_Closed', 0 )
-    cmds.setDrivenKeyframe( 'BS__Eyes.' + 'L_Eye_Opened', cd='CTRL__L_Eye' + '.Eye' )
-    cmds.setDrivenKeyframe( 'BS__Eyes.' + 'L_Eye_Closed', cd='CTRL__L_Eye' + '.Eye' )
-	
-    cmds.setAttr( 'CTRL__L_Eye' + '.Eye', -10 )
-    cmds.setAttr( 'BS__Eyes.' + 'L_Eye_Opened', 0 )
-    cmds.setAttr( 'BS__Eyes.' + 'L_Eye_Closed', 1 )
-    cmds.setDrivenKeyframe( 'BS__Eyes.' + 'L_Eye_Opened', cd='CTRL__L_Eye' + '.Eye' )
-    cmds.setDrivenKeyframe( 'BS__Eyes.' + 'L_Eye_Closed', cd='CTRL__L_Eye' + '.Eye' )
-	
-	cmds.setAttr( 'CTRL__R_Eye' + '.Eye', 0 )
-    cmds.setAttr( 'BS__Eyes.' + 'R_Eye_Opened', 0 )
-    cmds.setAttr( 'BS__Eyes.' + 'R_Eye_Closed', 0 )
-    cmds.setDrivenKeyframe( 'BS__Eyes.' + 'R_Eye_Opened', cd='CTRL__R_Eye' + '.Eye' )
-    cmds.setDrivenKeyframe( 'BS__Eyes.' + 'R_Eye_Closed', cd='CTRL__R_Eye' + '.Eye' )
-	
-    cmds.setAttr( 'CTRL__R_Eye' + '.Eye', 10 )
-    cmds.setAttr( 'BS__Eyes.' + 'R_Eye_Opened', 1 )
-    cmds.setAttr( 'BS__Eyes.' + 'R_Eye_Closed', 0 )
-    cmds.setDrivenKeyframe( 'BS__Eyes.' + 'R_Eye_Opened', cd='CTRL__R_Eye' + '.Eye' )
-    cmds.setDrivenKeyframe( 'BS__Eyes.' + 'R_Eye_Closed', cd='CTRL__R_Eye' + '.Eye' )
-	
-    cmds.setAttr( 'CTRL__R_Eye' + '.Eye', -10 )
-    cmds.setAttr( 'BS__Eyes.' + 'R_Eye_Opened', 0 )
-    cmds.setAttr( 'BS__Eyes.' + 'R_Eye_Closed', 1 )
-    cmds.setDrivenKeyframe( 'BS__Eyes.' + 'R_Eye_Opened', cd='CTRL__R_Eye' + '.Eye' )
-    cmds.setDrivenKeyframe( 'BS__Eyes.' + 'R_Eye_Closed', cd='CTRL__R_Eye' + '.Eye' )
-	
+    connectEyeBlendShape('CTRL__L_Eye', 0, 'L_Eye_Opened', 0, 'L_Eye_Closed', 0)
+    connectEyeBlendShape('CTRL__L_Eye', 10, 'L_Eye_Opened', 1, 'L_Eye_Closed', 0)
+    connectEyeBlendShape('CTRL__L_Eye', -10, 'L_Eye_Opened', 0, 'L_Eye_Closed', 1)
+    connectEyeBlendShape('CTRL__R_Eye', 0, 'R_Eye_Opened', 0, 'R_Eye_Closed', 0)
+    connectEyeBlendShape('CTRL__R_Eye', 10, 'R_Eye_Opened', 1, 'R_Eye_Closed', 0)
+    connectEyeBlendShape('CTRL__R_Eye', -10, 'R_Eye_Opened', 0, 'R_Eye_Closed', 1)
     cmds.setAttr( 'CTRL__L_Eye.Eye', 0 )
     cmds.setAttr( 'CTRL__R_Eye.Eye', 0 )
-	
+
+
+
+def connectEyeBlendShape(eye, attrValue, bs1, bs1Value, bs2, bs2Value):
+    cmds.setAttr( eye + '.Eye', attrValue )
+    cmds.setAttr( 'BS__Eyes.' + bs1, bs1Value )
+    cmds.setAttr( 'BS__Eyes.' + bs2, bs2Value )
+    cmds.setDrivenKeyframe( 'BS__Eyes.' + bs1, cd=eye + '.Eye' )
+    cmds.setDrivenKeyframe( 'BS__Eyes.' + bs2, cd=eye + '.Eye' )	
 	
 
 def createSquashAndStretch(*args):
