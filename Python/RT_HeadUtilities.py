@@ -49,8 +49,14 @@ def createEyesController():
     cmds.parent( 'OFFSET__R_Eye', ctrl[1] )
     cmds.setAttr( ctrl[0] + '.translateZ', distance )
     
+    connectingEyes('CTRL__L_Eye', 'LOC__L_Eye', eyes[0])
+    connectingEyes('CTRL__R_Eye', 'LOC__R_Eye', eyes[1])
+    
     if cmds.checkBox( 'UseBlendShapesCB', q=True, v=True ):
         connectBlendShapes()
+        
+    if cmds.checkBox( 'UseHeadSpaceSwitchCB', q=True, v=True ):
+        RT_SpaceSwitch.createSpaceSwitch('HeadSpace', ctrl[1], 'CTRL__Master', 'CTRL__Head')
     
     cmds.select( d=True )
 
@@ -81,7 +87,17 @@ def connectEyeBlendShape(eye, attrValue, bs1, bs1Value, bs2, bs2Value):
     cmds.setAttr( 'BS__Eyes.' + bs1, bs1Value )
     cmds.setAttr( 'BS__Eyes.' + bs2, bs2Value )
     cmds.setDrivenKeyframe( 'BS__Eyes.' + bs1, cd=eye + '.Eye' )
-    cmds.setDrivenKeyframe( 'BS__Eyes.' + bs2, cd=eye + '.Eye' )	
+    cmds.setDrivenKeyframe( 'BS__Eyes.' + bs2, cd=eye + '.Eye' )
+
+
+
+def connectingEyes(ctrl, loc, eye):
+    locator = cmds.spaceLocator( n=loc )
+    utils.setLocalScaleLocators(locator[0])
+    cmds.xform( locator[0], m=cmds.xform( eye, q=True, m=True, ws=True ), ws=True )
+    cmds.parent( locator, 'JNT__Head' )
+    cmds.aimConstraint( ctrl, eye, mo=False, w=1, aim=(0, 0, 1), u=(0, 1, 0), wut='objectrotation', wu=(0, 1, 0), wuo=locator[0] )
+    cmds.parent( eye, 'JNT__Head' )
 	
 
 def createSquashAndStretch(*args):
