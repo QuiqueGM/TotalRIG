@@ -8,7 +8,41 @@ import maya.cmds as cmds
 
 def createHead():
     utils.printHeader('CREATING HEAD')
-    utils.printSubheader('WIP...')
+    sel = cmds.ls(sl=True)
+    if RTeh.GetNoSelectionException(sel): return
+    
+    jointsToMirror = []
+    centralJoints = []
+    
+    for s in sel:
+        if utils.getSideFromBone(s) == '':
+            centralJoints.append(s)
+        else:
+            jointsToMirror.append(s)
+    
+    for j in jointsToMirror:
+        RT_ChainTools.createChainSystemWithMirror(j)
+		cmds.parent( j, 'JNT__Head' )
+		cmds.parent( 'OFFSET' + j[3:], 'CTRL__Head' )
+        
+    for c in centralJoints:
+        RT_ChainTools.connectChainSystem(c)
+		cmds.parent( c, 'JNT__Head' )
+		cmds.parent( 'OFFSET' + c[3:], 'CTRL__Head' )
+
+    try:
+        side = '_' + utils.getSideFromBone(jointsToMirror[0])
+        newSide = '_R_' if side == '_L_' else '_L_'
+    except:
+        return
+    
+    for j in jointsToMirror:
+        jnt = j.replace(side, newSide)
+		cmds.parent( jnt, 'JNT__Head' )
+		cmds.parent( 'OFFSET' + jnt[3:], 'CTRL__Head' )
+        
+    if cmds.checkBox( 'CreateAndConnectEyesCB', q=True, v=True ):
+        RT_EyesController.createEyesController()
 
 
 
