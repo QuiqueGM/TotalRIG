@@ -170,13 +170,13 @@ def connectEyeBlendShape(eye, attrValue, bs1, bs1Value, bs2, bs2Value):
 
 def connectingEyes(ctrl, loc, eye):
     locator = cmds.spaceLocator( n=loc )
+    cmds.editDisplayLayerMembers( 'HELPERS', locator, nr=True )
     utils.setLocalScaleLocators(locator[0])
     cmds.xform( locator[0], m=cmds.xform( eye, q=True, m=True, ws=True ), ws=True )
-    cmds.parent( locator, 'JNT__Head' )
-    cmds.aimConstraint( ctrl, eye, mo=False, w=1, aim=(0, 0, 1), u=(0, 1, 0), wut='objectrotation', wu=(0, 1, 0), wuo=locator[0] )
+    cmds.parent( locator, 'CTRL__Head' )
+    cmds.aimConstraint( ctrl, eye, n=utils.getConstraint('Aim', eye[0][3:]), mo=False, w=1, aim=(0, 0, 1), u=(0, 1, 0), wut='objectrotation', wu=(0, 1, 0), wuo=locator[0] )
+    cmds.pointConstraint( locator, eye, n=utils.getConstraint('Point', eye[0][3:]) )
     cmds.parent( eye, 'JNT__Head' )
-	
 
-def createSquashAndStretch(*args):
-    utils.printHeader('createSquashAndStretch')
-    utils.printSubheader('WIP...')
+
+
