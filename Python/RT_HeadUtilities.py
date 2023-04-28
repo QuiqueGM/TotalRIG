@@ -81,32 +81,34 @@ def createSquashAndStretch():
 
 def createEyesController():
     utils.printHeader('CREATING EYES CONTROLLER')
-    eyes = []
-    ctrlSize = 0.04
-    distance = cmds.floatSliderGrp( 'EyesControllerDist', q=True, v=True )
     
+    #############################
+    utils.printSubheader('Mirroring eyes')
+    eyes = []
+    distance = cmds.floatSliderGrp( 'EyesControllerDist', q=True, v=True )
+    distance = 0.8
     addEye('JNT__L_Eye', eyes)
     cmds.select( eyes[0] )
     cmds.mirrorJoint( myz=True, mb=True, sr=('_L_', '_R_') )
     addEye('JNT__R_Eye', eyes)
-
+    
     cmds.setAttr( 'JNT__R_Eye.jointOrientX', -90 )
     cmds.setAttr( 'JNT__R_Eye.jointOrientY', -90 )
-    
+
+    #############################
+    utils.printSubheader('Creating controllers')
     for e in eyes:
         cmds.select( e )
-        ctrl = RTctrl.createController('Circle', utils.getColorFromSide(e), ctrlSize, 'World', '', '')
-        cmds.select ( ctrl[1] )
-        cmds.addAttr( ln='Eye', at="float", k=True, dv=0, min=-10, max=10 )
+        ctrl = RTctrl.createController('Circle', utils.getColorFromSide(e[0]), getEyesRadius(), 'World', '', '', False, False)
         cmds.select ( ctrl[1] + 'Shape.cv[0:7]' )
         cmds.rotate( 0, '90deg', 0 )
-    
+        
     cmds.select( d=True )
     JNT_Eyes = 'JNT__Eyes'
     cmds.duplicate( eyes[0], n=JNT_Eyes, rc=True )
     cmds.setAttr( JNT_Eyes + '.translateX', 0 )
     cmds.select( JNT_Eyes )
-    ctrl = RTctrl.createController('Circle', utils.getColorFromSide(JNT_Eyes), ctrlSize, 'World', '', '')
+    ctrl = RTctrl.createController('Circle', utils.getColorFromSide(JNT_Eyes[0]), getEyesRadius(), 'World', '', '', False, False)
     cmds.select ( ctrl[1] + 'Shape.cv[0:7]' )
     cmds.rotate( 0, '90deg', 0 )
     cmds.scale( 2.65, 1.6, 1 )
@@ -114,17 +116,21 @@ def createEyesController():
     cmds.delete( JNT_Eyes )
     cmds.parent( 'OFFSET__L_Eye', ctrl[1] )
     cmds.parent( 'OFFSET__R_Eye', ctrl[1] )
-    cmds.setAttr( ctrl[0] + '.translateZ', distance )
-    
+    cmds.setAttr( ctrl[0] + '.translateZ', distance + cmds.getAttr( 'JNT__L_Eye.translateZ' ) )
+
+    #############################
+    utils.printSubheader('Connecting eyes')
     connectingEyes('CTRL__L_Eye', 'LOC__L_Eye', eyes[0])
     connectingEyes('CTRL__R_Eye', 'LOC__R_Eye', eyes[1])
+    cmds.parent( 'OFFSET__Eyes', 'CTRL__Master' )
     
-    if cmds.checkBox( 'UseBlendShapesCB', q=True, v=True ):
-        connectBlendShapes()
-        
-    if cmds.checkBox( 'UseHeadSpaceSwitchCB', q=True, v=True ):
-        RT_SpaceSwitch.createSpaceSwitch('HeadSpace', ctrl[1], 'CTRL__Master', 'CTRL__Head')
+    #############################    
+    utils.printSubheader('Locking and hidding unused attributes')
+    utils.lockAndHideAttribute('CTRL__Eyes', False, True)    
+    utils.lockAndHideAttribute('CTRL__L_Eye', False, True)
+    utils.lockAndHideAttribute('CTRL__R_Eye', False, True)
     
+    RT_SpaceSwitch.createSpaceSwitch('HeadSpace', ctrl[1], 'CTRL__Master', 'CTRL__Head', 'Parent')
     cmds.select( d=True )
 
 
@@ -134,6 +140,10 @@ def addEye(eye, eyes):
     sel = cmds.ls(sl=True)
     eyes.append(sel)
 
+
+
+def getEyesRadius():
+    return cmds.getAttr( 'JNT__L_Eye.translateX' ) * cmds.floatSliderGrp( 'EyesPupillaryDist', q=True, v=True )
 
 
 def connectBlendShapes():
