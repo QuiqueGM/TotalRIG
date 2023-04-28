@@ -22,13 +22,11 @@ def createHead():
     
     for j in jointsToMirror:
         RT_ChainTools.createChainSystemWithMirror(j)
-		cmds.parent( j, 'JNT__Head' )
-		cmds.parent( 'OFFSET' + j[3:], 'CTRL__Head' )
+        parentJointAndOffset(j)
         
     for c in centralJoints:
         RT_ChainTools.connectChainSystem(c)
-		cmds.parent( c, 'JNT__Head' )
-		cmds.parent( 'OFFSET' + c[3:], 'CTRL__Head' )
+        parentJointAndOffset(c)
 
     try:
         side = '_' + utils.getSideFromBone(jointsToMirror[0])
@@ -38,14 +36,19 @@ def createHead():
     
     for j in jointsToMirror:
         jnt = j.replace(side, newSide)
-		cmds.parent( jnt, 'JNT__Head' )
-		cmds.parent( 'OFFSET' + jnt[3:], 'CTRL__Head' )
-		
-	if cmds.checkBox( 'SquashAndStretchCB', q=True, v=True ):
+        parentJointAndOffset(jnt)
+    
+    if cmds.checkBox( 'SquashAndStretchCB', q=True, v=True ):
         createSquashAndStretch()
-		
+        
     if cmds.checkBox( 'CreateAndConnectEyesCB', q=True, v=True ):
         RT_EyesController.createEyesController()
+
+
+
+def parentJointAndOffset(jnt):
+    cmds.parent( jnt, 'JNT__Head' )
+    cmds.parent( 'OFFSET' + jnt[3:], 'CTRL__Head' )
 
 
 
@@ -54,24 +57,24 @@ def createSquashAndStretch():
     cmds.setAttr( 'CTRL__Head.scaleX', k=False, l=False, cb=False )
     cmds.setAttr( 'CTRL__Head.scaleY', k=False, l=False, cb=False )
     cmds.setAttr( 'CTRL__Head.scaleZ', k=False, l=False, cb=False )
-    cmds.addAttr( ln='SquashStretch', nn='Squash and Stretch', at='float', k=True, dv=0, min=-10, max=10 )
+    cmds.addAttr( ln='SquashStretch', nn='Squash and Stretch', at='float', k=True, dv=0, min=-100, max=100 )
     SS_Remap = 'CTRL__Head_SS_Remap'
     cmds.shadingNode( 'remapValue', au=True, n=SS_Remap )
-    cmds.setAttr( SS_Remap + '.inputMin', -10 )
-    cmds.setAttr( SS_Remap + '.inputMax', 10 )
-    cmds.setAttr( SS_Remap + '.outputMin', 1 )
+    cmds.setAttr( SS_Remap + '.inputMin', -100 )
+    cmds.setAttr( SS_Remap + '.inputMax', 100 )
+    cmds.setAttr( SS_Remap + '.outputMin', 0 )
     cmds.setAttr( SS_Remap + '.outputMax', 2 )
     cmds.connectAttr( 'CTRL__Head.SquashStretch', SS_Remap + '.inputValue' )
-    cmds.connectAttr( SS_Remap + '.outValue', 'CTRL__Head.scaleX' )
+    cmds.connectAttr( SS_Remap + '.outValue', 'CTRL__Head.scaleY' )
     SS_Reverse = 'CTRL__Head_SS_Reverse'
     cmds.shadingNode( 'reverse', au=True, n=SS_Reverse )
-    cmds.connectAttr( SS_Remap + '.outValue', SS_Reverse + '.inputY' )
+    cmds.connectAttr( SS_Remap + '.outValue', SS_Reverse + '.inputX' )
     SS_PlusMinus = 'CTRL__Head_SS_PlusMinus'
     cmds.shadingNode( 'plusMinusAverage', au=True, n=SS_PlusMinus )
     cmds.setAttr( SS_PlusMinus + '.input1D[0]', 1)
     cmds.connectAttr( SS_Reverse + '.outputX', SS_PlusMinus + '.input1D[1]' )
-    cmds.connectAttr( SS_PlusMinus + '.output1D', 'CTRL__Head.scale.scaleY' )
     cmds.connectAttr( SS_PlusMinus + '.output1D', 'CTRL__Head.scale.scaleX' )
+    cmds.connectAttr( SS_PlusMinus + '.output1D', 'CTRL__Head.scale.scaleZ' )
     cmds.select( d=True )
 
 
