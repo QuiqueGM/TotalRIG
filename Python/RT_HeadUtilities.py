@@ -180,3 +180,16 @@ def connectingEyes(ctrl, loc, eye):
 
 
 
+def deleteEyesController():
+    utils.printHeader('DELETING EYES CONTROLLERS')
+    itemToDelete = ['JNT__R_Eye', 'CONST__L_Eye__AIM', 'CONST__L_Eye__POINT', 'OFFSET__Eyes', 'LOC__L_Eye', 'LOC__R_Eye', 'SPSW_PARENT__Eyes_HEAD', 'SPSW_PARENT__Eyes_MASTER']
+    for i in itemToDelete:
+        try:
+            cmds.delete( i )
+        except:
+            pass
+
+    cmds.parent( 'JNT__L_Eye', w=True )
+
+
+
