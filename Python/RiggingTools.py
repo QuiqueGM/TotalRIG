@@ -750,11 +750,17 @@ def createSimpleJoint(orientation, *args):
 def rotateAndOrientSimpleChainZUp(*args):
     RT_Utilities.rotateAndOrientSimpleChainZUp()
 
+def createRibbonJoints(*args):
+    RT_Utilities.createRibbonJoints()
+
 def orientSimpleChain(*args):
     RT_Utilities.orientSimpleChain()
 
 def orientEndJoint(*args):
     RT_Utilities.orientEndJoint()
+
+def localRotationAxes(*args):
+    RT_Utilities.localRotationAxes()
 
 def createRoot(*args):
     RT_Utilities.createRoot()
@@ -795,8 +801,12 @@ def resetControllers(*args):
 def renameLimb(*args):
     RT_Utilities.renameLimb()
 
+def unlockOffset(*args):
+    RT_Utils.lockAndHideOffset('null', False, True)
 
-
+def lockOffset(*args):
+    RT_Utils.lockAndHideOffset('null', True, True)
+    
 
 
 rigginToolsUI()
