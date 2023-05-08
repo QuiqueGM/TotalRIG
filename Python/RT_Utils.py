@@ -9,9 +9,11 @@ from math import pow,sqrt
 def createLimbArray(limb):
     l = []
     l.extend(limb)
-    for n in range(5 - cmds.intSliderGrp( 'NumFingerToes', q=True, v=True )):
-        l.pop()
     
+    handFoot = RT_HandsSetup.getFullHandFootHierarchy()
+    for n in handFoot:
+        l.append(n)
+
     return l
 
 
@@ -81,7 +83,7 @@ def getTypeOfJoint(selection):
 
 
 
-def getOffsetsLib(offsetsLimb, sidePos):
+def getOffsetsLimb(offsetsLimb, sidePos):
     offsets = []
     for o in offsetsLimb:
         offset = 'OFFSET' + sidePos + o
@@ -193,6 +195,23 @@ def lockAndHideAttribute(ctrl, pos, rot):
 
 
 
+def lockAndHideOffset(offset, state, keyable=False):
+    if offset=='null':
+        offset = cmds.ls(sl=True)
+        if RTeh.GetSelectionException(offset): return
+        offset = offset[0]
+
+    cmds.setAttr( offset + '.visibility', k=not state, l=state, cb=not state )
+    for attribute in RTvars.attributes:
+        cmds.setAttr( offset + attribute, k=not state, l=state, cb=not state )
+    
+    if keyable:
+        cmds.setAttr( offset + '.visibility', k=not state )
+        for attribute in RTvars.attributes:
+            cmds.setAttr( offset + attribute, k=not state )
+
+
+
 def hideAttributes(ctrl, vis):
     cmds.setAttr( ctrl + '.visibility', vis, k=False, cb=False )
     for a in RTvars.attributes:
@@ -212,7 +231,7 @@ def getIKSystem():
     if cmds.radioButton( 'SimpleLeg', q=True, sl=True ):
         return 'SimpleLimb'
     else:
-        return 'HingeLimb'
+        return 'HindLimb'
 
 
 
@@ -246,9 +265,9 @@ def addAttrSeparator(ctrl, name, niceName):
 
 
 def printHeader(header):
-    print '=================================== ' + header + ' ==================================='
+    print ('=================================== ' + header + ' ===================================')
 
 
 
 def printSubheader(subheader):
-    print '    ---------> ' + subheader
+    print ('    ---------> ' + subheader)
