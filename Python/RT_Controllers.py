@@ -3,7 +3,6 @@ import RT_GlobalVariables as RTvars
 import RT_ErrorsHandler as RTeh
 import RT_Utils as utils
 import maya.cmds as cmds
-import maya.mel as mel
 
 
 def createController(sh, col, scl, ori, lblFrom, lblTo, doubleOffset = False, hideAndLockOffset = True):
@@ -172,20 +171,3 @@ def copyController():
     else:
         cmds.confirmDialog( t='Copy CV\'s', m='The number of spans from the two selected objects MUST be the same.\nSource controller = ' + str(cvsFrom) + '\nDestination controller = ' + str(cvsTo), b=['OK'], p=RTvars.winName )
     
-
-
-def resetControllers():
-    mel.eval('SelectAllNURBSCurves;')
-    sel = cmds.ls(sl=True)
-    
-    attr = ['.translateX','.translateY','.translateZ','.rotateX','.rotateY','.rotateZ','.scaleX','.scaleY','.scaleZ']
-    values = [0,0,0,0,0,0,1,1,1]
-    
-    for s in sel:
-        for a in range(len(attr)):
-            try:
-                cmds.setAttr( s + attr[a], values[a] )
-            except:
-                pass
-            
-    cmds.select( d=True )
