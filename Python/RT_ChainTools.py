@@ -124,6 +124,8 @@ def createChainControllers(link):
                 break
         
         utils.lockAndHideOffset(controllersChain[0][0], True)
+        
+        setSSTailAndSpine()
     
     else:
         utils.printSubheader('Creating controllers --> ' + RTvars.chainStartingBone)
@@ -202,6 +204,9 @@ def createChainSystem(forceMirror):
         
         offset = 'OFFSET' + chain[-1][3:]
         utils.lockAndHideOffset(offset, True)
+        
+        if j.find('Tail') > -1:
+            setSSTailAndSpine()
             
     cmds.select( d=True )
     return allChains
@@ -296,6 +301,21 @@ def getOffsetsFromChain(startJoint):
             offsets.append( 'OFFSET' + c[3:] )
     
     return offsets
+
+
+
+def setSSTailAndSpine():
+    if RTvars.chainStartingBone.find('Tail') > -1:
+        result = cmds.confirmDialog( t='Space Switch', m='Do you want to create an <b>Point/Orient</b> space switch between the <b>Tail</b> and the <b>Spine</b>?', b=['Yes','No'], db='Yes', cb='No', ds='No', p=RTvars.winName )
+        if result == 'Yes':
+            cmds.parent( RTvars.chainStartingBone, 'JNT__Spine' )
+            offset = 'OFFSET' + RTvars.chainStartingBone[3:]
+            utils.lockAndHideOffset(offset, False)
+            cmds.parent( 'OFFSET' + RTvars.chainStartingBone[3:], 'CTRL__Master' )
+            RT_SpaceSwitch.createSpaceSwitch('SpineSpace', 'CTRL' + RTvars.chainStartingBone[3:], 'CTRL__Master', 'CTRL__Spine', 'PointOrient')
+            utils.lockAndHideOffset(offset, True)
+    else:
+        print ('No tail has been found!!')
 
 
 
