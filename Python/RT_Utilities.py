@@ -26,6 +26,15 @@ def createSimpleJoint(orientation, name):
     cmds.setAttr( newJoint + '.radius', 2 )
     cmds.makeIdentity(apply=True, t=1, r=1, s=1, n=0)
     cmds.editDisplayLayerMembers( 'JOINTS', newJoint, nr=True )
+
+
+
+def createRibbonJoints():
+    for x in range(4):
+        name = 'JNT__' + RTvars.bodyBones[x]
+        newJoint = cmds.joint( n = name, p=(0, 0, 0) )
+        cmds.select( d=True )
+        cmds.editDisplayLayerMembers( 'JOINTS', newJoint, nr=True )
         
 
 
@@ -77,6 +86,56 @@ def localRotationAxes():
     for i in sel:
         value = (cmds.getAttr( i + '.displayLocalAxis') + 1) % 2
         cmds.setAttr( i + '.displayLocalAxis', value )
+
+
+
+def createRoot():
+    utils.printHeader('CREATING ROOT')
+    cmds.select( 'JNT__Spine' )
+    root = RTctrl.createController('Circle', (0, 0.5, 1), 1, 'Object', 'Spine', 'Root')
+    cmds.select( root[1] + '_Shape.cv[0:7]' )
+    cmds.rotate(  0, '90deg', 0 )
+    cmds.select( d=True )
+    cmds.parent( 'OFFSET__Spine', 'OFFSET__Chest', 'CTRL__Root' )
+    cmds.parent( 'OFFSET__Spine_Chest__CENTRAL', 'GRP_LOC__Spine_Chest', 'CTRL__Root' )
+
+    cmds.parent( 'OFFSET__Root', 'CTRL__Master' )
+    cmds.select( 'CTRL__Master' )
+    
+    for n in RTvars.attributes:
+        cmds.setAttr( 'CTRL__Master' + n, k=True, l=False )
+        
+    cmds.select( d=True )
+   
+
+
+def connectLegs():
+    utils.printHeader('CONNECTING LEGS')
+
+    if getTypeOfLimb('OFFSET__L_HipHead'):
+        parentLimbs('HipHead', 'Spine')
+    else:
+        parentLimbs('Hip', 'Spine')
+                
+    createSideGroup('LEG__L', '__L_', RTvars.sideGroupLegs)
+    createSideGroup('LEG__R', '__R_', RTvars.sideGroupLegs)
+
+    result = cmds.confirmDialog( t='Space Switch', m='Do you want to create an <b>Point/Orient</b> space switch between both <b>Back Legs</b> and the <b>Spine</b>?', b=['Yes','No'], db='Yes', cb='No', ds='No', p=RTvars.winName )
+    if result == 'Yes':
+        if getTypeOfLimb('JNT__L_HipHead'):
+            switchSpaceLimbs('Hip', 'HipHead', 'SpineSpace')
+        else:
+            switchSpaceLimbs('UpperLeg', 'Hip', 'SpineSpace')             
+    
+    cmds.select( d=True )
+
+
+
+def parentLimbs(child, source):
+    for side in RTvars.sides:
+        utils.lockAndHideOffset('OFFSET__' + side + child, False)
+        cmds.parent('OFFSET__' + side + child, 'CTRL__' + source)
+        cmds.parent('JNT__' + side + child, 'JNT__' + source)
 
 
 
