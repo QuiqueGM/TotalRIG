@@ -37,7 +37,7 @@ reload(RT_FillTools)
 
 
 winWidth = 560
-winHeight = 420
+winHeight = 440
 margin = 10
 
 def rigginToolsUI():
@@ -156,7 +156,7 @@ def rigginToolsUI():
     layoutFinger(colsWidth[2], 'Ring', True)
     layoutFinger(colsWidth[2], 'Pinky', True)
     cmds.setParent(mainCL)
-    verticalSpace(5)
+    subHeader(7, 'OPTIONS', 5)
     createThreeRadioCollection('HandsParentConst', 'Parent constraint', False, 'HandsOrientConst', 'Orient constraint', True, 'HandsPointConst', 'Point constraint', False, 0.1)
     verticalSpace(1)
     createCheckbox(0.2, 'UseSimpleNameCB', 'Use short naming convention', emptyCallback, True, True)
@@ -275,7 +275,8 @@ def rigginToolsUI():
     createButtonAction(3, '', 'Create Controller', partial(createController, '', '', '', '', '', ''), False)
     createSpaceForUtilities('---------   UTILITIES  ---------')
     createButtonAction(3, 'colorizeCtrl', 'Colorize Controller', partial(colorizeController), False)
-    createButtonAction(3, 'changeCtrl', 'Change Controller', partial(changeController), True)
+    createButtonAction(3, 'changeCtrl', 'Change Controller', partial(changeController), False)
+    createButtonAction(3, 'copyCtrl', 'Copy CV Controller', partial(copyController), True)
 
     toolHeader('utilitiesTab', '---------   UTILITIES  ---------')
     verticalSpace(5)
@@ -738,6 +739,10 @@ def colorizeController(*args):
 def changeController(*args):
     RT_Controllers.changeController()
 
+def copyController(*args):
+    RT_Controllers.copyController()
+
+
 def createController(sh, col, scl, ori, lblFrom, lblTo, *args):
     RT_Controllers.createController(sh, col, scl, ori, lblFrom, lblTo)
 
@@ -802,10 +807,10 @@ def renameLimb(*args):
     RT_Utilities.renameLimb()
 
 def unlockOffset(*args):
-    RT_Utils.lockAndHideOffset('null', False, True)
+    RT_Utilities.handleOffset(False)
 
 def lockOffset(*args):
-    RT_Utils.lockAndHideOffset('null', True, True)
+    RT_Utilities.handleOffset(True)
     
 
 
