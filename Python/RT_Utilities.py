@@ -131,11 +131,98 @@ def connectLegs():
 
 
 
+def connectArms():
+    utils.printHeader('CONNECTING ARMS')
+    
+    if getTypeOfLimb('OFFSET__L_ClavicleHead'):
+        parentLimbs('ClavicleHead', 'Chest')
+    else:
+        parentLimbs('Clavicle', 'Chest')
+            
+    createSideGroup('ARM__L', '__L_', RTvars.sideGroupArms)
+    createSideGroup('ARM__R', '__R_', RTvars.sideGroupArms)
+
+    result = cmds.confirmDialog( t='Space Switch', m='Do you want to create an <b>Point/Orient</b> space switch between both <b>Front Legs / Arms</b> and the <b>Chest</b>?', b=['Yes','No'], db='Yes', cb='No', ds='No', p=RTvars.winName )
+    if result == 'Yes':
+        if getTypeOfLimb('JNT__L_ClavicleHead'):
+            switchSpaceLimbs('Clavicle', 'ClavicleHead', 'ChestSpace')
+        else:
+            switchSpaceLimbs('Arm', 'Clavicle', 'ChestSpace')
+
+    cmds.select( d=True )
+
+
+
 def parentLimbs(child, source):
     for side in RTvars.sides:
         utils.lockAndHideOffset('OFFSET__' + side + child, False)
         cmds.parent('OFFSET__' + side + child, 'CTRL__' + source)
         cmds.parent('JNT__' + side + child, 'JNT__' + source)
+
+
+
+def switchSpaceLimbs(ctrl, jnt, nameSpace):
+    for side in RTvars.sides:
+        utils.lockAndHideOffset('OFFSET__' + side + ctrl, False)
+        RT_SpaceSwitch.createSpaceSwitch(nameSpace, 'CTRL__' + side + ctrl, 'CTRL__Master', 'JNT__' + side + jnt, 'PointOrient')
+        utils.lockAndHideOffset('OFFSET__' + side + jnt, True)
+
+
+
+def getTypeOfLimb(ctrl):
+    try:
+        cmds.select( ctrl )
+        return True
+    except:
+        return False
+
+
+
+def createSideGroup(name, side, offsets):
+    sGroup = cmds.group( n=name, em=1 )
+    utils.hideAttributes(sGroup, 1)
+    
+    for o in offsets:
+        try:
+            cmds.parent( 'OFFSET' + side + o, sGroup )
+        except:
+            pass
+        
+    cmds.parent( sGroup, 'CTRL__Master' )
+
+
+
+def connectWings():
+    utils.printHeader('CONNECTING WINGS')
+    
+    offsets = getWingRoot(cmds.ls('OFFSET__L*_Wing*', 'OFFSET__R*_Wing*'))
+    for o in offsets:
+        utils.lockAndHideOffset(o, False)
+        cmds.parent(o, 'CTRL__Chest')
+        
+    joints = getWingRoot(cmds.ls('JNT__L*_Wing*', 'JNT__R*_Wing*'))
+    for j in joints:
+        cmds.parent(j, 'JNT__Chest')
+
+    result = cmds.confirmDialog( t='Space Switch', m='Do you want yo create an <b>Point/Orient</b> space switch between the <b>Wings</b> and the <b>Chest</b>?', b=['Yes','No'], db='Yes', cb='No', ds='No', p=RTvars.winName )
+    if result == 'Yes':
+        try:
+            for o in offsets:
+                RT_SpaceSwitch.createSpaceSwitch('ChestSpace', 'CTRL' + o[6:], 'CTRL__Master', 'CTRL__Chest', 'PointOrient')
+        except:
+            print ('It has not been possible to create the space switch. Probably the name of the winds don\'t match with a standard name')
+    
+    cmds.select( d=True )
+
+
+
+def getWingRoot(list):
+    roots = []
+    for o in list:
+        if cmds.listRelatives( o, p=True ) == None:
+            roots.append(o)
+    
+    return roots
 
 
 
