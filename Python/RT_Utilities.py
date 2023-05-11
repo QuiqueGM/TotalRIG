@@ -249,12 +249,12 @@ def deleteReferences():
 
 
 
-def bindDragonSkinAndRemoveInfluences():
+def bindSkinAndRemoveInfluences():
     utils.printHeader('BINDING SKIN AND REMOVING UNNECESSARY INFLUENCES')
     resetControllers()
     mel.eval('SelectAllJoints;')
     sel = cmds.ls(sl=True, type='joint')
-    cmds.skinCluster( sel, 'Mesh', n=RTvars.dragonSkinCluster, tsb=True, bm=0, nw=1, mi=4, omi=True, dr=4, rui=True )
+    cmds.skinCluster( sel, 'Mesh', n=RTvars.skinCluster, tsb=True, bm=0, nw=1, mi=4, omi=True, dr=4, rui=True )
     removeInfluences()
     cmds.select( d=True )
 
@@ -266,7 +266,7 @@ def removeInfluences():
     cmds.select( d=True )
     for s in sel:
         try:
-            cmds.skinCluster( RTvars.dragonSkinCluster, e=True, ri=s )
+            cmds.skinCluster( RTvars.skinCluster, e=True, ri=s )
         except:
             pass
 

@@ -286,7 +286,7 @@ def rigginToolsUI():
     createFourButtonUtility('Orient Simple Chain', rotateAndOrientSimpleChainZUp, 'Orient Chain', orientSimpleChain, 'Orient End Joint', orientEndJoint, ' Show/Hide LRA ', localRotationAxes, w, h)
     createFourButtonUtility('Create Root', createRoot, 'Connect Legs', connectLegs, 'Connect Arms', connectArms, 'Connect Wings', connectWings, w, h)
     createButtonUtility('Delete References and Blend Shape Targets', deleteReferences, w, h)
-    createButtonUtility('Bind skin and remove END influences', bindDragonSkinAndRemoveInfluences, w, h)
+    createButtonUtility('Bind skin and remove END influences', bindSkinAndRemoveInfluences, w, h)
     createDoubleButtonUtility('Rename dummies and assign influences', renameDummies, 'Create Range dummy', rangeDummy, w, h)
     createSpaceForUtilities('---------   UTILITIES  ---------')
     createDoubleButtonUtility('Decrease Joint Size', partial(jointSize, -0.2), 'Increase Joint Size', partial(jointSize, 0.2), w, h)
@@ -785,17 +785,11 @@ def connectBodyToCtrlMaster(*args):
 def deleteReferences(*args):
     RT_Utilities.deleteReferences()
 
-def bindDragonSkinAndRemoveInfluences(*args):
-    RT_Utilities.bindDragonSkinAndRemoveInfluences()
+def bindSkinAndRemoveInfluences(*args):
+    RT_Utilities.bindSkinAndRemoveInfluences()
 
 def removeInfluences(*args):
     RT_Utilities.removeInfluences()
-
-def renameDummies(*args):
-    RT_Utilities.renameDummies()
-
-def rangeDummy(*args):
-    RT_Utilities.rangeDummy()
 
 def jointSize(size, *args):
     RT_Utilities.jointSize(size)
