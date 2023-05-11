@@ -226,6 +226,52 @@ def getWingRoot(list):
 
 
 
+def deleteReferences():
+    utils.printHeader('DELETING REFERENCES, UNUSED LAYERS AND BLEND SHAPES')
+    toDelete = [ 'JointsReference', 'JOINTS_REF', 'Back_Up_Limbs' ]
+    for n in toDelete:
+        try:
+            cmds.delete( n )
+        except:
+            pass
+        
+    for n in RTvars.blendShapesEyes:
+        try:
+            cmds.delete( n )
+        except:
+            pass
+        
+    for n in RTvars.blendShapesFE:
+        try:
+            cmds.delete( n )
+        except:
+            pass
+
+
+
+def bindDragonSkinAndRemoveInfluences():
+    utils.printHeader('BINDING SKIN AND REMOVING UNNECESSARY INFLUENCES')
+    resetControllers()
+    mel.eval('SelectAllJoints;')
+    sel = cmds.ls(sl=True, type='joint')
+    cmds.skinCluster( sel, 'Mesh', n=RTvars.dragonSkinCluster, tsb=True, bm=0, nw=1, mi=4, omi=True, dr=4, rui=True )
+    removeInfluences()
+    cmds.select( d=True )
+
+
+
+def removeInfluences():
+    cmds.select( 'END_*', 'JNT_RBN__*1', 'JNT_RBN__*5', 'JNT_RBN__*_CENTRAL', 'JNT_RBN__*_BOTTOM', 'JNT_RBN__*_TOP', 'STRJNT__*', 'REV_JNT__*' )
+    sel = cmds.ls(sl=True, type='joint')
+    cmds.select( d=True )
+    for s in sel:
+        try:
+            cmds.skinCluster( RTvars.dragonSkinCluster, e=True, ri=s )
+        except:
+            pass
+
+
+
 def jointSize(size):
     s = cmds.jointDisplayScale( q=True )
     s += size
