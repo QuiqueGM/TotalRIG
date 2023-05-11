@@ -8,6 +8,7 @@ ctrlColor = (0, 0, 0)
 fingerControllerSizeDefault = 0.04
 limbStartingBone = ''
 chainStartingBone = ''
+dragonSkinCluster = 'dragonSkinCluster'
 drivenKeyClosed = []
 drivenKeyOpen = []
 
