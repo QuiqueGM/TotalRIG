@@ -44,7 +44,7 @@ def rigginToolsUI():
     elif cmds.windowPref( RTvars.winName, exists=True ):
         cmds.windowPref( RTvars.winName, remove=True )
     
-    cmds.window( RTvars.winName, wh=(winWidth+margin, winHeight), s=False, mnb=False, mxb=False, title='RIGGIN TOOLS ' + RTvars.version )
+    cmds.window( RTvars.winName, wh=(winWidth+margin, winHeight), s=False, mnb=False, mxb=False, title=RTvars.winName + ' ' + RTvars.version )
     form = cmds.formLayout()
     tabs = cmds.tabLayout(innerMarginWidth=5, innerMarginHeight=5)
     cmds.formLayout( form, edit=True, attachForm=((tabs, 'top', 0), (tabs, 'left', 0), (tabs, 'bottom', 0), (tabs, 'right', 0)) )
@@ -97,8 +97,8 @@ def rigginToolsUI():
     cmds.radioCollection()
     cmds.text( l='', w=rowWidth[0] )
     cmds.text( l='IK System', w=rowWidth[1], al='left')
-    cmds.radioButton( 'SimpleLeg', l='Simple IK', al='center', w=rowWidth[2], sl=True ) #, onc=partial(enableNonRollCB, True) )
-    cmds.radioButton( 'HindLeg', l='Hind Leg', al='center', w=rowWidth[2], sl=False ) #, onc=partial(enableNonRollCB, False) )
+    cmds.radioButton( 'SimpleLeg', l='Simple IK', al='center', w=rowWidth[2], sl=True )
+    cmds.radioButton( 'HindLeg', l='Hind Leg', al='center', w=rowWidth[2], sl=False )
     cmds.setParent( '..' )
     
     cmds.rowLayout( nc=4, cw4=rowWidth )
@@ -112,17 +112,8 @@ def rigginToolsUI():
     createTwoButtonsAction(7,'cc', 'Create controllers', createLimbControllers, 'mc', 'Mirror controllers', mirrorControllers, False)
     subHeader(7, 'OPTIONS', 5)
     createCheckbox(0.1, 'UseDeleteHandFootCB', 'Remove Hand/Foot', emptyCallback, True, False)
-    createCheckbox(0.1, 'UseMirrorCB', 'Actvate mirror', emptyCallback, True, True)  # True, True)
-    createCheckbox(0.1, 'UseStretchCB', 'Create stretch system', emptyCallback, True, True) # True, True)
-    """
-    rowWidth = [winWidth*0.1, winWidth*0.4, winWidth*0.3]
-    cmds.rowLayout( nc=3, cw3=rowWidth )
-    cmds.text( l='', w=rowWidth[0] )
-    cmds.checkBox( 'NonRollCB', l='Add roll bone system', w=rowWidth[1], cc=enableNumNonRollJoints, v=False, en=True ) # v=False
-    cmds.intSliderGrp( 'NumNonRollJoints', min=2, max=5, field=True, value=1, adj=1, cal=(1, "left"), w=rowWidth[2], en=False )
-    cmds.setParent( '..' )
-    """
-    
+    createCheckbox(0.1, 'UseMirrorCB', 'Actvate mirror', emptyCallback, True, True)
+    createCheckbox(0.1, 'UseStretchCB', 'Create stretch system', emptyCallback, True, True)
     createLimbFields()
     createButtonAction(10,'', 'Create Limb System', createLimbSystem, False)
     createSpaceForUtilities('---------   UTILITIES  ---------')
@@ -135,7 +126,6 @@ def rigginToolsUI():
     cmds.rowLayout(w=winWidth, nc=3, cw3=colsWidth, rowAttach=(3, 'top', 0))
     cmds.columnLayout(w=colsWidth[0])
     subHeader(1, 'PRESSETS', 3)
-    #pressetButton(colsWidth[0], 'Clear layout', clearLayout)
     pressetButton(colsWidth[0], 'Basic hand (3)', simple3Layout)
     pressetButton(colsWidth[0], 'Basic hand (4)', simple4Layout)        
     pressetButton(colsWidth[0], 'Dragon (4/1)', dragonLayout)
@@ -283,8 +273,8 @@ def rigginToolsUI():
     createFourButtonUtility('Joint - World', partial(createSimpleJoint, 'World'), 'Joint - Z Up', partial(createSimpleJoint, 'ZUp'), 'Ribbon joints', createRibbonJoints, ' -- EMPTY -- ', emptyCallback, w, h)
     createFourButtonUtility('Orient Simple Chain', rotateAndOrientSimpleChainZUp, 'Orient Chain', orientSimpleChain, 'Orient End Joint', orientEndJoint, ' Show/Hide LRA ', localRotationAxes, w, h)
     createFourButtonUtility('Create Root', createRoot, 'Connect Legs', connectLegs, 'Connect Arms', connectArms, 'Connect Wings', connectWings, w, h)
-    createButtonUtility('Delete References and Blend Shape Targets', deleteReferences, w, h)
-    createButtonUtility('Bind skin and remove END influences', bindSkinAndRemoveInfluences, w, h)
+    createDoubleButtonUtility('Delete References', deleteReferences, 'Delete Blend Shape Targets', deleteBSTargets, w, h)
+    createDoubleButtonUtility('Bind skin', bindSkinMesh, 'Remove END influences', removeInfluences, w, h)
     createSpaceForUtilities('---------   UTILITIES  ---------')
     createDoubleButtonUtility('Decrease Joint Size', partial(jointSize, -0.2), 'Increase Joint Size', partial(jointSize, 0.2), w, h)
     createFourButtonUtility('Reset controllers', resetControllers, 'Rename Limb', renameLimb, 'Unlock OFFSET', unlockOffset, 'Lock OFFSET', lockOffset, w, h)
@@ -782,8 +772,14 @@ def connectBodyToCtrlMaster(*args):
 def deleteReferences(*args):
     RT_Utilities.deleteReferences()
 
-def bindSkinAndRemoveInfluences(*args):
-    RT_Utilities.bindSkinAndRemoveInfluences()
+def deleteBSTargets(*args):
+    RT_Utilities.deleteBSTargets()
+
+def bindSkinMesh(*args):
+    RT_Utilities.bindSkinMesh()
+
+def removeInfluences(*args):
+    RT_Utilities.removeInfluences()
 
 def removeInfluences(*args):
     RT_Utilities.removeInfluences()
