@@ -12,12 +12,11 @@ import RT_HandsSetup
 import RT_ChainTools
 import RT_SpaceSwitch
 import RT_RibbonSystem
-import RT_EyesController
 import RT_HeadUtilities
 import RT_Utilities
 import maya.cmds as cmds
 from functools import partial
-from importlib import reload
+#from importlib import reload
 
 reload(RTvars)
 reload(RTeh)
@@ -28,7 +27,6 @@ reload(RT_HandsSetup)
 reload(RT_RibbonSystem)
 reload(RT_ChainTools)
 reload(RT_Controllers)
-reload(RT_EyesController)
 reload(RT_HeadUtilities)
 reload(RT_SpaceSwitch)
 reload(RT_Utilities)
@@ -287,7 +285,6 @@ def rigginToolsUI():
     createFourButtonUtility('Create Root', createRoot, 'Connect Legs', connectLegs, 'Connect Arms', connectArms, 'Connect Wings', connectWings, w, h)
     createButtonUtility('Delete References and Blend Shape Targets', deleteReferences, w, h)
     createButtonUtility('Bind skin and remove END influences', bindSkinAndRemoveInfluences, w, h)
-    createDoubleButtonUtility('Rename dummies and assign influences', renameDummies, 'Create Range dummy', rangeDummy, w, h)
     createSpaceForUtilities('---------   UTILITIES  ---------')
     createDoubleButtonUtility('Decrease Joint Size', partial(jointSize, -0.2), 'Increase Joint Size', partial(jointSize, 0.2), w, h)
     createFourButtonUtility('Reset controllers', resetControllers, 'Rename Limb', renameLimb, 'Unlock OFFSET', unlockOffset, 'Lock OFFSET', lockOffset, w, h)
