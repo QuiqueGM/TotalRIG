@@ -781,9 +781,6 @@ def bindSkinMesh(*args):
 def removeInfluences(*args):
     RT_Utilities.removeInfluences()
 
-def removeInfluences(*args):
-    RT_Utilities.removeInfluences()
-
 def jointSize(size, *args):
     RT_Utilities.jointSize(size)
 
