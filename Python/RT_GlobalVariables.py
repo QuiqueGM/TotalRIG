@@ -1,5 +1,5 @@
 winName = 'TOTALRIG'
-version='0.1.1'
+version='1.0.0'
 
 sides = ['L_', 'R_']
 bone = ''
