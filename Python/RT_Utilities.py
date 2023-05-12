@@ -227,14 +227,18 @@ def getWingRoot(list):
 
 
 def deleteReferences():
-    utils.printHeader('DELETING REFERENCES, UNUSED LAYERS AND BLEND SHAPES')
+    utils.printHeader('DELETING REFERENCES and UNUSED LAYERS')
     toDelete = [ 'JointsReference', 'JOINTS_REF', 'Back_Up_Limbs' ]
     for n in toDelete:
         try:
             cmds.delete( n )
         except:
             pass
-        
+
+
+
+def deleteBSTargets():
+    utils.printHeader('DELETING BLEND SHAPES')
     for n in RTvars.blendShapesEyes:
         try:
             cmds.delete( n )
@@ -249,18 +253,18 @@ def deleteReferences():
 
 
 
-def bindSkinAndRemoveInfluences():
-    utils.printHeader('BINDING SKIN AND REMOVING UNNECESSARY INFLUENCES')
+def bindSkinMesh():
+    utils.printHeader('BINDING SKIN')
     resetControllers()
     mel.eval('SelectAllJoints;')
     sel = cmds.ls(sl=True, type='joint')
     cmds.skinCluster( sel, 'Mesh', n=RTvars.skinCluster, tsb=True, bm=0, nw=1, mi=4, omi=True, dr=4, rui=True )
-    removeInfluences()
     cmds.select( d=True )
 
 
 
 def removeInfluences():
+    utils.printHeader('REMOVING UNNECESSARY INFLUENCES')
     cmds.select( 'END_*', 'JNT_RBN__*1', 'JNT_RBN__*5', 'JNT_RBN__*_CENTRAL', 'JNT_RBN__*_BOTTOM', 'JNT_RBN__*_TOP', 'STRJNT__*', 'REV_JNT__*' )
     sel = cmds.ls(sl=True, type='joint')
     cmds.select( d=True )
@@ -269,6 +273,8 @@ def removeInfluences():
             cmds.skinCluster( RTvars.skinCluster, e=True, ri=s )
         except:
             pass
+            
+    cmds.select( d=True )
 
 
 
