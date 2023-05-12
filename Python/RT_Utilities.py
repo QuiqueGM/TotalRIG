@@ -279,21 +279,44 @@ def jointSize(size):
 
 
 
+def resetControllers():
+    mel.eval('SelectAllNURBSCurves;')
+    sel = cmds.ls(sl=True)
+    
+    attr = ['.translateX','.translateY','.translateZ','.rotateX','.rotateY','.rotateZ','.scaleX','.scaleY','.scaleZ']
+    values = [0,0,0,0,0,0,1,1,1]
+    
+    for s in sel:
+        for a in range(len(attr)):
+            try:
+                cmds.setAttr( s + attr[a], values[a] )
+            except:
+                pass
+            
+    cmds.select( d=True )
+
+
+
+def renameLimb():
+    sel = cmds.ls(sl=True)
+    if RTeh.GetSelectionException(sel): return
+
+    from random import seed
+    from random import randint
+    from datetime import datetime
+    sel = cmds.listRelatives( cmds.ls(sl=True), ad=True )
+    sel.append( cmds.ls(sl=True)[0] )
+    for s in sel:
+        cmds.refresh()
+        cmds.select( s )
+        seed(datetime.now())
+        cmds.rename( 'joint_' + str(randint(10000000, 9999999999)) )
+
+
+
 def handleOffset(state):
     sel = cmds.ls(sl=True)
     for s in sel:
         cmds.select( s )
         utils.lockAndHideOffset('null', state, True)
         cmds.select( d=True )
-
-
-
-def convertIKtoObject():
-    utils.printHeader('CHANGING IK WORLD TO OBJECT')
-    utils.printSubheader('WIP...')      
-    
-
-
-def IKFKSnap():
-    utils.printHeader('SNAP IK /FK')
-    utils.printSubheader('WIP...')
