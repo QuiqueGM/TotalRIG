@@ -6,7 +6,6 @@ import RT_ErrorsHandler as RTeh
 import RT_Utils
 import RT_Rename
 import RT_Controllers
-import RT_FillTools
 import RT_LimbSystem
 import RT_HandsSetup
 import RT_ChainTools
@@ -31,8 +30,6 @@ reload(RT_HeadUtilities)
 reload(RT_SpaceSwitch)
 reload(RT_Utilities)
 reload(RT_Rename)
-reload(RT_FillTools)
-
 
 winWidth = 560
 winHeight = 440

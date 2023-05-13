@@ -25,6 +25,41 @@ def getLimbBones(limb):
 
 
 
+def reloadMirror(bones):
+    replaceBones('L_', 'R_', bones)
+
+
+
+def reloadPosition(bones):
+    replaceBones('F_', 'B_', bones)
+
+
+
+def replaceBones(A, B, bones):
+    for b in range(len(bones)):
+        boneName = cmds.textFieldButtonGrp( bones[b], q=True, tx=True )
+        
+        if (boneName.find(A) > -1):
+            boneName = boneName.replace(A, B)
+        elif (boneName.find(B) > -1):
+            boneName = boneName.replace(B, A)
+            
+        cmds.textFieldButtonGrp(bones[b], e=True, tx=boneName)
+        
+        if b==0:
+            RTvars.limbStartingBone = boneName
+
+
+def clearAllFields():
+    for b in RTvars.legBones:
+        removeObject(b)
+
+
+
+def removeObject(bone):
+    cmds.textFieldButtonGrp( bone, e=True, tx='' )
+
+
 def addObject(field):
     sel = cmds.ls(sl=True)
     if RTeh.GetSelectionException(sel): return

@@ -5,7 +5,6 @@ import RT_HandsSetup as RThands
 import RT_Controllers as RTctrl
 import RT_ChainTools
 import RT_Utils as utils
-import RT_FillTools
 import RT_Utilities
 import RT_SpaceSwitch
 import RT_Rename
@@ -24,7 +23,7 @@ def assignVariables(autoFill = True):
     
     cmds.select( RTvars.limbStartingBone )
     sel = cmds.ls(sl=True)[0]
-    if autoFill: RT_FillTools.autofillFromSelection()
+    if autoFill: autofillFromSelection()
     sidePos = '__' + utils.getSideFromBone(sel) + utils.getPositionFromBone(sel)
 
     if utils.getHierarchy() == 'Leg':
@@ -116,6 +115,29 @@ def assignVariables(autoFill = True):
 
 
 
+def autofillFromSelection():
+    utils.printHeader('AUTOFILL LIMB')
+
+    bones = utils.createLimbArray(RTvars.bonesHindArm if utils.getHierarchy() == 'Arm' else RTvars.bonesHindLeg)
+    bones = utils.getLimbBones(bones)
+    sel = cmds.listRelatives( cmds.ls(sl=True), ad=True )
+    sel.append( cmds.ls(sl=True)[0] )
+
+    for s in sel:
+        res = s.find('END')
+        if (res > -1):
+            sel.remove(s)
+       
+    for s in sel:
+        cmds.select(s)
+        for b in bones:
+            res = s.find(b)
+            if (res > -1):
+                utils.addObject(b)
+                break
+
+
+
 def createLimbControllers():
     RT_Rename.autorenameLimb()
     createLimbBackUp(RTvars.limbStartingBone)
@@ -183,7 +205,7 @@ def createShape():
 
 def relocateControllers(ctrls):
     if (utils.getIKSystem() == 'SimpleLimb' and utils.getFootReverse() == 'Yes') or utils.getIKSystem() == 'HindLimb':
-        cmds.select( ctrls[0] + 'Shape.cv[0:7]' )
+        cmds.select( ctrls[0] + '_Shape.cv[0:7]' )
         cmds.move( 0.2, 0, 0, r=True, os=True, wd=True)
         cmds.select( d=True )
     
@@ -205,7 +227,7 @@ def relocateControllers(ctrls):
 
 def rotateToeController(toeName):
     cmds.select( toeName )
-    cmds.select( toeName + 'Shape.cv[0:7]' )
+    cmds.select( toeName + '_Shape.cv[0:7]' )
     cmds.rotate(  0, '90deg', 0 )
     cmds.move( RThands.getFingerSizeController() * 0.9, 0, 0, r=True, os=True, wd=True)
     cmds.scale( 1.25, 1, 1 )
@@ -271,7 +293,7 @@ def createLimbSystem():
     if cmds.checkBox( 'UseMirrorCB', q=True, v=True ):
         createMirror()
         connectLimb(False)
-        RT_FillTools.reloadMirror(limbBones)
+        utils.reloadMirror(limbBones)
         connectLimb(True)
     else:
         connectLimb(False)
