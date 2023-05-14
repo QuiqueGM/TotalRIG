@@ -89,19 +89,19 @@ def fillArea(bones):
 
 
 
-def incrementNumber():
+def incrementNumber(*args):
     value = cmds.intField( 'AddNumber', q=True, v=True )
     value = value + 1
     cmds.intField( 'AddNumber', edit=True, v=value)
 
 
 
-def resetNumber():
+def resetNumber(*args):
     cmds.intField( 'AddNumber', edit=True, v=1)
 
 
 
-def renameBone(add):
+def renameBone(add, *args):
     sel = cmds.ls(sl=True)
     if RTeh.GetSelectionException(sel): return
 
@@ -203,36 +203,7 @@ def isAnIsolatedJoint(sel):
 
 
 
-def autorenameLimb():
-    RT_Utils.printHeader('AUTORENAME LIMB -- ' + RT_Utils.getHierarchy())
-    
-    sel = cmds.ls(sl=True)
-    if RTeh.GetSelectionException(sel): return
-    
-    chain = cmds.listRelatives( sel, ad=True, type='joint' )
-    chain.append( sel[0] )
-    chain.reverse()
-    bones = RT_Utils.createLimbArray(RTvars.bonesHindArm if RT_Utils.getHierarchy() == 'Arm' else RTvars.bonesHindLeg)
-    bones = RT_Utils.getLimbBones(bones)
-    n = -1
-
-    for c in range(len(chain)):
-        cmds.select( chain[c] )
-        sel = cmds.ls( sl=True )
-        typeOfBone = RT_Utils.getTypeOfJoint(sel)
-        if typeOfBone == 'JNT__':
-            n+=1
-
-        name =  typeOfBone + getSide() + getPosition() + bones[n]
-        cmds.rename( sel, name )
-        if c==0:
-            RTvars.limbStartingBone = name
-            
-        cmds.select( cl=True )
-
-
-
-def autorenameSimpleChain():
+def autorenameSimpleChain(*args):
     sel = cmds.ls(sl=True)
     if RTeh.GetNoSelectionException(sel): return
     
@@ -260,7 +231,7 @@ def autorenameSimpleChain():
 
 
 
-def autorenameMultChains():
+def autorenameMultChains(*args):
     sel = cmds.ls(sl=True)
     if RTeh.GetNoSelectionException(sel): return
     
@@ -283,7 +254,7 @@ def autorenameMultChains():
 
 
 
-def autorenameComplexChain():
+def autorenameComplexChain(*args):
     sel = cmds.ls(sl=True)
     if RTeh.GetNoSelectionException(sel): return
     

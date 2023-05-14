@@ -494,30 +494,6 @@ def addObject(nameBone, *args):
     RT_Utils.addObject(nameBone)
 
 
-### RENAME
-'''
-def incrementNumber(*args):
-    RT_Rename.incrementNumber()
-
-def resetNumber(*args):
-    RT_Rename.resetNumber()
-
-def renameBone(add, *args):
-    RT_Rename.renameBone(add)
-
-def autorenameLimb(limb, *args):
-    RT_Rename.autorenameLimb(limb)
-
-def autorenameSimpleChain(*args):
-    RT_Rename.autorenameSimpleChain()
-
-def autorenameMultChains(*args):
-    RT_Rename.autorenameMultChains()
-
-def autorenameComplexChain(*args):
-    RT_Rename.autorenameComplexChain()
-
-'''
 ### LIMB SYSTEM
 
 def createLimbControllers(*args):
