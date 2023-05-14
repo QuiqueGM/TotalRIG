@@ -46,44 +46,7 @@ def rigginToolsUI():
     tabs = cmds.tabLayout(innerMarginWidth=5, innerMarginHeight=5)
     cmds.formLayout( form, edit=True, attachForm=((tabs, 'top', 0), (tabs, 'left', 0), (tabs, 'bottom', 0), (tabs, 'right', 0)) )
     
-    toolHeader('renameBonesTab', '---------   RENAME BONES   ---------')
-    subHeader(1, 'SIDE AND POSITION', 1)
-    createThreeRadioCollection('LeftSide', 'Left', True, 'RightSide', 'Right', False, 'CenterSide', 'Center', False)
-    createThreeRadioCollection('FrontPos', 'Front', False, 'BackPos', 'Back', False, 'NonePose', 'None', True)
-    verticalSpace(5)
-    subHeader(1, 'PREDEFINED NAMES', 5)
-    rowWidth = [winWidth*0.08, winWidth*0.35, winWidth*0.1, winWidth*0.35]
-    cmds.rowLayout( nc=4, cw4=rowWidth )
-    cmds.text( l='', w=rowWidth[0])
-    cmds.optionMenu( 'AreaOM', w=rowWidth[1], l='Area   ', cc=fillAreas)
-    cmds.menuItem( l='Body' )
-    cmds.menuItem( l='Head' )
-    cmds.menuItem( l='Arm' )    
-    cmds.menuItem( l='Leg' )    
-    cmds.text( l='', w=rowWidth[2])
-    cmds.optionMenu( 'JointOM', w=rowWidth[3], l='Joint   ', cc=returnBone )
-    fillAreas()
-    verticalSpace(5)
-    rowWidth = [winWidth*0.15, winWidth*0.3, winWidth*0.25]
-    cmds.rowLayout( nc=3, cw3=rowWidth )
-    cmds.text( l='', w=rowWidth[0] )
-    cmds.checkBox( 'UseOtherCB', l='Use other', w=rowWidth[1], cc = enableFields )
-    cmds.textField( 'AlternativeName' , en=False, w=rowWidth[2] )
-    cmds.setParent( '..' )
-    rowWidth = [winWidth*0.15, winWidth*0.3, winWidth*0.25, winWidth*0.05, winWidth*0.05]
-    cmds.rowLayout( nc=5, cw5=rowWidth )
-    cmds.text( l='', w=rowWidth[0] )
-    cmds.checkBox( 'UseAddNumberCB', l='Add number', w=rowWidth[1], cc=changeIntField )
-    cmds.intField( 'AddNumber', en=False, min=1, max=100, w=rowWidth[2], v=1 )
-    cmds.button( 'IncButton', en=False, l='+', c=incrementNumber, w=rowWidth[3] )
-    cmds.button( 'ResetButton', en=False, l='R', c=resetNumber, w=rowWidth[4] )
-    cmds.setParent( '..' )
-    verticalSpace(2)
-    rowWidth = [winWidth*0.15, winWidth*0.7]
-    createButtonAction(10, '', 'Rename', partial(renameBone, ''), False)
-    createSpaceForUtilities('---------   UTILITIES  ---------')
-    createButtonAction(3,'', 'Autorename Simple Chain', autorenameSimpleChain, False)
-    createButtonAction(3,'', 'Autorename Multiple Chains', autorenameMultChains, True)
+    RT_Rename.drawUI()
 
     toolHeader('limbSystemTab', '---------   LIMB SYSTEM  ---------')
     subHeader(1, 'TYPE OF LIMB', 5)
@@ -471,25 +434,6 @@ def createSpaceForUtilities(utilities):
     verticalSpace(5)
 
 
-def fillAreas(*args):
-    currentValue = cmds.optionMenu( 'AreaOM', q=True, v=True )
-    joints = cmds.optionMenu( 'JointOM', q=True, ill=True )
-    
-    if joints: cmds.deleteUI( joints )
-    
-    if currentValue == 'Head': fillArea(RTvars.headBones)
-    elif currentValue == 'Leg': fillArea(RTvars.legBones)
-    elif currentValue == 'Arm': fillArea(RTvars.armBones)      
-    elif currentValue == 'Body': fillArea(RTvars.bodyBones)
-        
-    cmds.setParent( '..' )
-
-
-def fillArea(bones):
-    for b in bones:
-        cmds.menuItem( p='JointOM', l=b )
-    RTvars.bone = bones[0]
-
 
 def createLimbFields():
     bones = []
@@ -507,18 +451,7 @@ def createLimbFields():
 
 ####################################### VALIDATORS #####################################
 
-def changeIntField(*args):
-    value = cmds.checkBox( 'UseAddNumberCB', q=True, v=True )
-    cmds.intField( 'AddNumber', edit=True, en=value )
-    cmds.button( 'IncButton', edit=True, en=value )
-    cmds.button( 'ResetButton', edit=True, en=value )
 
-
-def enableFields(*args):
-    value = cmds.checkBox( 'UseOtherCB', q=True, v=True )
-    cmds.optionMenu( 'AreaOM', edit=True, en=not value )
-    cmds.optionMenu( 'JointOM', edit=True, en=not value )
-    cmds.textField( 'AlternativeName', edit=True, en=value )
 
 
 def enableCtrlScaleChain(*args):
@@ -562,7 +495,7 @@ def addObject(nameBone, *args):
 
 
 ### RENAME
-
+'''
 def incrementNumber(*args):
     RT_Rename.incrementNumber()
 
@@ -584,7 +517,7 @@ def autorenameMultChains(*args):
 def autorenameComplexChain(*args):
     RT_Rename.autorenameComplexChain()
 
-
+'''
 ### LIMB SYSTEM
 
 def createLimbControllers(*args):
