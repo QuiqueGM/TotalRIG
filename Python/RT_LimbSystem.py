@@ -1,4 +1,4 @@
-import RiggingTools
+import RiggingTools as RT
 import RT_GlobalVariables as RTvars
 import RT_ErrorsHandler as RTeh
 import RT_HandsSetup as RThands
@@ -10,6 +10,96 @@ import RT_SpaceSwitch
 import RT_Rename
 import maya.cmds as cmds
 import maya.mel as mel
+from functools import partial
+
+
+
+def drawUI():
+    RT.toolHeader('limbSystemTab', '---------   LIMB SYSTEM  ---------')
+    RT.subHeader(1, 'TYPE OF LIMB', 5)
+    RT.createLegOption('Hierarchy', 'FrontLimb', 'Front Leg / Arm', True, 'BackLimb', 'Back Leg / Leg', False)
+    winWidth = RT.winWidth
+    rowWidth = [winWidth*0.05, winWidth*0.25, winWidth*0.3, winWidth*0.3]
+    
+    cmds.rowLayout( nc=4, cw4=rowWidth )
+    cmds.radioCollection()
+    cmds.text( l='', w=rowWidth[0] )
+    cmds.text( l='IK System', w=rowWidth[1], al='left')
+    cmds.radioButton( 'SimpleLeg', l='Simple IK', al='center', w=rowWidth[2], sl=True )
+    cmds.radioButton( 'HindLeg', l='Hind Leg', al='center', w=rowWidth[2], sl=False )
+    cmds.setParent( '..' )
+    
+    cmds.rowLayout( nc=4, cw4=rowWidth )
+    cmds.radioCollection()
+    cmds.text( l='', w=rowWidth[0] )
+    cmds.text( l='Foot Reverse', w=rowWidth[1], al='left')
+    cmds.radioButton( 'FootReverseYes', l='Yes', al='center', w=rowWidth[2], sl=True, onc=partial(enableDeleteHandFoot, False) )
+    cmds.radioButton( 'FootReverseNo', l='No', al='center', w=rowWidth[2], sl=False, onc=partial(enableDeleteHandFoot, True) )
+    cmds.setParent( '..' )
+    
+    RT.createTwoButtonsAction(7,'cc', 'Create controllers', createLimbControllers, 'mc', 'Mirror controllers', mirrorControllers, False)
+    RT.subHeader(7, 'OPTIONS', 5)
+    RT.createCheckbox(0.1, 'UseDeleteHandFootCB', 'Remove Hand/Foot', RT.emptyCallback, True, False)
+    RT.createCheckbox(0.1, 'UseMirrorCB', 'Actvate mirror', RT.emptyCallback, True, True)
+    RT.createCheckbox(0.1, 'UseStretchCB', 'Create stretch system', RT.emptyCallback, True, True)
+    createLimbFields()
+    RT.createButtonAction(10,'', 'Create Limb System', createLimbSystem, False)
+    RT.createSpaceForUtilities('---------   UTILITIES  ---------')
+    RT.createButtonAction(3,'', 'Convert IK World to IK Object', convertIKtoObject, False)
+    RT.createTwoButtonsAction(3,'dwl', 'Delete whole limb', deleteLimb, 'dls', 'Delete limb system', deleteLimbSystem, True)
+
+
+
+def enableDeleteHandFoot(value, *args):
+    cmds.checkBox( 'UseDeleteHandFootCB', edit=True, en=value )
+
+
+
+def createLimbFields():
+    bones = []
+    bones.extend(RTvars.bonesHindArm)
+    bones.extend(RTvars.simpleHand)
+    bones.extend(RTvars.hand)
+    bones.extend(RTvars.bonesHindLeg)
+    bones.extend(RTvars.simpleFoot)
+    bones.extend(RTvars.foot)
+    
+    winWidth = RT.winWidth
+    rowWidth = [winWidth*0.2, winWidth*0.60, winWidth*0.3]
+    for b in range(len(bones)):
+        cmds.textFieldButtonGrp( bones[b], l=bones[b], vis=False, ed=False, cw3=rowWidth, cl3=('left', 'left', 'left'), bl='  Add  ', bc=partial(RT.addObject, bones[b]), h=20 )
+
+
+
+'''
+### LIMB SYSTEM
+
+def createLimbControllers(*args):
+    RT_LimbSystem.createLimbControllers()
+
+def mirrorControllers(*args):
+    RT_LimbSystem.mirrorControllers()
+
+def createLimbSystem(*args):
+    RT_LimbSystem.createLimbSystem()
+
+def convertIKtoObject(*args):
+    RT_LimbSystem.convertIKtoObject()
+
+def deleteLimb(*args):
+    RT_LimbSystem.deleteLimb()
+
+def deleteLimbSystem(*args):
+    RT_LimbSystem.deleteLimbSystem()
+
+def createStretchSystem(*args):
+    RT_LimbSystem.createStretchSystem(*args)
+
+def createSSforPoleVector(*args):
+    RT_LimbSystem.createSSforPoleVector()
+'''
+
+
 
 
 def assignVariables(autoFill = True):
@@ -138,7 +228,7 @@ def autofillFromSelection():
 
 
 
-def createLimbControllers():
+def createLimbControllers(*args):
     RT_Rename.autorenameLimb()
     createLimbBackUp(RTvars.limbStartingBone)
     assignVariables()
@@ -275,7 +365,7 @@ def createReverseFootSetUp(wristAnkleIK):
 
 
 
-def createLimbSystem():
+def createLimbSystem(*args):
     sel = cmds.ls(sl=True)
     if RTeh.GetSelectionException(sel): return
     
@@ -395,7 +485,7 @@ def createClusters(line, name, index):
 
 
 
-def mirrorControllers():
+def mirrorControllers(*args):
     sel = cmds.ls(sl=True)
     if RTeh.GetSelectionException(sel): return
     
@@ -945,7 +1035,7 @@ def createStretchSystem(*args):
     cmds.setAttr( CTRL_WristAnkle_IK + '.Stretch', 0 )
 
 
-def convertIKtoObject():
+def convertIKtoObject(*args):
     sel = cmds.ls(sl=True)
     if RTeh.GetSelectionException(sel): return
     
@@ -996,7 +1086,7 @@ def convertIKtoObject():
 
 
 
-def deleteLimbSystem():
+def deleteLimbSystem(*args):
     utils.printHeader('DELETING LIMB SYSTEM...')
     sel = cmds.ls(sl=True)
     if RTeh.GetSelectionException(sel): return
@@ -1084,7 +1174,7 @@ def deleteLimbSystem():
         print ('No groups found')
 
 
-def deleteLimb():
+def deleteLimb(*args):
     utils.printHeader('DELETING WHOLE LIMB...')
     deleteLimbSystem()
     

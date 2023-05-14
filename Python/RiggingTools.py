@@ -47,38 +47,7 @@ def rigginToolsUI():
     cmds.formLayout( form, edit=True, attachForm=((tabs, 'top', 0), (tabs, 'left', 0), (tabs, 'bottom', 0), (tabs, 'right', 0)) )
     
     RT_Rename.drawUI()
-
-    toolHeader('limbSystemTab', '---------   LIMB SYSTEM  ---------')
-    subHeader(1, 'TYPE OF LIMB', 5)
-    createLegOption('Hierarchy', 'FrontLimb', 'Front Leg / Arm', True, 'BackLimb', 'Back Leg / Leg', False)
-    rowWidth = [winWidth*0.05, winWidth*0.25, winWidth*0.3, winWidth*0.3]
-    
-    cmds.rowLayout( nc=4, cw4=rowWidth )
-    cmds.radioCollection()
-    cmds.text( l='', w=rowWidth[0] )
-    cmds.text( l='IK System', w=rowWidth[1], al='left')
-    cmds.radioButton( 'SimpleLeg', l='Simple IK', al='center', w=rowWidth[2], sl=True )
-    cmds.radioButton( 'HindLeg', l='Hind Leg', al='center', w=rowWidth[2], sl=False )
-    cmds.setParent( '..' )
-    
-    cmds.rowLayout( nc=4, cw4=rowWidth )
-    cmds.radioCollection()
-    cmds.text( l='', w=rowWidth[0] )
-    cmds.text( l='Foot Reverse', w=rowWidth[1], al='left')
-    cmds.radioButton( 'FootReverseYes', l='Yes', al='center', w=rowWidth[2], sl=True, onc=partial(enableDeleteHandFoot, False) )
-    cmds.radioButton( 'FootReverseNo', l='No', al='center', w=rowWidth[2], sl=False, onc=partial(enableDeleteHandFoot, True) )
-    cmds.setParent( '..' )
-    
-    createTwoButtonsAction(7,'cc', 'Create controllers', createLimbControllers, 'mc', 'Mirror controllers', mirrorControllers, False)
-    subHeader(7, 'OPTIONS', 5)
-    createCheckbox(0.1, 'UseDeleteHandFootCB', 'Remove Hand/Foot', emptyCallback, True, False)
-    createCheckbox(0.1, 'UseMirrorCB', 'Actvate mirror', emptyCallback, True, True)
-    createCheckbox(0.1, 'UseStretchCB', 'Create stretch system', emptyCallback, True, True)
-    createLimbFields()
-    createButtonAction(10,'', 'Create Limb System', createLimbSystem, False)
-    createSpaceForUtilities('---------   UTILITIES  ---------')
-    createButtonAction(3,'', 'Convert IK World to IK Object', convertIKtoObject, False)
-    createTwoButtonsAction(3,'dwl', 'Delete whole limb', deleteLimb, 'dls', 'Delete limb system', deleteLimbSystem, True)
+    RT_LimbSystem.drawUI()
 
     toolHeader('handsSetupTab', '---------   HANDS SET-UP  ---------')
     mainCL = cmds.columnLayout() 
@@ -435,20 +404,6 @@ def createSpaceForUtilities(utilities):
 
 
 
-def createLimbFields():
-    bones = []
-    bones.extend(RTvars.bonesHindArm)
-    bones.extend(RTvars.simpleHand)
-    bones.extend(RTvars.hand)
-    bones.extend(RTvars.bonesHindLeg)
-    bones.extend(RTvars.simpleFoot)
-    bones.extend(RTvars.foot)
-
-    rowWidth = [winWidth*0.2, winWidth*0.60, winWidth*0.3]
-    for b in range(len(bones)):
-        cmds.textFieldButtonGrp( bones[b], l=bones[b], vis=False, ed=False, cw3=rowWidth, cl3=('left', 'left', 'left'), bl='  Add  ', bc=partial(addObject, bones[b]), h=20 )
-
-
 ####################################### VALIDATORS #####################################
 
 
@@ -463,9 +418,6 @@ def enableOverrideSize(*args):
     value = cmds.checkBox( 'OverideFingerControllerSizeCB', q=True, v=True )
     cmds.floatSliderGrp( 'OverrideControllerSize', edit=True, en=value )
 
-
-def enableDeleteHandFoot(value, *args):
-    cmds.checkBox( 'UseDeleteHandFootCB', edit=True, en=value )
 
 
 def enableCreateEyes(*args):
@@ -492,33 +444,6 @@ def returnBone(item):
 
 def addObject(nameBone, *args):
     RT_Utils.addObject(nameBone)
-
-
-### LIMB SYSTEM
-
-def createLimbControllers(*args):
-    RT_LimbSystem.createLimbControllers()
-
-def mirrorControllers(*args):
-    RT_LimbSystem.mirrorControllers()
-
-def createLimbSystem(*args):
-    RT_LimbSystem.createLimbSystem()
-
-def convertIKtoObject(*args):
-    RT_LimbSystem.convertIKtoObject()
-
-def deleteLimb(*args):
-    RT_LimbSystem.deleteLimb()
-
-def deleteLimbSystem(*args):
-    RT_LimbSystem.deleteLimbSystem()
-
-def createStretchSystem(*args):
-    RT_LimbSystem.createStretchSystem(*args)
-
-def createSSforPoleVector(*args):
-    RT_LimbSystem.createSSforPoleVector()
 
 
 ### HANDS
