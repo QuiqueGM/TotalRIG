@@ -203,6 +203,32 @@ def isAnIsolatedJoint(sel):
 
 
 
+def autorenameLimb():
+    RT_Utils.printHeader('AUTORENAME LIMB -- ' + RT_Utils.getHierarchy())
+    
+    sel = cmds.ls(sl=True)
+    if RTeh.GetSelectionException(sel): return
+    
+    chain = cmds.listRelatives( sel, ad=True, type='joint' )
+    chain.append( sel[0] )
+    chain.reverse()
+    bones = RT_Utils.createLimbArray(RTvars.bonesHindArm if RT_Utils.getHierarchy() == 'Arm' else RTvars.bonesHindLeg)
+    bones = RT_Utils.getLimbBones(bones)
+    n = -1
+
+    for c in range(len(chain)):
+        cmds.select( chain[c] )
+        sel = cmds.ls( sl=True )
+        typeOfBone = RT_Utils.getTypeOfJoint(sel)
+        if typeOfBone == 'JNT__':
+            n+=1
+
+        name =  typeOfBone + getSide() + getPosition() + bones[n]
+        cmds.rename( sel, name )
+        if c==0:
+            RTvars.limbStartingBone = name
+            
+        cmds.select( cl=True )
 def autorenameSimpleChain(*args):
     sel = cmds.ls(sl=True)
     if RTeh.GetNoSelectionException(sel): return
