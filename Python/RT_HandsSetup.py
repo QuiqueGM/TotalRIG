@@ -1,7 +1,81 @@
+import RiggingTools as RT
 import RT_GlobalVariables as RTvars
 import RT_ErrorsHandler as RTeh
 import RT_Utils as utils
 import maya.cmds as cmds
+from functools import partial
+
+
+def drawUI():
+    RT.toolHeader('handsSetupTab', '---------   HANDS SET-UP  ---------')
+    mainCL = cmds.columnLayout()
+    winWidth = RT.winWidth
+    colsWidth = [winWidth*0.4, winWidth*0.05, winWidth*0.55]
+    cmds.rowLayout(w=winWidth, nc=3, cw3=colsWidth, rowAttach=(3, 'top', 0))
+    cmds.columnLayout(w=colsWidth[0])
+    RT.subHeader(1, 'PRESSETS', 3)
+    RT.pressetButton(colsWidth[0], 'Basic hand (3)', simple3Layout)
+    RT.pressetButton(colsWidth[0], 'Basic hand (4)', simple4Layout)        
+    RT.pressetButton(colsWidth[0], 'Dragon (4/1)', dragonLayout)
+    RT.pressetButton(colsWidth[0], 'Simple hand (4/1/1)', simpleHandLayout)
+    RT.pressetButton(colsWidth[0], 'Full hand (5/1/1)', fullHandLayout)  
+    cmds.setParent('..')
+    cmds.columnLayout(w=colsWidth[1])
+    cmds.setParent('..')
+    cmds.columnLayout(w=colsWidth[2])
+    RT.subHeader(1, 'LAYOUT', 3)
+    cmds.text(label='          Proximal           Middle              Distal', w=colsWidth[2])
+    RT.verticalSpace(7)
+    layoutFinger(colsWidth[2], 'Thumb', False)
+    layoutFinger(colsWidth[2], 'Index', True)
+    layoutFinger(colsWidth[2], 'Middle', True)
+    layoutFinger(colsWidth[2], 'Ring', True)
+    layoutFinger(colsWidth[2], 'Pinky', True)
+    cmds.setParent(mainCL)
+    RT.subHeader(7, 'OPTIONS', 5)
+    RT.createThreeRadioCollection('HandsParentConst', 'Parent constraint', False, 'HandsOrientConst', 'Orient constraint', True, 'HandsPointConst', 'Point constraint', False, 0.1)
+    RT.verticalSpace(1)
+    RT.createCheckbox(0.2, 'UseSimpleNameCB', 'Use short naming convention', RT.emptyCallback, True, True)
+    RT.createCheckbox(0.2, 'CreateDoubleOffsetCB', 'Create double offset in fingers / toes', RT.emptyCallback, False, True)
+    RT.createCheckbox(0.2, 'ControllersAlongBonesCB', 'Orient controllers along the bones', RT.emptyCallback, True, True)
+    rowWidth = [winWidth*0.2, winWidth*0.3, winWidth*.3 ]
+    cmds.rowLayout( nc=3, cw3=rowWidth )
+    cmds.text( l='', w=rowWidth[0] )
+    cmds.checkBox( 'OverideFingerControllerSizeCB', l='Override controller size', w=rowWidth[1], cc=enableOverrideSize, v=False, en=True )          
+    cmds.floatSliderGrp( 'OverrideControllerSize', min=0.001, max=0.05, s=0.005, field=True, value=0.015, adj=1, cal=(1, "left"), w=rowWidth[2], en=False )
+    cmds.setParent( '..' )
+    cmds.setParent('..')
+    RT.createSpaceForUtilities('---------   UTILITIES  ---------')
+    RT.createTwoButtonsAction(3,'selectDrivenKeys', 'Selecy Driven Key Offsets', partial(selectDrivenKeys, 'DRIVEN_KEY'), 'getHierarchyLayout', 'Get hierarchy layout', getHierarchyLayout, False)
+    RT.createTwoButtonsAction(3,'saveClosedHand', 'Save Closed', partial(saveHand, 'CLOSED'), 'saveOpenHand', 'Save Open', partial(saveHand, 'OPEN'),  False)
+    RT.createTwoButtonsAction(3,'saveDrivenKeysHand', 'Create Driven Keys', saveDrivenKeysHand, 'mirrorDrivenKeysHand', 'Mirror Driven Keys', mirrorDrivenKeysHand, True)
+
+
+
+def layoutFinger(column, finger, value):
+    rowWidth = [column*0.28, column*0.24, column*0.24, column*0.24]
+    cmds.rowLayout( nc=4, cw4=rowWidth )
+    cmds.text(label=finger + '          ', w=rowWidth[0], al='right')
+    cmds.checkBox( finger + 'ProximalCB', l='', w=rowWidth[1], onc=partial(addHandLayout, 10), ofc=partial(addHandLayout, -10), v=True, en=True )
+    cmds.checkBox( finger + 'MiddleCB', l='', w=rowWidth[2], onc=partial(addHandLayout, 100), ofc=partial(addHandLayout, -100), v=value, en=True )
+    cmds.checkBox( finger + 'DistalCB', l='', w=rowWidth[3], onc=partial(addHandLayout, 1000), ofc=partial(addHandLayout, -1000) , v=True, en=True )        
+    cmds.setParent('..')
+    RT.verticalSpace(7)
+
+
+
+'''
+def enableCtrlScaleChain(*args):
+    value = cmds.checkBox( 'UseCreateControllersCB', q=True, v=True )
+    cmds.floatSliderGrp( 'CtrlScaleChain', edit=True, en=value )
+'''
+
+
+def enableOverrideSize(*args):
+    value = cmds.checkBox( 'OverideFingerControllerSizeCB', q=True, v=True )
+    cmds.floatSliderGrp( 'OverrideControllerSize', edit=True, en=value )
+
+
 
 def getFullHandFootHierarchy():
     fingerToe = 'Finger' if utils.getHierarchy() == 'Arm' else 'Toe'
@@ -73,32 +147,32 @@ def getFingerSizeController():
 		
 
 
-def clearLayout():
+def clearLayout(*args):
     setLayout(False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, 0)
 
 
 
-def simple3Layout():
+def simple3Layout(*args):
     setLayout(False, False, False, True, False, False, True, False, False, True, False, False, False, False, False, 30)
 
 
 
-def simple4Layout():
+def simple4Layout(*args):
     setLayout(True, False, False, True, False, False, True, False, False, True, False, False, False, False, False, 40)
 
 
 
-def dragonLayout():
+def dragonLayout(*args):
     setLayout(True, False, True, True, False, True, True, False, True, True, False, True, False, False, False, 4040)
 
 
 
-def simpleHandLayout():
+def simpleHandLayout(*args):
     setLayout(True, False, True, True, True, True, True, True, True, True, True, True, False, False, False, 4340)
 
 
 
-def fullHandLayout():
+def fullHandLayout(*args):
     setLayout(True, False, True, True, True, True, True, True, True, True, True, True, True, True, True, 5450)
 
 
@@ -123,7 +197,7 @@ def setLayout(thumbProx, thumbInt, thumbDist, indexProx, indexInt, indexDist, mi
 
 
 
-def getHierarchyLayout():
+def getHierarchyLayout(*args):
     utils.printHeader('GET HIERARCHY LAYOUT')
     
     sel = cmds.ls(sl=True)
@@ -165,7 +239,7 @@ def saveHand(state):
 
 
 
-def saveDrivenKeysHand():
+def saveDrivenKeysHand(*args):
     utils.printHeader('CREATING DRIVEN KEYS')
     
     sel = cmds.ls(sl=True)
@@ -237,7 +311,7 @@ def getListOfDrivenKeys(pattern):
 
 
 
-def mirrorDrivenKeysHand():
+def mirrorDrivenKeysHand(*args):
     utils.printHeader('MIRRORING DRIVEN KEYS')
  
     hand = 'CTRL__L_ArmSwitch_FKIK.Hand'
