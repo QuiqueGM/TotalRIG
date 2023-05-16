@@ -6,7 +6,7 @@ import RT_Utils as utils
 import RT_Utilities
 import RT_SpaceSwitch
 import maya.cmds as cmds
-
+from functools import partial
 
 
 def drawUI():
@@ -20,32 +20,16 @@ def drawUI():
     cmds.setParent( '..' ) 
     RT.createCheckbox(0.1, 'DeleteChainCB', 'Delete source chain', RT.emptyCallback, True, True)
     RT.createCheckbox(0.1, 'ControllersAndConnectCB', 'Create controllers and connect', RT.emptyCallback, False, True) 
-    RT.createButtonAction(10,'', 'Redefine Chain', redefineChain, False)
+    RT.createButtonAction(10,'', 'Redefine Chain', partial(redefineChain, False, True, False), False)
     RT.subHeader(7, 'CONTROLLERS', 5)
     RT.createFloarSliderGroup('CtrlSimpleScaleChain', 'Controllers scale          ', 0.15, 0.01, 1.0, 0.05)
-    RT.createButtonAction(3,'', 'Create Chain Controllers', createChainControllers, False)
+    RT.createButtonAction(3,'', 'Create Chain Controllers', partial(createChainControllers, False), False)
     RT.subHeader(7, 'OPTIONS', 5)
-    RT.createCheckbox(0.1, 'UseMirrorChainCB', 'Activate mirror', emptyCallback, True, True)
+    RT.createCheckbox(0.1, 'UseMirrorChainCB', 'Activate mirror', RT.emptyCallback, True, True)
     RT.createThreeRadioCollection('ParentConst', 'Parent constraint', True, 'OrientConst', 'Orient constraint', False, 'PointConst', 'Point constraint', False, 0.1)
-    RT.createButtonAction(10,'', 'Create Chain System', createChainSystem, True)
+    RT.createButtonAction(10,'', 'Create Chain System', partial(createChainSystem, False), True)
 
 
-
-
-### CHAINS
-
-def redefineChain(*args):
-    RT_ChainTools.redefineChain(False, True, False)
-
-def createChainControllers(*args):
-    RT_ChainTools.createChainControllers(False)
-
-def createChainSystem(*args):
-    RT_ChainTools.createChainSystem(False)
-    
-    
-    
-    
 
 def setStartingBone():
     sel = cmds.ls(sl=True)
@@ -54,7 +38,9 @@ def setStartingBone():
     RTvars.chainStartingBone = sel[0]
 
 
-def redefineChain(delChain, connectChain, nonRoll, extra = '', ):
+
+#def redefineChain(delChain, connectChain, nonRoll, extra = ''):
+def redefineChain(delChain, connectChain, nonRoll, *args):
     utils.printHeader('REDEFINE CHAIN')
     setStartingBone()
     cv = createCurve(nonRoll)
@@ -121,7 +107,7 @@ def createCurve(nonRoll):
 
 
 
-def createChainControllers(link):
+def createChainControllers(link, *args):
     if link:
         utils.printHeader('CREATING AND CONNECTING CHAIN CONTROLLERS')
         
@@ -197,7 +183,7 @@ def createChainControllers(link):
 
 
 
-def createChainSystem(forceMirror):
+def createChainSystem(forceMirror, *args):
     utils.printHeader('CONNECTING CHAINs')
     chains = cmds.ls(sl=True)
     if RTeh.GetNoSelectionException(chains): return
