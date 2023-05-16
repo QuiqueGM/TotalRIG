@@ -49,30 +49,7 @@ def rigginToolsUI():
     RT_Rename.drawUI()
     RT_LimbSystem.drawUI()
     RT_HandsSetup.drawUI()
-
-    
-
-    toolHeader('ribbonSystemTab', '---------   RIBBON SYSTEM  ---------')
-    subHeader(1, 'JOINTS', 5)
-    createTextFieldButtonGrp('RBBottomJoint', 'Top Joint', partial(addObject, 'RBBottomJoint'), True)    
-    createTextFieldButtonGrp('RBTopJoint', 'Bottom  Joint', partial(addObject, 'RBTopJoint'), True)
-    subHeader(7, 'OPTIONS', 5)
-    rowWidth = [winWidth*0.1, winWidth*0.42, winWidth*0.42]
-    colWidth = [rowWidth[1]*0.3, rowWidth[1]*0.25, rowWidth[1]*0.3]
-    cmds.rowLayout( nc=3, cw3=rowWidth )
-    cmds.text( l='', w=rowWidth[0] )
-    cmds.intSliderGrp( 'RBSpawns', l='Spawns', min=3, max=20, f=True, value=5, s=2, adj=1, cal=(1, "left"), cw3=colWidth )
-    cmds.floatSliderGrp( 'RBRWidth', l='Width   ', f=True, min=0.05, max=0.5, v=0.10, s=0.05, cal=(1, "right"), cw3=colWidth )
-    cmds.setParent( '..' )
-    cmds.rowLayout( nc=3, cw3=rowWidth )
-    cmds.text( l='', w=rowWidth[0] )
-    cmds.floatSliderGrp( 'RBSizeBottom', l='Bottom Size   ', f=True, min=0.05, max=0.5, v=0.30, s=0.01, cal=(1, "right"), cw3=colWidth )
-    cmds.floatSliderGrp( 'RBSizeTop', l='Top Size', f=True, min=0.05, max=0.5, v=0.30, s=0.01, cal=(1, "left"), cw3=colWidth )
-    cmds.setParent( '..' )
-    verticalSpace(3)
-    createButtonAction(10,'', 'Create Ribbon System', createRibbonSystem, False)
-    createSpaceForUtilities('---------   UTILITIES  ---------')
-    createTwoButtonsAction(3,'dwl', 'Delete whole ribbon', deleteWholeRibbon, 'dls', 'Delete but keep controllers', deleteRibbonKeepControllers, True)
+    RT_RibbonSystem.drawUI()
 
     toolHeader('chainToolsTab', '---------   CHAIN TOOLS  ---------')
     subHeader(1, 'REDEFINE CHAIN', 5)
@@ -327,10 +304,6 @@ def pressetButton(column, labelButton, callback):
 
 
 
-
-
-
-
 def toolHeader(tabName, textHeader):
     cmds.columnLayout(tabName, columnAttach=('both', margin), cw=winWidth )
     verticalSpace(5)
@@ -385,18 +358,6 @@ def returnBone(item):
 
 def addObject(nameBone, *args):
     RT_Utils.addObject(nameBone)
-
-
-### RIBBON
-
-def createRibbonSystem(*args):
-    RT_RibbonSystem.createRibbonSystem()
-
-def deleteRibbonKeepControllers(*args):
-    RT_RibbonSystem.deleteRibbon(True)
-
-def deleteWholeRibbon(*args):
-    RT_RibbonSystem.deleteRibbon(False)
 
 
 ### CHAINS
