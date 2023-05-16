@@ -1,4 +1,4 @@
-import RiggingTools
+import RiggingTools as RT
 import RT_GlobalVariables as RTvars
 import RT_ErrorsHandler as RTeh
 import RT_Controllers as RTctrl
@@ -7,6 +7,45 @@ import RT_Utilities
 import RT_SpaceSwitch
 import maya.cmds as cmds
 
+
+
+def drawUI():
+    RT.toolHeader('chainToolsTab', '---------   CHAIN TOOLS  ---------')
+    RT.subHeader(1, 'REDEFINE CHAIN', 5)
+    winWidth = RT.winWidth
+    rowWidth = [winWidth*0.1, winWidth*0.65]
+    cmds.rowLayout( nc=2, cw2=rowWidth )
+    cmds.text( l='', w=rowWidth[0] )
+    cmds.intSliderGrp( 'NumBones', l='Number of bones', min=2, max=10, field=True, value=5, adj=1, cal=(1, "left"), w=rowWidth[1] )
+    cmds.setParent( '..' ) 
+    RT.createCheckbox(0.1, 'DeleteChainCB', 'Delete source chain', RT.emptyCallback, True, True)
+    RT.createCheckbox(0.1, 'ControllersAndConnectCB', 'Create controllers and connect', RT.emptyCallback, False, True) 
+    RT.createButtonAction(10,'', 'Redefine Chain', redefineChain, False)
+    RT.subHeader(7, 'CONTROLLERS', 5)
+    RT.createFloarSliderGroup('CtrlSimpleScaleChain', 'Controllers scale          ', 0.15, 0.01, 1.0, 0.05)
+    RT.createButtonAction(3,'', 'Create Chain Controllers', createChainControllers, False)
+    RT.subHeader(7, 'OPTIONS', 5)
+    RT.createCheckbox(0.1, 'UseMirrorChainCB', 'Activate mirror', emptyCallback, True, True)
+    RT.createThreeRadioCollection('ParentConst', 'Parent constraint', True, 'OrientConst', 'Orient constraint', False, 'PointConst', 'Point constraint', False, 0.1)
+    RT.createButtonAction(10,'', 'Create Chain System', createChainSystem, True)
+
+
+
+
+### CHAINS
+
+def redefineChain(*args):
+    RT_ChainTools.redefineChain(False, True, False)
+
+def createChainControllers(*args):
+    RT_ChainTools.createChainControllers(False)
+
+def createChainSystem(*args):
+    RT_ChainTools.createChainSystem(False)
+    
+    
+    
+    
 
 def setStartingBone():
     sel = cmds.ls(sl=True)

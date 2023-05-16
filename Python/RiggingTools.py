@@ -50,24 +50,7 @@ def rigginToolsUI():
     RT_LimbSystem.drawUI()
     RT_HandsSetup.drawUI()
     RT_RibbonSystem.drawUI()
-
-    toolHeader('chainToolsTab', '---------   CHAIN TOOLS  ---------')
-    subHeader(1, 'REDEFINE CHAIN', 5)
-    rowWidth = [winWidth*0.1, winWidth*0.65]
-    cmds.rowLayout( nc=2, cw2=rowWidth )
-    cmds.text( l='', w=rowWidth[0] )
-    cmds.intSliderGrp( 'NumBones', l='Number of bones', min=2, max=10, field=True, value=5, adj=1, cal=(1, "left"), w=rowWidth[1] )
-    cmds.setParent( '..' ) 
-    createCheckbox(0.1, 'DeleteChainCB', 'Delete source chain', emptyCallback, True, True)
-    createCheckbox(0.1, 'ControllersAndConnectCB', 'Create controllers and connect', emptyCallback, False, True) 
-    createButtonAction(10,'', 'Redefine Chain', redefineChain, False)
-    subHeader(7, 'CONTROLLERS', 5)
-    createFloarSliderGroup('CtrlSimpleScaleChain', 'Controllers scale          ', 0.15, 0.01, 1.0, 0.05)
-    createButtonAction(3,'', 'Create Chain Controllers', createChainControllers, False)
-    subHeader(7, 'OPTIONS', 5)
-    createCheckbox(0.1, 'UseMirrorChainCB', 'Activate mirror', emptyCallback, True, True)
-    createThreeRadioCollection('ParentConst', 'Parent constraint', True, 'OrientConst', 'Orient constraint', False, 'PointConst', 'Point constraint', False, 0.1)
-    createButtonAction(10,'', 'Create Chain System', createChainSystem, True)
+    RT_ChainTools.drawUI()
 
     toolHeader('headControllerTab', '---------   HEAD CONTROLLER  ---------')
     subHeader(1, 'EYES', 5)
@@ -358,19 +341,6 @@ def returnBone(item):
 
 def addObject(nameBone, *args):
     RT_Utils.addObject(nameBone)
-
-
-### CHAINS
-
-def redefineChain(*args):
-    RT_ChainTools.redefineChain(False, True, False)
-
-def createChainControllers(*args):
-    RT_ChainTools.createChainControllers(False)
-
-def createChainSystem(*args):
-    RT_ChainTools.createChainSystem(False)
-
 
 ### EYES & HEAD
 
