@@ -218,7 +218,7 @@ def getHierarchyLayout(*args):
 
 
 
-def saveHand(state):
+def saveHand(state, *args):
     utils.printHeader('SAVING HAND - ' + state)
     sel = cmds.ls(sl=True)
     if RTeh.GetNoSelectionException(sel): return
@@ -290,7 +290,7 @@ def connectDrivenKeyToPhalange(hand, sel, phalange, value):
 
 
 
-def selectDrivenKeys(pattern):
+def selectDrivenKeys(pattern, *args):
     dk = getListOfDrivenKeys(pattern)
     cmds.select (dk)
 
@@ -314,11 +314,10 @@ def getListOfDrivenKeys(pattern):
 def mirrorDrivenKeysHand(*args):
     utils.printHeader('MIRRORING DRIVEN KEYS')
  
-    hand = 'CTRL__L_ArmSwitch_FKIK.Hand'
-    cmds.setAttr( hand, 100 )
+    hand = 'OFFSET__L_Hand.Hand'
     cmds.select( 'OFFSET__L_Hand' )
     selectDrivenKeys('DRIVEN_KEY')
-    
+    cmds.setAttr( hand, 100 )
     saveHand('CLOSED')
     cmds.setAttr( hand, -100 )
     saveHand('OPEN')
@@ -329,6 +328,6 @@ def mirrorDrivenKeysHand(*args):
     for phalange in RTvars.drivenKeyOpen:
         phalange[0] = phalange[0].replace('__L_', '__R_')
     
-    cmds.select( 'CTRL__R_ArmSwitch_FKIK' )
+    cmds.select( 'OFFSET__R_Hand' )
     saveDrivenKeysHand()
         
