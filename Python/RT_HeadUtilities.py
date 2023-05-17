@@ -128,6 +128,34 @@ def createSquashAndStretch():
 
 
 
+
+
+def connectBlendShapes():
+    utils.printHeader('CONNECTING BLEND SHAPES')
+    connectEyeBlendShape('CTRL__L_Eye', 0, 'L_Eye_Opened', 0, 'L_Eye_Closed', 0)
+    connectEyeBlendShape('CTRL__L_Eye', 10, 'L_Eye_Opened', 1, 'L_Eye_Closed', 0)
+    connectEyeBlendShape('CTRL__L_Eye', -10, 'L_Eye_Opened', 0, 'L_Eye_Closed', 1)
+    connectEyeBlendShape('CTRL__R_Eye', 0, 'R_Eye_Opened', 0, 'R_Eye_Closed', 0)
+    connectEyeBlendShape('CTRL__R_Eye', 10, 'R_Eye_Opened', 1, 'R_Eye_Closed', 0)
+    connectEyeBlendShape('CTRL__R_Eye', -10, 'R_Eye_Opened', 0, 'R_Eye_Closed', 1)
+    cmds.setAttr( 'CTRL__L_Eye.Eye', 0 )
+    cmds.setAttr( 'CTRL__R_Eye.Eye', 0 )
+
+
+
+def connectEyeBlendShape(eye, attrValue, bs1, bs1Value, bs2, bs2Value):
+    cmds.setAttr( eye + '.Eye', attrValue )
+    cmds.setAttr( 'BS__Eyes.' + bs1, bs1Value )
+    cmds.setAttr( 'BS__Eyes.' + bs2, bs2Value )
+    cmds.setDrivenKeyframe( 'BS__Eyes.' + bs1, cd=eye + '.Eye' )
+    cmds.setDrivenKeyframe( 'BS__Eyes.' + bs2, cd=eye + '.Eye' )
+
+
+
+
+
+### EYES
+
 def createEyesController(*args):
     utils.printHeader('CREATING EYES CONTROLLER')
     
@@ -193,27 +221,6 @@ def addEye(eye, eyes):
 
 def getEyesRadius():
     return cmds.getAttr( 'JNT__L_Eye.translateX' ) * cmds.floatSliderGrp( 'EyesPupillaryDist', q=True, v=True )
-
-
-def connectBlendShapes():
-    utils.printHeader('CONNECTING BLEND SHAPES')
-    connectEyeBlendShape('CTRL__L_Eye', 0, 'L_Eye_Opened', 0, 'L_Eye_Closed', 0)
-    connectEyeBlendShape('CTRL__L_Eye', 10, 'L_Eye_Opened', 1, 'L_Eye_Closed', 0)
-    connectEyeBlendShape('CTRL__L_Eye', -10, 'L_Eye_Opened', 0, 'L_Eye_Closed', 1)
-    connectEyeBlendShape('CTRL__R_Eye', 0, 'R_Eye_Opened', 0, 'R_Eye_Closed', 0)
-    connectEyeBlendShape('CTRL__R_Eye', 10, 'R_Eye_Opened', 1, 'R_Eye_Closed', 0)
-    connectEyeBlendShape('CTRL__R_Eye', -10, 'R_Eye_Opened', 0, 'R_Eye_Closed', 1)
-    cmds.setAttr( 'CTRL__L_Eye.Eye', 0 )
-    cmds.setAttr( 'CTRL__R_Eye.Eye', 0 )
-
-
-
-def connectEyeBlendShape(eye, attrValue, bs1, bs1Value, bs2, bs2Value):
-    cmds.setAttr( eye + '.Eye', attrValue )
-    cmds.setAttr( 'BS__Eyes.' + bs1, bs1Value )
-    cmds.setAttr( 'BS__Eyes.' + bs2, bs2Value )
-    cmds.setDrivenKeyframe( 'BS__Eyes.' + bs1, cd=eye + '.Eye' )
-    cmds.setDrivenKeyframe( 'BS__Eyes.' + bs2, cd=eye + '.Eye' )
 
 
 
