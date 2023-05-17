@@ -1,4 +1,4 @@
-import RiggingTools
+import RiggingTools as RT
 import RT_ErrorsHandler as RTeh
 import RT_Utils as utils
 import RT_GlobalVariables as RTvars
@@ -6,7 +6,56 @@ import RT_ChainTools
 import maya.cmds as cmds
 
 
-def createHead():
+
+def drawUI():
+    RT.toolHeader('headControllerTab', '---------   HEAD CONTROLLER  ---------')
+    RT.subHeader(1, 'EYES', 5)
+    RT.createFloarSliderGroup('EyesPupillaryDist', 'Radius factor scale      ', 0.85, 0.75, 0.95, 0.01)
+    RT.createFloarSliderGroup('EyesControllerDist', 'Distance from Eyes      ', 1.0, 0.01, 1.5, 0.05)       
+    RT.subHeader(7, 'OPTIONS', 5)
+    RT.createCheckbox(0.1, 'CreateAndConnectEyesCB', 'Create and connect Eyes', enableCreateEyes, True, True)
+    RT.createCheckbox(0.1, 'ConnectTongueCB', 'Connect tongue', RT.emptyCallback, True, True)
+    RT.createCheckbox(0.1, 'SquashAndStretchCB', 'Create Squash and Stretch', RT.emptyCallback, True, True)
+    RT.createCheckbox(0.1, 'BlendShapesCB', 'Create Blend Shapes', enableBlendShapes, True, True)
+    RT.createCheckbox(0.2, 'EyesCB', 'Eyes', RT.emptyCallback, True, True)
+    RT.verticalSpace(2)
+    RT.createButtonAction(10,'', 'Create Head', createHead, False)
+    RT.createSpaceForUtilities('---------   UTILITIES  ---------')
+    RT.createTwoButtonsAction(7,'cec', 'Create Eyes Controller', createEyesController, 'dec', 'Delete Eyes Controllers', deleteEyesController, False)
+    RT.createButtonAction(3,'', 'Create Squash And Stretch', createSquashAndStretch, True)
+
+
+
+def enableCreateEyes(*args):
+    value = cmds.checkBox( 'CreateAndConnectEyesCB', q=True, v=True )
+    cmds.floatSliderGrp( 'EyesPupillaryDist', edit=True, en=value )
+    cmds.floatSliderGrp( 'EyesControllerDist', edit=True, en=value )
+
+
+
+def enableBlendShapes(*args):
+    value = cmds.checkBox( 'BlendShapesCB', q=True, v=True )
+    cmds.checkBox( 'EyesCB', edit=True, en=value )
+
+
+
+### EYES & HEAD
+
+
+
+def connectBlendShapes(*args):
+    RT_HeadUtilities.connectBlendShapes()
+
+def createSquashAndStretch(*args):
+    RT_HeadUtilities.createSquashAndStretch()
+
+
+
+
+
+
+
+def createHead(*args):
     utils.printHeader('CREATING HEAD')
     sel = cmds.ls(sl=True)
     if RTeh.GetNoSelectionException(sel): return
@@ -42,7 +91,7 @@ def createHead():
         createSquashAndStretch()
         
     if cmds.checkBox( 'CreateAndConnectEyesCB', q=True, v=True ):
-        RT_EyesController.createEyesController()
+        createEyesController()
 
 
 
@@ -79,7 +128,7 @@ def createSquashAndStretch():
 
 
 
-def createEyesController():
+def createEyesController(*args):
     utils.printHeader('CREATING EYES CONTROLLER')
     
     #############################
@@ -180,7 +229,7 @@ def connectingEyes(ctrl, loc, eye):
 
 
 
-def deleteEyesController():
+def deleteEyesController(*args):
     utils.printHeader('DELETING EYES CONTROLLERS')
     itemToDelete = ['JNT__R_Eye', 'CONST__L_Eye__AIM', 'CONST__L_Eye__POINT', 'OFFSET__Eyes', 'LOC__L_Eye', 'LOC__R_Eye', 'SPSW_PARENT__Eyes_HEAD', 'SPSW_PARENT__Eyes_MASTER']
     for i in itemToDelete:
@@ -190,6 +239,3 @@ def deleteEyesController():
             pass
 
     cmds.parent( 'JNT__L_Eye', w=True )
-
-
-
