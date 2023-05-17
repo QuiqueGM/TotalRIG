@@ -53,37 +53,7 @@ def rigginToolsUI():
     RT_ChainTools.drawUI()
     RT_HeadUtilities.drawUI()
     RT_SpaceSwitch.drawUI()
-    
-
-    
-    toolHeader('controllersTab', '---------   CREATE CONTROLLERS  ---------')
-    subHeader(1, 'SCALE AND COLOR', 1)
-    rowWidth = [winWidth*0.5, winWidth*0.05, winWidth*0.45]
-    cmds.rowLayout( nc=3, cw3=rowWidth )
-    cmds.floatSliderGrp( 'ctrlScale', l='Scale    ', f=True, min=0.05, max=1.0, v=0.25, s=0.05, cw=[1,75] )
-    cmds.text( l='', w=rowWidth[1] )    
-    cmds.gridLayout( nc=5, cwh=(rowWidth[2]/6, rowWidth[2]/10) )
-    cols = [(1, 0, 0), (0, 1, 0), (0, 0, 1), (1, 1, 0), (1, 0, 1), (0, 1, 1), (0.5, 1, 0.5), (1, 0.5, 0), (0, 0.5, 1), (1, 0.5, 1)]
-    for cl in cols:
-        cmds.button( l='', c=partial(assignColor, cl), bgc=cl )
-    cmds.setParent( 'controllersTab' )
-    subHeader(5, 'SHAPE', 7)
-    rowWidth = [winWidth*0.1, winWidth*0.2, winWidth*0.2, winWidth*0.2, winWidth*0.2]
-    cmds.rowLayout( nc=5, cw5=rowWidth )
-    cmds.radioCollection()
-    cmds.text( l='', w=rowWidth[0] )     
-    cmds.radioButton( 'CircleCtrl', l='Circle', w=rowWidth[1], sl=True )
-    cmds.radioButton( 'BoxCtrl', l='Box', w=rowWidth[2] )
-    cmds.radioButton( 'MeshCtrl', l='Mesh', w=rowWidth[3] )
-    cmds.radioButton( 'DiamondCtrl', l='Diamond', w=rowWidth[3] )
-    cmds.setParent( '..' )
-    subHeader(5, 'ORIENTATION', 9)
-    createRadioCollection('ObjectCtrl', 'Object', 'WorldCtrl', 'World')
-    createButtonAction(3, '', 'Create Controller', partial(createController, '', '', '', '', '', ''), False)
-    createSpaceForUtilities('---------   UTILITIES  ---------')
-    createButtonAction(3, 'colorizeCtrl', 'Colorize Controller', partial(colorizeController), False)
-    createButtonAction(3, 'changeCtrl', 'Change Controller', partial(changeController), False)
-    createButtonAction(3, 'copyCtrl', 'Copy CV Controller', partial(copyController), True)
+    RT_Controllers.drawUI()
 
     toolHeader('utilitiesTab', '---------   UTILITIES  ---------')
     verticalSpace(5)
@@ -297,23 +267,7 @@ def addObject(nameBone, *args):
 
 
 
-### CONTROLLERS
 
-def assignColor(col, *args):
-    RT_Controllers.assignColor(col)
-
-def colorizeController(*args):
-    RT_Controllers.colorizeController()
-
-def changeController(*args):
-    RT_Controllers.changeController()
-
-def copyController(*args):
-    RT_Controllers.copyController()
-
-
-def createController(sh, col, scl, ori, lblFrom, lblTo, *args):
-    RT_Controllers.createController(sh, col, scl, ori, lblFrom, lblTo)
 
 
 ### UTILITIES

@@ -1,8 +1,47 @@
-import RiggingTools
+import RiggingTools as RT
 import RT_GlobalVariables as RTvars
 import RT_ErrorsHandler as RTeh
 import RT_Utils as utils
 import maya.cmds as cmds
+from functools import partial
+
+
+def drawUI():
+    RT.toolHeader('controllersTab', '---------   CREATE CONTROLLERS  ---------')
+    RT.subHeader(1, 'SCALE AND COLOR', 1)
+    winWidth = RT.winWidth
+    rowWidth = [winWidth*0.5, winWidth*0.05, winWidth*0.45]
+    cmds.rowLayout( nc=3, cw3=rowWidth )
+    cmds.floatSliderGrp( 'ctrlScale', l='Scale    ', f=True, min=0.05, max=1.0, v=0.25, s=0.05, cw=[1,75] )
+    cmds.text( l='', w=rowWidth[1] )    
+    cmds.gridLayout( nc=5, cwh=(rowWidth[2]/6, rowWidth[2]/10) )
+    cols = [(1, 0, 0), (0, 1, 0), (0, 0, 1), (1, 1, 0), (1, 0, 1), (0, 1, 1), (0.5, 1, 0.5), (1, 0.5, 0), (0, 0.5, 1), (1, 0.5, 1)]
+    for cl in cols:
+        cmds.button( l='', c=partial(assignColor, cl), bgc=cl )
+    cmds.setParent( 'controllersTab' )
+    RT.subHeader(5, 'SHAPE', 7)
+    rowWidth = [winWidth*0.1, winWidth*0.2, winWidth*0.2, winWidth*0.2, winWidth*0.2]
+    cmds.rowLayout( nc=5, cw5=rowWidth )
+    cmds.radioCollection()
+    cmds.text( l='', w=rowWidth[0] )     
+    cmds.radioButton( 'CircleCtrl', l='Circle', w=rowWidth[1], sl=True )
+    cmds.radioButton( 'BoxCtrl', l='Box', w=rowWidth[2] )
+    cmds.radioButton( 'MeshCtrl', l='Mesh', w=rowWidth[3] )
+    cmds.radioButton( 'DiamondCtrl', l='Diamond', w=rowWidth[3] )
+    cmds.setParent( '..' )
+    RT.subHeader(5, 'ORIENTATION', 9)
+    RT.createRadioCollection('ObjectCtrl', 'Object', 'WorldCtrl', 'World')
+    RT.createButtonAction(3, '', 'Create Controller', partial(createControllerUI, '', '', '', '', '', ''), False)
+    RT.createSpaceForUtilities('---------   UTILITIES  ---------')
+    RT.createButtonAction(3, 'colorizeCtrl', 'Colorize Controller', partial(colorizeController), False)
+    RT.createButtonAction(3, 'changeCtrl', 'Change Controller', partial(changeController), False)
+    RT.createButtonAction(3, 'copyCtrl', 'Copy CV Controller', partial(copyController), True)
+
+
+
+def createControllerUI(sh, col, scl, ori, lblFrom, lblTo, *args):
+    createController(sh, col, scl, ori, lblFrom, lblTo)
+
 
 
 def createController(sh, col, scl, ori, lblFrom, lblTo, doubleOffset = False, hideAndLockOffset = True):
@@ -128,7 +167,7 @@ def assignColor(col, *args):
 
 
 
-def colorizeController():
+def colorizeController(*args):
     sel = cmds.ls(sl=True)
     if RTeh.GetNoSelectionException(sel): return
     
@@ -137,7 +176,7 @@ def colorizeController():
 
 
 
-def changeController():
+def changeController(*args):
     sel = cmds.ls(sl=True)
     if RTeh.GetSelectionException(sel): return
     
@@ -150,7 +189,7 @@ def changeController():
 
 
 
-def copyController():
+def copyController(*args):
     sel = cmds.ls(sl=True)
     print (sel)
     if RTeh.GetTwoSelectionException(sel): return
