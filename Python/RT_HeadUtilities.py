@@ -16,8 +16,7 @@ def drawUI():
     RT.createCheckbox(0.1, 'CreateAndConnectEyesCB', 'Create and connect Eyes', enableCreateEyes, True, True)
     RT.createCheckbox(0.1, 'ConnectTongueCB', 'Connect tongue', RT.emptyCallback, True, True)
     RT.createCheckbox(0.1, 'SquashAndStretchCB', 'Create Squash and Stretch', RT.emptyCallback, True, True)
-    RT.createCheckbox(0.1, 'BlendShapesCB', 'Create Blend Shapes', enableBlendShapes, True, True)
-    RT.createCheckbox(0.2, 'EyesCB', 'Eyes', RT.emptyCallback, True, True)
+    RT.createCheckbox(0.1, 'BlendShapesCB', 'Create Blend Shapes', RT.emptyCallback, True, True)
     RT.verticalSpace(2)
     RT.createButtonAction(10,'', 'Create Head', createHead, False)
     RT.createSpaceForUtilities('---------   UTILITIES  ---------')
@@ -30,12 +29,6 @@ def enableCreateEyes(*args):
     value = cmds.checkBox( 'CreateAndConnectEyesCB', q=True, v=True )
     cmds.floatSliderGrp( 'EyesPupillaryDist', edit=True, en=value )
     cmds.floatSliderGrp( 'EyesControllerDist', edit=True, en=value )
-
-
-
-def enableBlendShapes(*args):
-    value = cmds.checkBox( 'BlendShapesCB', q=True, v=True )
-    cmds.checkBox( 'EyesCB', edit=True, en=value )
 
 
 
@@ -129,28 +122,28 @@ def createBlendShapes():
     
     cmds.select ( 'CTRL__Head' )
     utils.addAttrSeparator('CTRL__Head', 'FacialExpressionsSeparator', 'FACIAL EXPRESSIONS')
-	cmds.addAttr( ln='L_Eye', nn='Left Eye', at="float", k=True, dv=0, min=0, max=10 )
-	cmds.addAttr( ln='R_Eye', nn='Right Eye', at="float", k=True, dv=0, min=0, max=10 )
+    cmds.addAttr( ln='L_Eye', nn='Left Eye', at="float", k=True, dv=0, min=0, max=10 )
+    cmds.addAttr( ln='R_Eye', nn='Right Eye', at="float", k=True, dv=0, min=0, max=10 )
     
     utils.printSubheader('Creating blend shapes')
     bs = []
-	for n in RTvars.blendShapesEyes:
-		bs.append(n)        
+    for n in RTvars.blendShapesEyes:
+        bs.append(n)        
     
     cmds.select( bs, 'Mesh' )
     cmds.blendShape ( n='BS__FacialExpressions', en=1, automatic=True )
     
     utils.printSubheader('Connecting driven keys')
-	connectEyeBlendShape('L_Eye', 5, 'L_Eye_Open', 0, 'L_Eye_Closed', 0)
-	connectEyeBlendShape('L_Eye', 10, 'L_Eye_Open', 1, 'L_Eye_Closed', 0)
-	connectEyeBlendShape('L_Eye', 0, 'L_Eye_Open', 0, 'L_Eye_Closed', 1)
-	connectEyeBlendShape('R_Eye', 5, 'R_Eye_Open', 0, 'R_Eye_Closed', 0)
-	connectEyeBlendShape('R_Eye', 10, 'R_Eye_Open', 1, 'R_Eye_Closed', 0)
-	connectEyeBlendShape('R_Eye', 0, 'R_Eye_Open', 0, 'R_Eye_Closed', 1)    
+    connectEyeBlendShape('L_Eye', 5, 'L_Eye_Open', 0, 'L_Eye_Closed', 0)
+    connectEyeBlendShape('L_Eye', 10, 'L_Eye_Open', 1, 'L_Eye_Closed', 0)
+    connectEyeBlendShape('L_Eye', 0, 'L_Eye_Open', 0, 'L_Eye_Closed', 1)
+    connectEyeBlendShape('R_Eye', 5, 'R_Eye_Open', 0, 'R_Eye_Closed', 0)
+    connectEyeBlendShape('R_Eye', 10, 'R_Eye_Open', 1, 'R_Eye_Closed', 0)
+    connectEyeBlendShape('R_Eye', 0, 'R_Eye_Open', 0, 'R_Eye_Closed', 1)    
     
     utils.printSubheader('Setting default values')      
-	cmds.setAttr( 'CTRL__Head.L_Eye', 5 )
-	cmds.setAttr( 'CTRL__Head.R_Eye', 5 )    
+    cmds.setAttr( 'CTRL__Head.L_Eye', 5 )
+    cmds.setAttr( 'CTRL__Head.R_Eye', 5 )    
     cmds.select( d=True )
 
 
