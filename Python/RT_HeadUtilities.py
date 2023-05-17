@@ -39,22 +39,7 @@ def enableBlendShapes(*args):
 
 
 
-### EYES & HEAD
-
-
-
-def connectBlendShapes(*args):
-    RT_HeadUtilities.connectBlendShapes()
-
-def createSquashAndStretch(*args):
-    RT_HeadUtilities.createSquashAndStretch()
-
-
-
-
-
-### HEAD
-
+################################## HEAD
 
 def createHead():
     utils.printHeader('CREATING HEAD')
@@ -185,9 +170,7 @@ def connectEyeBlendShape(eye, attrValue, bs1, bs1Value, bs2, bs2Value):
     cmds.setDrivenKeyframe( 'BS__FacialExpressions.' + bs2, cd='CTRL__Head.' + eye )
 
 
-
-
-### EYES
+################################## EYES
 
 def createEyesController(*args):
     utils.printHeader('CREATING EYES CONTROLLER')
