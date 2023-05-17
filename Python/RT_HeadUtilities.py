@@ -80,6 +80,25 @@ def createHead():
 
 
 
+def connectTongue():
+    try:
+        cmds.parent('JNT__Tongue', 'JNT__Jaw')
+    except:
+        cmds.parent('JNT__Tongue_01', 'JNT__Jaw') 
+        
+    try:
+        connectTongueOffset('OFFSET__Tongue')
+    except:
+        connectTongueOffset('OFFSET__Tongue_01')
+
+
+
+def connectTongueOffset(offset):
+    utils.lockAndHideOffset(offset, False)
+    cmds.parent(offset, 'CTRL__Jaw')
+    utils.lockAndHideOffset(offset, True)
+
+
 
 
 def createSquashAndStretch():
