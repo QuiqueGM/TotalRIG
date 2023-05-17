@@ -55,49 +55,30 @@ def createSquashAndStretch(*args):
 
 
 
-def createHead(*args):
+def createHead():
     utils.printHeader('CREATING HEAD')
-    sel = cmds.ls(sl=True)
-    if RTeh.GetNoSelectionException(sel): return
+    chains = RT_ChainTools.createChainSystem(True)
     
-    jointsToMirror = []
-    centralJoints = []
-    
-    for s in sel:
-        if utils.getSideFromBone(s) == '':
-            centralJoints.append(s)
-        else:
-            jointsToMirror.append(s)
-    
-    for j in jointsToMirror:
-        RT_ChainTools.createChainSystemWithMirror(j)
-        parentJointAndOffset(j)
-        
-    for c in centralJoints:
-        RT_ChainTools.connectChainSystem(c)
-        parentJointAndOffset(c)
+    for c in chains:
+        cmds.parent( c, 'JNT__Head' )
+        offset = 'OFFSET' + c[3:]
+        utils.lockAndHideOffset(offset, False)
+        cmds.parent( 'OFFSET' + c[3:], 'CTRL__Head' )
+        utils.lockAndHideOffset(offset, True)
 
-    try:
-        side = '_' + utils.getSideFromBone(jointsToMirror[0])
-        newSide = '_R_' if side == '_L_' else '_L_'
-    except:
-        return
-    
-    for j in jointsToMirror:
-        jnt = j.replace(side, newSide)
-        parentJointAndOffset(jnt)
-    
+    if cmds.checkBox( 'ConnectTongueCB', q=True, v=True ):
+        connectTongue()
+
+    if cmds.checkBox( 'CreateAndConnectEyesCB', q=True, v=True ):
+        RT_EyesController.createEyesController()
+
     if cmds.checkBox( 'SquashAndStretchCB', q=True, v=True ):
         createSquashAndStretch()
-        
-    if cmds.checkBox( 'CreateAndConnectEyesCB', q=True, v=True ):
-        createEyesController()
+
+    if cmds.checkBox( 'BlendShapesCB', q=True, v=True ):
+        createBlendShapes()
 
 
-
-def parentJointAndOffset(jnt):
-    cmds.parent( jnt, 'JNT__Head' )
-    cmds.parent( 'OFFSET' + jnt[3:], 'CTRL__Head' )
 
 
 
@@ -125,8 +106,6 @@ def createSquashAndStretch():
     cmds.connectAttr( SS_PlusMinus + '.output1D', 'CTRL__Head.scale.scaleX' )
     cmds.connectAttr( SS_PlusMinus + '.output1D', 'CTRL__Head.scale.scaleZ' )
     cmds.select( d=True )
-
-
 
 
 
