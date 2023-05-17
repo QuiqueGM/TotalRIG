@@ -102,15 +102,18 @@ def connectTongueOffset(offset):
 
 
 def createSquashAndStretch():
+    utils.printHeader('CREATING SQUASH AND STRETCH')
+    threshold = 100
     cmds.select( 'CTRL__Head' )
     cmds.setAttr( 'CTRL__Head.scaleX', k=False, l=False, cb=False )
     cmds.setAttr( 'CTRL__Head.scaleY', k=False, l=False, cb=False )
     cmds.setAttr( 'CTRL__Head.scaleZ', k=False, l=False, cb=False )
-    cmds.addAttr( ln='SquashStretch', nn='Squash and Stretch', at='float', k=True, dv=0, min=-100, max=100 )
+    utils.addAttrSeparator('CTRL__Head', 'SquashStretchSeparator', 'SQUASH & STRETCH')
+    cmds.addAttr( ln='SquashStretch', nn='Amount', at='float', k=True, dv=0, min=-threshold, max=threshold )
     SS_Remap = 'CTRL__Head_SS_Remap'
     cmds.shadingNode( 'remapValue', au=True, n=SS_Remap )
-    cmds.setAttr( SS_Remap + '.inputMin', -100 )
-    cmds.setAttr( SS_Remap + '.inputMax', 100 )
+    cmds.setAttr( SS_Remap + '.inputMin', -threshold )
+    cmds.setAttr( SS_Remap + '.inputMax', threshold )
     cmds.setAttr( SS_Remap + '.outputMin', 0 )
     cmds.setAttr( SS_Remap + '.outputMax', 2 )
     cmds.connectAttr( 'CTRL__Head.SquashStretch', SS_Remap + '.inputValue' )
@@ -124,6 +127,12 @@ def createSquashAndStretch():
     cmds.connectAttr( SS_Reverse + '.outputX', SS_PlusMinus + '.input1D[1]' )
     cmds.connectAttr( SS_PlusMinus + '.output1D', 'CTRL__Head.scale.scaleX' )
     cmds.connectAttr( SS_PlusMinus + '.output1D', 'CTRL__Head.scale.scaleZ' )
+    cmds.scaleConstraint( 'CTRL__Head', 'JNT__Head', n=utils.getConstraint('Scale', '__Head'), mo=True )
+    
+    headJoints = cmds.listRelatives( 'JNT__Head', ad=True, typ='joint' )
+    for h in headJoints:
+        cmds.setAttr( h + '.segmentScaleCompensate', 0 )
+    
     cmds.select( d=True )
 
 
