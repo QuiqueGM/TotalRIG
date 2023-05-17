@@ -177,7 +177,7 @@ def createEyesController(*args):
     for e in eyes:
         cmds.select( e )
         ctrl = RTctrl.createController('Circle', utils.getColorFromSide(e[0]), getEyesRadius(), 'World', '', '', False, False)
-        cmds.select ( ctrl[1] + 'Shape.cv[0:7]' )
+        cmds.select ( ctrl[1] + '_Shape.cv[0:7]' )
         cmds.rotate( 0, '90deg', 0 )
         
     cmds.select( d=True )
@@ -186,7 +186,7 @@ def createEyesController(*args):
     cmds.setAttr( JNT_Eyes + '.translateX', 0 )
     cmds.select( JNT_Eyes )
     ctrl = RTctrl.createController('Circle', utils.getColorFromSide(JNT_Eyes[0]), getEyesRadius(), 'World', '', '', False, False)
-    cmds.select ( ctrl[1] + 'Shape.cv[0:7]' )
+    cmds.select ( ctrl[1] + '_Shape.cv[0:7]' )
     cmds.rotate( 0, '90deg', 0 )
     cmds.scale( 2.65, 1.6, 1 )
     cmds.select( d=True )
