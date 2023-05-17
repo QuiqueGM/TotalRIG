@@ -53,6 +53,7 @@ def createSquashAndStretch(*args):
 
 
 
+### HEAD
 
 
 def createHead():
@@ -70,7 +71,7 @@ def createHead():
         connectTongue()
 
     if cmds.checkBox( 'CreateAndConnectEyesCB', q=True, v=True ):
-        RT_EyesController.createEyesController()
+        createEyesController()
 
     if cmds.checkBox( 'SquashAndStretchCB', q=True, v=True ):
         createSquashAndStretch()
@@ -101,7 +102,7 @@ def connectTongueOffset(offset):
 
 
 
-def createSquashAndStretch():
+def createSquashAndStretch(*args):
     utils.printHeader('CREATING SQUASH AND STRETCH')
     threshold = 100
     cmds.select( 'CTRL__Head' )
@@ -137,26 +138,51 @@ def createSquashAndStretch():
 
 
 
-def connectBlendShapes():
-    utils.printHeader('CONNECTING BLEND SHAPES')
-    connectEyeBlendShape('CTRL__L_Eye', 0, 'L_Eye_Opened', 0, 'L_Eye_Closed', 0)
-    connectEyeBlendShape('CTRL__L_Eye', 10, 'L_Eye_Opened', 1, 'L_Eye_Closed', 0)
-    connectEyeBlendShape('CTRL__L_Eye', -10, 'L_Eye_Opened', 0, 'L_Eye_Closed', 1)
-    connectEyeBlendShape('CTRL__R_Eye', 0, 'R_Eye_Opened', 0, 'R_Eye_Closed', 0)
-    connectEyeBlendShape('CTRL__R_Eye', 10, 'R_Eye_Opened', 1, 'R_Eye_Closed', 0)
-    connectEyeBlendShape('CTRL__R_Eye', -10, 'R_Eye_Opened', 0, 'R_Eye_Closed', 1)
-    cmds.setAttr( 'CTRL__L_Eye.Eye', 0 )
-    cmds.setAttr( 'CTRL__R_Eye.Eye', 0 )
+def createBlendShapes():
+    utils.printHeader('CREATING FACIAL EXPRESSIONS')
+    utils.printSubheader('Adding attributs')
+    
+    cmds.select ( 'CTRL__Head' )
+    utils.addAttrSeparator('CTRL__Head', 'FacialExpressionsSeparator', 'FACIAL EXPRESSIONS')
+	cmds.addAttr( ln='L_Eye', nn='Left Eye', at="float", k=True, dv=0, min=0, max=10 )
+	cmds.addAttr( ln='R_Eye', nn='Right Eye', at="float", k=True, dv=0, min=0, max=10 )
+    
+    utils.printSubheader('Creating blend shapes')
+    bs = []
+	for n in RTvars.blendShapesEyes:
+		bs.append(n)        
+    
+    cmds.select( bs, 'Mesh' )
+    cmds.blendShape ( n='BS__FacialExpressions', en=1, automatic=True )
+    
+    utils.printSubheader('Connecting driven keys')
+	connectEyeBlendShape('L_Eye', 5, 'L_Eye_Open', 0, 'L_Eye_Closed', 0)
+	connectEyeBlendShape('L_Eye', 10, 'L_Eye_Open', 1, 'L_Eye_Closed', 0)
+	connectEyeBlendShape('L_Eye', 0, 'L_Eye_Open', 0, 'L_Eye_Closed', 1)
+	connectEyeBlendShape('R_Eye', 5, 'R_Eye_Open', 0, 'R_Eye_Closed', 0)
+	connectEyeBlendShape('R_Eye', 10, 'R_Eye_Open', 1, 'R_Eye_Closed', 0)
+	connectEyeBlendShape('R_Eye', 0, 'R_Eye_Open', 0, 'R_Eye_Closed', 1)    
+    
+    utils.printSubheader('Setting default values')      
+	cmds.setAttr( 'CTRL__Head.L_Eye', 5 )
+	cmds.setAttr( 'CTRL__Head.R_Eye', 5 )    
+    cmds.select( d=True )
 
+
+
+def connectFacialExpressionBlendShape(facialExpression, v1, v2):
+    cmds.setAttr( 'CTRL__Head.' + facialExpression, v1 )
+    cmds.setAttr( 'BS__FacialExpressions.' + facialExpression, v2 )
+    cmds.setDrivenKeyframe( 'BS__FacialExpressions.' + facialExpression, cd='CTRL__Head.' + facialExpression )
+    
 
 
 def connectEyeBlendShape(eye, attrValue, bs1, bs1Value, bs2, bs2Value):
-    cmds.setAttr( eye + '.Eye', attrValue )
-    cmds.setAttr( 'BS__Eyes.' + bs1, bs1Value )
-    cmds.setAttr( 'BS__Eyes.' + bs2, bs2Value )
-    cmds.setDrivenKeyframe( 'BS__Eyes.' + bs1, cd=eye + '.Eye' )
-    cmds.setDrivenKeyframe( 'BS__Eyes.' + bs2, cd=eye + '.Eye' )
-
+    cmds.setAttr( 'CTRL__Head.' + eye, attrValue )
+    cmds.setAttr( 'BS__FacialExpressions.' + bs1, bs1Value )
+    cmds.setAttr( 'BS__FacialExpressions.' + bs2, bs2Value )
+    cmds.setDrivenKeyframe( 'BS__FacialExpressions.' + bs1, cd='CTRL__Head.' + eye )
+    cmds.setDrivenKeyframe( 'BS__FacialExpressions.' + bs2, cd='CTRL__Head.' + eye )
 
 
 
