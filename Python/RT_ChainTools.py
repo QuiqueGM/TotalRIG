@@ -20,7 +20,7 @@ def drawUI():
     cmds.setParent( '..' ) 
     RT.createCheckbox(0.1, 'DeleteChainCB', 'Delete source chain', RT.emptyCallback, True, True)
     RT.createCheckbox(0.1, 'ControllersAndConnectCB', 'Create controllers and connect', RT.emptyCallback, False, True) 
-    RT.createButtonAction(10,'', 'Redefine Chain', partial(redefineChain, False, True, False), False)
+    RT.createButtonAction(10,'', 'Redefine Chain', partial(redefineChain, False, True, False, ''), False)
     RT.subHeader(7, 'CONTROLLERS', 5)
     RT.createFloarSliderGroup('CtrlSimpleScaleChain', 'Controllers scale          ', 0.15, 0.01, 1.0, 0.05)
     RT.createButtonAction(3,'', 'Create Chain Controllers', partial(createChainControllers, False), False)
@@ -39,8 +39,7 @@ def setStartingBone():
 
 
 
-#def redefineChain(delChain, connectChain, nonRoll, extra = ''):
-def redefineChain(delChain, connectChain, nonRoll, *args):
+def redefineChain(delChain, connectChain, nonRoll, extra, *args):
     utils.printHeader('REDEFINE CHAIN')
     setStartingBone()
     cv = createCurve(nonRoll)
