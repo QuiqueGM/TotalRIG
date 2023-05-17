@@ -51,22 +51,8 @@ def rigginToolsUI():
     RT_HandsSetup.drawUI()
     RT_RibbonSystem.drawUI()
     RT_ChainTools.drawUI()
+    RT_HeadUtilities.drawUI()
 
-    toolHeader('headControllerTab', '---------   HEAD CONTROLLER  ---------')
-    subHeader(1, 'EYES', 5)
-    createFloarSliderGroup('EyesPupillaryDist', 'Radius factor scale      ', 0.85, 0.75, 0.95, 0.01)
-    createFloarSliderGroup('EyesControllerDist', 'Distance from Eyes      ', 1.0, 0.01, 1.5, 0.05)       
-    subHeader(7, 'OPTIONS', 5)
-    createCheckbox(0.1, 'CreateAndConnectEyesCB', 'Create and connect Eyes', enableCreateEyes, True, True)
-    createCheckbox(0.1, 'ConnectTongueCB', 'Connect tongue', emptyCallback, True, True)
-    createCheckbox(0.1, 'SquashAndStretchCB', 'Create Squash and Stretch', emptyCallback, True, True)
-    createCheckbox(0.1, 'BlendShapesCB', 'Create Blend Shapes', enableBlendShapes, True, True)
-    createCheckbox(0.2, 'EyesCB', 'Eyes', emptyCallback, True, True)
-    verticalSpace(2)
-    createButtonAction(10,'', 'Create Head', createHead, False)
-    createSpaceForUtilities('---------   UTILITIES  ---------')
-    createTwoButtonsAction(7,'cec', 'Create Eyes Controller', createEyesController, 'dec', 'Delete Eyes Controllers', deleteEyesController, False)
-    createButtonAction(3,'', 'Create Squash And Stretch', createSquashAndStretch, True)
     
     toolHeader('spaceSwitchTab', '---------   SPACE SWITCH  ---------')
     subHeader(1, 'TARGET', 1)
@@ -313,22 +299,6 @@ def createSpaceForUtilities(utilities):
 
 
 
-####################################### VALIDATORS #####################################
-
-
-
-def enableCreateEyes(*args):
-    value = cmds.checkBox( 'CreateAndConnectEyesCB', q=True, v=True )
-    cmds.floatSliderGrp( 'EyesPupillaryDist', edit=True, en=value )
-    cmds.floatSliderGrp( 'EyesControllerDist', edit=True, en=value )
-
-
-def enableBlendShapes(*args):
-    value = cmds.checkBox( 'BlendShapesCB', q=True, v=True )
-    cmds.checkBox( 'FacialExpressionsCB', edit=True, en=value )
-    cmds.checkBox( 'EyesCB', edit=True, en=value )
-
-
 ####################################### CALLBACKS #####################################
 
 ### GLOBAL VARIABLES & UTILS
@@ -341,27 +311,6 @@ def returnBone(item):
 
 def addObject(nameBone, *args):
     RT_Utils.addObject(nameBone)
-
-### EYES & HEAD
-
-def createEyesController(*args):
-    RT_HeadUtilities.createEyesController()
-
-def deleteEyesController(*args):
-    RT_HeadUtilities.deleteEyesController()
-
-def createBlendShapes(*args):
-    RT_HeadUtilities.createBlendShapes()
-
-def connectBlendShapes(*args):
-    RT_HeadUtilities.connectBlendShapes()
-
-def createSquashAndStretch(*args):
-    RT_HeadUtilities.createSquashAndStretch()
-
-def createHead(*args):
-    RT_HeadUtilities.createHead()
-
 
 
 ### SPACE SWITCH
