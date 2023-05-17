@@ -52,26 +52,9 @@ def rigginToolsUI():
     RT_RibbonSystem.drawUI()
     RT_ChainTools.drawUI()
     RT_HeadUtilities.drawUI()
-
+    RT_SpaceSwitch.drawUI()
     
-    toolHeader('spaceSwitchTab', '---------   SPACE SWITCH  ---------')
-    subHeader(1, 'TARGET', 1)
-    rowWidth = [winWidth*0.1, winWidth*0.165, winWidth*0.2]
-    cmds.rowLayout( nc=3, cw3=rowWidth )
-    cmds.text( l='', w=rowWidth[0] )
-    cmds.text( l='Attribute', al='left', w=rowWidth[1] )
-    cmds.textField( 'SSAttribute' , en=True, w=rowWidth[2] )
-    cmds.setParent( '..' )
-    createTextFieldButtonGrp('SSController', 'Controller', partial(addObject, 'SSController'), True)
-    subHeader(5, 'SPACE SWITCH', 7)
-    createTextFieldButtonGrp('SSFrom0', 'From (0)', partial(addObject, 'SSFrom0'), True)
-    createTextFieldButtonGrp('SSTo1', 'To (1)', partial(addObject, 'SSTo1'), True)
-    subHeader(5, 'CONSTRAINT TYPE', 7)
-    createRadioCollection('SpaceSwitchParent', 'Parent space switch', 'SpaceSwitchAimOrient', 'Point/Orient space switch')    
-    createButtonAction(10,'', 'Create Space Switch', partial(createSpaceSwitch, '', '', '', '', ''), False)
-    createSpaceForUtilities('---------   UTILITIES  ---------')
-    createButtonAction(3,'', 'Create Point/Orient Space Switch for Head', createSpaceSwitchForHead, False)
-    createButtonAction(3,'', 'Create Point/Orient Space Switch for Tail', createSpaceSwitchForTail, True)
+
     
     toolHeader('controllersTab', '---------   CREATE CONTROLLERS  ---------')
     subHeader(1, 'SCALE AND COLOR', 1)
@@ -312,17 +295,6 @@ def returnBone(item):
 def addObject(nameBone, *args):
     RT_Utils.addObject(nameBone)
 
-
-### SPACE SWITCH
-
-def createSpaceSwitch(pName, pCtrl, pFrom0, pTo1, type, *args):
-    RT_SpaceSwitch.createSpaceSwitch(pName, pCtrl, pFrom0, pTo1, type)
-
-def createSpaceSwitchForHead(*args):
-    RT_SpaceSwitch.createSpaceSwitchForHead()
-
-def createSpaceSwitchForTail(*args):
-    RT_SpaceSwitch.createSpaceSwitchForTail()
 
 
 ### CONTROLLERS

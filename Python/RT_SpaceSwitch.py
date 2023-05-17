@@ -1,9 +1,35 @@
-import RiggingTools
+import RiggingTools as RT
 import RT_GlobalVariables as RTvars
 import RT_Utils as utils
 import maya.cmds as cmds
+from functools import partial
 
-def createSpaceSwitch(pName, pCtrl, pFrom0, pTo1, type):
+
+
+def drawUI():
+    RT.toolHeader('spaceSwitchTab', '---------   SPACE SWITCH  ---------')
+    RT.subHeader(1, 'TARGET', 1)
+    winWidth = RT.winWidth
+    rowWidth = [winWidth*0.1, winWidth*0.165, winWidth*0.2]
+    cmds.rowLayout( nc=3, cw3=rowWidth )
+    cmds.text( l='', w=rowWidth[0] )
+    cmds.text( l='Attribute', al='left', w=rowWidth[1] )
+    cmds.textField( 'SSAttribute' , en=True, w=rowWidth[2] )
+    cmds.setParent( '..' )
+    RT.createTextFieldButtonGrp('SSController', 'Controller', partial(RT.addObject, 'SSController'), True)
+    RT.subHeader(5, 'SPACE SWITCH', 7)
+    RT.createTextFieldButtonGrp('SSFrom0', 'From (0)', partial(RT.addObject, 'SSFrom0'), True)
+    RT.createTextFieldButtonGrp('SSTo1', 'To (1)', partial(RT.addObject, 'SSTo1'), True)
+    RT.subHeader(5, 'CONSTRAINT TYPE', 7)
+    RT.createRadioCollection('SpaceSwitchParent', 'Parent space switch', 'SpaceSwitchAimOrient', 'Point/Orient space switch')    
+    RT.createButtonAction(10,'', 'Create Space Switch', partial(createSpaceSwitch, '', '', '', '', ''), False)
+    RT.createSpaceForUtilities('---------   UTILITIES  ---------')
+    RT.createButtonAction(3,'', 'Create Point/Orient Space Switch for Head', createSpaceSwitchForHead, False)
+    RT.createButtonAction(3,'', 'Create Point/Orient Space Switch for Tail', createSpaceSwitchForTail, True)
+
+
+
+def createSpaceSwitch(pName, pCtrl, pFrom0, pTo1, type, *args):
     utils.printHeader('CREATING SPACE SWITCH FOR ' + pCtrl)
     
     #############################
@@ -103,3 +129,12 @@ def typeOfConstraint():
     else:
         return 'PointOrient'
 
+
+
+def createSpaceSwitchForHead(*args):
+    utils.printSubheader('WIP')
+
+
+
+def createSpaceSwitchForTail(*args):
+    utils.printSubheader('WIP')
