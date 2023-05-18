@@ -54,20 +54,8 @@ def rigginToolsUI():
     RT_HeadUtilities.drawUI()
     RT_SpaceSwitch.drawUI()
     RT_Controllers.drawUI()
-
-    toolHeader('utilitiesTab', '---------   UTILITIES  ---------')
-    verticalSpace(5)
-    w = winWidth*0.9
-    h = 30
-    createFourButtonUtility('Joint - World', partial(createSimpleJoint, 'World'), 'Joint - Z Up', partial(createSimpleJoint, 'ZUp'), 'Ribbon joints', createRibbonJoints, ' -- EMPTY -- ', emptyCallback, w, h)
-    createFourButtonUtility('Orient Simple Chain', rotateAndOrientSimpleChainZUp, 'Orient Chain', orientSimpleChain, 'Orient End Joint', orientEndJoint, ' Show/Hide LRA ', localRotationAxes, w, h)
-    createFourButtonUtility('Create Root', createRoot, 'Connect Legs', connectLegs, 'Connect Arms', connectArms, 'Connect Wings', connectWings, w, h)
-    createDoubleButtonUtility('Delete References', deleteReferences, 'Delete Blend Shape Targets', deleteBSTargets, w, h)
-    createDoubleButtonUtility('Bind skin', bindSkinMesh, 'Remove END influences', removeInfluences, w, h)
-    createSpaceForUtilities('---------   UTILITIES  ---------')
-    createDoubleButtonUtility('Decrease Joint Size', partial(jointSize, -0.2), 'Increase Joint Size', partial(jointSize, 0.2), w, h)
-    createFourButtonUtility('Reset controllers', resetControllers, 'Rename Limb', renameLimb, 'Unlock OFFSET', unlockOffset, 'Lock OFFSET', lockOffset, w, h)
-            
+    RT_Utilities.drawUI()
+    
     cmds.tabLayout( tabs, edit=True, tabLabel=(('renameBonesTab', 'Rename'), ('limbSystemTab', 'Limbs'), ('handsSetupTab', 'Hands'), ('ribbonSystemTab', 'Ribbons'), ('chainToolsTab', 'Chains'), ('headControllerTab', 'Head'), ('spaceSwitchTab', 'S. Switch'), ('utilitiesTab', 'Utilities'), ('controllersTab', 'Controllers')), sti=1 )
     cmds.showWindow(RTvars.winName)
     RT_HandsSetup.simple3Layout()
@@ -252,86 +240,19 @@ def createSpaceForUtilities(utilities):
 
 
 
-####################################### CALLBACKS #####################################
-
-### GLOBAL VARIABLES & UTILS
-
 def emptyCallback(*args):
     print ('Empty callback')
+
+
 
 def returnBone(item):
     RTvars.bone = item
 
+
+
 def addObject(nameBone, *args):
     RT_Utils.addObject(nameBone)
 
-
-
-
-
-
-### UTILITIES
-
-def createSimpleJoint(orientation, *args):
-    RT_Utilities.createSimpleJoint(orientation, '')
-
-def rotateAndOrientSimpleChainZUp(*args):
-    RT_Utilities.rotateAndOrientSimpleChainZUp()
-
-def createRibbonJoints(*args):
-    RT_Utilities.createRibbonJoints()
-
-def orientSimpleChain(*args):
-    RT_Utilities.orientSimpleChain()
-
-def orientEndJoint(*args):
-    RT_Utilities.orientEndJoint()
-
-def localRotationAxes(*args):
-    RT_Utilities.localRotationAxes()
-
-def createRoot(*args):
-    RT_Utilities.createRoot()
-
-def connectLegs(*args):
-    RT_Utilities.connectLegs()
-
-def connectArms(*args):
-    RT_Utilities.connectArms()
-
-def connectWings(*args):
-    RT_Utilities.connectWings()
-
-def connectBodyToCtrlMaster(*args):
-    RT_Utilities.connectBodyToCtrlMaster()
-
-def deleteReferences(*args):
-    RT_Utilities.deleteReferences()
-
-def deleteBSTargets(*args):
-    RT_Utilities.deleteBSTargets()
-
-def bindSkinMesh(*args):
-    RT_Utilities.bindSkinMesh()
-
-def removeInfluences(*args):
-    RT_Utilities.removeInfluences()
-
-def jointSize(size, *args):
-    RT_Utilities.jointSize(size)
-
-def resetControllers(*args):
-    RT_Utilities.resetControllers()
-
-def renameLimb(*args):
-    RT_Utilities.renameLimb()
-
-def unlockOffset(*args):
-    RT_Utilities.handleOffset(False)
-
-def lockOffset(*args):
-    RT_Utilities.handleOffset(True)
-    
 
 
 rigginToolsUI()

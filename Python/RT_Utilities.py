@@ -1,4 +1,4 @@
-import RiggingTools
+import RiggingTools as RT
 import RT_GlobalVariables as RTvars
 import RT_ErrorsHandler as RTeh
 import RT_Controllers as RTctrl
@@ -8,9 +8,26 @@ import RT_SpaceSwitch
 import maya.cmds as cmds
 import maya.mel as mel
 import RT_Rename
+from functools import partial
 
 
-def createSimpleJoint(orientation, name):
+def drawUI():
+    RT.toolHeader('utilitiesTab', '---------   UTILITIES  ---------')
+    RT.verticalSpace(5)
+    w = RT.winWidth*0.9
+    h = 30
+    RT.createFourButtonUtility('Joint - World', partial(createSimpleJoint, 'World'), 'Joint - Z Up', partial(createSimpleJoint, 'ZUp'), 'Ribbon joints', createRibbonJoints, ' -- EMPTY -- ', RT.emptyCallback, w, h)
+    RT.createFourButtonUtility('Orient Simple Chain', rotateAndOrientSimpleChainZUp, 'Orient Chain', orientSimpleChain, 'Orient End Joint', orientEndJoint, ' Show/Hide LRA ', localRotationAxes, w, h)
+    RT.createFourButtonUtility('Create Root', createRoot, 'Connect Legs', connectLegs, 'Connect Arms', connectArms, 'Connect Wings', connectWings, w, h)
+    RT.createDoubleButtonUtility('Delete References', deleteReferences, 'Delete Blend Shape Targets', deleteBSTargets, w, h)
+    RT.createDoubleButtonUtility('Bind skin', bindSkinMesh, 'Remove END influences', removeInfluences, w, h)
+    RT.createSpaceForUtilities('---------   UTILITIES  ---------')
+    RT.createDoubleButtonUtility('Decrease Joint Size', partial(jointSize, -0.2), 'Increase Joint Size', partial(jointSize, 0.2), w, h)
+    RT.createFourButtonUtility('Reset controllers', resetControllers, 'Rename Limb', renameLimb, 'Unlock OFFSET', partial(handleOffset, False), 'Lock OFFSET', partial(handleOffset, True), w, h)
+
+
+
+def createSimpleJoint(orientation, name, *args):
     sel = cmds.ls(sl=True)
     newJoint = cmds.joint( n=name, p=(0, 0, 0) )
     
@@ -29,7 +46,7 @@ def createSimpleJoint(orientation, name):
 
 
 
-def createRibbonJoints():
+def createRibbonJoints(*args):
     for x in range(4):
         name = 'JNT__' + RTvars.bodyBones[x]
         newJoint = cmds.joint( n = name, p=(0, 0, 0) )
@@ -38,7 +55,7 @@ def createRibbonJoints():
         
 
 
-def rotateAndOrientSimpleChainZUp():
+def rotateAndOrientSimpleChainZUp(*args):
     sel = cmds.ls(sl=True)
     if RTeh.GetNoSelectionException(sel): return
 
@@ -52,7 +69,7 @@ def rotateAndOrientSimpleChainZUp():
 
 
 
-def orientSimpleChain():
+def orientSimpleChain(*args):
     sel = cmds.ls(sl=True)
     if RTeh.GetNoSelectionException(sel): return
     
@@ -65,7 +82,7 @@ def orientSimpleChain():
 
 
 
-def orientEndJoint():
+def orientEndJoint(*args):
     sel = cmds.ls(sl=True)
     if RTeh.GetNoSelectionException(sel): return
     
@@ -76,7 +93,7 @@ def orientEndJoint():
 
 
 
-def localRotationAxes():
+def localRotationAxes(*args):
     sel = cmds.listRelatives( ad=True, type='joint')
     try:
         sel.extend(cmds.ls(sl=True))        
@@ -89,7 +106,7 @@ def localRotationAxes():
 
 
 
-def createRoot():
+def createRoot(*args):
     utils.printHeader('CREATING ROOT')
     cmds.select( 'JNT__Spine' )
     root = RTctrl.createController('Circle', (0, 0.5, 1), 1, 'Object', 'Spine', 'Root')
@@ -109,7 +126,7 @@ def createRoot():
    
 
 
-def connectLegs():
+def connectLegs(*args):
     utils.printHeader('CONNECTING LEGS')
 
     if getTypeOfLimb('OFFSET__L_HipHead'):
@@ -131,7 +148,7 @@ def connectLegs():
 
 
 
-def connectArms():
+def connectArms(*args):
     utils.printHeader('CONNECTING ARMS')
     
     if getTypeOfLimb('OFFSET__L_ClavicleHead'):
@@ -192,7 +209,7 @@ def createSideGroup(name, side, offsets):
 
 
 
-def connectWings():
+def connectWings(*args):
     utils.printHeader('CONNECTING WINGS')
     
     offsets = getWingRoot(cmds.ls('OFFSET__L*_Wing*', 'OFFSET__R*_Wing*'))
@@ -226,7 +243,7 @@ def getWingRoot(list):
 
 
 
-def deleteReferences():
+def deleteReferences(*args):
     utils.printHeader('DELETING REFERENCES and UNUSED LAYERS')
     toDelete = [ 'JointsReference', 'JOINTS_REF', 'Back_Up_Limbs' ]
     for n in toDelete:
@@ -237,23 +254,17 @@ def deleteReferences():
 
 
 
-def deleteBSTargets():
+def deleteBSTargets(*args):
     utils.printHeader('DELETING BLEND SHAPES')
     for n in RTvars.blendShapesEyes:
         try:
             cmds.delete( n )
         except:
             pass
-        
-    for n in RTvars.blendShapesFE:
-        try:
-            cmds.delete( n )
-        except:
-            pass
 
 
 
-def bindSkinMesh():
+def bindSkinMesh(*args):
     utils.printHeader('BINDING SKIN')
     resetControllers()
     mel.eval('SelectAllJoints;')
@@ -263,7 +274,7 @@ def bindSkinMesh():
 
 
 
-def removeInfluences():
+def removeInfluences(*args):
     utils.printHeader('REMOVING UNNECESSARY INFLUENCES')
     cmds.select( 'END_*', 'JNT_RBN__*1', 'JNT_RBN__*5', 'JNT_RBN__*_CENTRAL', 'JNT_RBN__*_BOTTOM', 'JNT_RBN__*_TOP', 'STRJNT__*', 'REV_JNT__*' )
     sel = cmds.ls(sl=True, type='joint')
@@ -278,14 +289,14 @@ def removeInfluences():
 
 
 
-def jointSize(size):
+def jointSize(size, *args):
     s = cmds.jointDisplayScale( q=True )
     s += size
     cmds.jointDisplayScale( s )
 
 
 
-def resetControllers():
+def resetControllers(*args):
     mel.eval('SelectAllNURBSCurves;')
     sel = cmds.ls(sl=True)
     
@@ -303,7 +314,7 @@ def resetControllers():
 
 
 
-def renameLimb():
+def renameLimb(*args):
     sel = cmds.ls(sl=True)
     if RTeh.GetSelectionException(sel): return
 
@@ -320,7 +331,7 @@ def renameLimb():
 
 
 
-def handleOffset(state):
+def handleOffset(state, *args):
     sel = cmds.ls(sl=True)
     for s in sel:
         cmds.select( s )
