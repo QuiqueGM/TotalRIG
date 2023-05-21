@@ -1,9 +1,9 @@
-import RiggingTools as RT
-import RT_Controllers as RTctrl
-import RT_GlobalVariables as RTvars
-import RT_ErrorsHandler as RTeh
-import RT_Utils as utils
-import RT_SpaceSwitch
+import TotalRig as TR
+import TR_Controllers as TRctrl
+import TR_GlobalVariables as TRvars
+import TR_ErrorsHandler as TReh
+import TR_Utils as utils
+import TR_SpaceSwitch
 import maya.cmds as cmds
 from pymel.core import language,PyNode
 import maya.mel as mel
@@ -11,12 +11,12 @@ from functools import partial
 
 
 def drawUI():
-    RT.toolHeader('ribbonSystemTab', '---------   RIBBON SYSTEM  ---------')
-    RT.subHeader(1, 'JOINTS', 5)
-    RT.createTextFieldButtonGrp('RBBottomJoint', 'Top Joint', partial(RT.addObject, 'RBBottomJoint'), True)    
-    RT.createTextFieldButtonGrp('RBTopJoint', 'Bottom  Joint', partial(RT.addObject, 'RBTopJoint'), True)
-    RT.subHeader(7, 'OPTIONS', 5)
-    winWidth = RT.winWidth
+    TR.toolHeader('ribbonSystemTab', '---------   RIBBON SYSTEM  ---------')
+    TR.subHeader(1, 'JOINTS', 5)
+    TR.createTextFieldButtonGrp('RBBottomJoint', 'Top Joint', partial(TR.addObject, 'RBBottomJoint'), True)    
+    TR.createTextFieldButtonGrp('RBTopJoint', 'Bottom  Joint', partial(TR.addObject, 'RBTopJoint'), True)
+    TR.subHeader(7, 'OPTIONS', 5)
+    winWidth = TR.winWidth
     rowWidth = [winWidth*0.1, winWidth*0.42, winWidth*0.42]
     colWidth = [rowWidth[1]*0.3, rowWidth[1]*0.25, rowWidth[1]*0.3]
     cmds.rowLayout( nc=3, cw3=rowWidth )
@@ -29,10 +29,10 @@ def drawUI():
     cmds.floatSliderGrp( 'RBSizeBottom', l='Bottom Size   ', f=True, min=0.05, max=0.5, v=0.30, s=0.01, cal=(1, "right"), cw3=colWidth )
     cmds.floatSliderGrp( 'RBSizeTop', l='Top Size', f=True, min=0.05, max=0.5, v=0.30, s=0.01, cal=(1, "left"), cw3=colWidth )
     cmds.setParent( '..' )
-    RT.verticalSpace(3)
-    RT.createButtonAction(10,'', 'Create Ribbon System', createRibbonSystem, False)
-    RT.createSpaceForUtilities('---------   UTILITIES  ---------')
-    RT.createTwoButtonsAction(3,'dwl', 'Delete whole ribbon', partial(deleteRibbon, False), 'dls', 'Delete but keep controllers', partial(deleteRibbon, True), True)
+    TR.verticalSpace(3)
+    TR.createButtonAction(10,'', 'Create Ribbon System', createRibbonSystem, False)
+    TR.createSpaceForUtilities('---------   UTILITIES  ---------')
+    TR.createTwoButtonsAction(3,'dwl', 'Delete whole ribbon', partial(deleteRibbon, False), 'dls', 'Delete but keep controllers', partial(deleteRibbon, True), True)
 
 
 
@@ -196,7 +196,7 @@ def createRibbonSystem(*args):
     controlBottom = createRibbonJointConnection(locatorBottom[1], bottomJoint)
     centralJointRibbon = 'JNT_RBN' + name + '__CENTRAL'
     cmds.select( centralJointRibbon )
-    ctrl = RTctrl.createController('Circle', (1, 1, 0), 0.3, 'Object', 'OFFSET', 'AUX')
+    ctrl = TRctrl.createController('Circle', (1, 1, 0), 0.3, 'Object', 'OFFSET', 'AUX')
     cmds.parent( ctrl[1], offset )
     utils.setTransformAndRotationToZero(ctrl[1]) 
     cmds.parent( locatorCentral[1], ctrl[1] )
@@ -215,14 +215,14 @@ def createRibbonSystem(*args):
     #############################
     cmds.refresh()
     if name.find('Head') > -1 and len(cmds.ls('CTRL__Neck')) == 1:
-        result = cmds.confirmDialog( t='Space Switch', m='Do you want to create an <b>Point/Orient</b> space switch between the <b>Head</b> and the <b>Neck</b>?', b=['Yes','No'], db='Yes', cb='No', ds='No', p=RTvars.winName )
+        result = cmds.confirmDialog( t='Space Switch', m='Do you want to create an <b>Point/Orient</b> space switch between the <b>Head</b> and the <b>Neck</b>?', b=['Yes','No'], db='Yes', cb='No', ds='No', p=TRvars.winName )
         if result == 'Yes':
-            RT_SpaceSwitch.createSpaceSwitch('NeckSpace', 'CTRL__Head', 'CTRL__Master', 'CTRL__Neck', 'PointOrient')
+            TR_SpaceSwitch.createSpaceSwitch('NeckSpace', 'CTRL__Head', 'CTRL__Master', 'CTRL__Neck', 'PointOrient')
 
     if name.find('Neck') > -1 and len(cmds.ls('CTRL__Chest')) == 1:
-        result = cmds.confirmDialog( t='Space Switch', m='Do you want to create an <b>Point/Orient</b> space switch between the <b>Neck</b> and the <b>Chest</b>?', b=['Yes','No'], db='Yes', cb='No', ds='No', p=RTvars.winName )
+        result = cmds.confirmDialog( t='Space Switch', m='Do you want to create an <b>Point/Orient</b> space switch between the <b>Neck</b> and the <b>Chest</b>?', b=['Yes','No'], db='Yes', cb='No', ds='No', p=TRvars.winName )
         if result == 'Yes':
-            RT_SpaceSwitch.createSpaceSwitch('ChestSpace', 'CTRL__Neck', 'CTRL__Master', 'CTRL__Chest', 'PointOrient')
+            TR_SpaceSwitch.createSpaceSwitch('ChestSpace', 'CTRL__Neck', 'CTRL__Master', 'CTRL__Chest', 'PointOrient')
 
     #############################
     utils.printSubheader('Locking and hidding unused attributes')
@@ -237,7 +237,7 @@ def createRibbonSystem(*args):
 def createRibbonJointConnection(locCtrl, bone):
     cmds.parent( locCtrl, bone )
     cmds.select( bone )
-    ctrl =  RTctrl.createController('Mesh', (1, 1, 0), 0.35, 'World', '', '')
+    ctrl =  TRctrl.createController('Mesh', (1, 1, 0), 0.35, 'World', '', '')
     cmds.parentConstraint( ctrl[1], bone, n=utils.getConstraint('Parent', bone[3:]), mo=True )
     return ctrl[1]
 
@@ -271,7 +271,7 @@ def createLocator(influence):
 def deleteRibbonKeepControllers():
     utils.printHeader('DELETING RIBBON SYSTEM...')
     sel = cmds.ls(sl=True)
-    if RTeh.GetSelectionException(sel): return
+    if TReh.GetSelectionException(sel): return
     
     ribbon = sel[0][5:]
     topJoint = sel[0][5:].split('_')[0]

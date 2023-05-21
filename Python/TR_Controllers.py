@@ -1,15 +1,15 @@
-import RiggingTools as RT
-import RT_GlobalVariables as RTvars
-import RT_ErrorsHandler as RTeh
-import RT_Utils as utils
+import TotalRig as TR
+import TR_GlobalVariables as TRvars
+import TR_ErrorsHandler as TReh
+import TR_Utils as utils
 import maya.cmds as cmds
 from functools import partial
 
 
 def drawUI():
-    RT.toolHeader('controllersTab', '---------   CREATE CONTROLLERS  ---------')
-    RT.subHeader(1, 'SCALE AND COLOR', 1)
-    winWidth = RT.winWidth
+    TR.toolHeader('controllersTab', '---------   CREATE CONTROLLERS  ---------')
+    TR.subHeader(1, 'SCALE AND COLOR', 1)
+    winWidth = TR.winWidth
     rowWidth = [winWidth*0.5, winWidth*0.05, winWidth*0.45]
     cmds.rowLayout( nc=3, cw3=rowWidth )
     cmds.floatSliderGrp( 'ctrlScale', l='Scale    ', f=True, min=0.05, max=1.0, v=0.25, s=0.05, cw=[1,75] )
@@ -19,7 +19,7 @@ def drawUI():
     for cl in cols:
         cmds.button( l='', c=partial(assignColor, cl), bgc=cl )
     cmds.setParent( 'controllersTab' )
-    RT.subHeader(5, 'SHAPE', 7)
+    TR.subHeader(5, 'SHAPE', 7)
     rowWidth = [winWidth*0.1, winWidth*0.2, winWidth*0.2, winWidth*0.2, winWidth*0.2]
     cmds.rowLayout( nc=5, cw5=rowWidth )
     cmds.radioCollection()
@@ -29,13 +29,13 @@ def drawUI():
     cmds.radioButton( 'MeshCtrl', l='Mesh', w=rowWidth[3] )
     cmds.radioButton( 'DiamondCtrl', l='Diamond', w=rowWidth[3] )
     cmds.setParent( '..' )
-    RT.subHeader(5, 'ORIENTATION', 9)
-    RT.createRadioCollection('ObjectCtrl', 'Object', 'WorldCtrl', 'World')
-    RT.createButtonAction(3, '', 'Create Controller', partial(createControllerUI, '', '', '', '', '', ''), False)
-    RT.createSpaceForUtilities('---------   UTILITIES  ---------')
-    RT.createButtonAction(3, 'colorizeCtrl', 'Colorize Controller', partial(colorizeController), False)
-    RT.createButtonAction(3, 'changeCtrl', 'Change Controller', partial(changeController), False)
-    RT.createButtonAction(3, 'copyCtrl', 'Copy CV Controller', partial(copyController), True)
+    TR.subHeader(5, 'ORIENTATION', 9)
+    TR.createRadioCollection('ObjectCtrl', 'Object', 'WorldCtrl', 'World')
+    TR.createButtonAction(3, '', 'Create Controller', partial(createControllerUI, '', '', '', '', '', ''), False)
+    TR.createSpaceForUtilities('---------   UTILITIES  ---------')
+    TR.createButtonAction(3, 'colorizeCtrl', 'Colorize Controller', partial(colorizeController), False)
+    TR.createButtonAction(3, 'changeCtrl', 'Change Controller', partial(changeController), False)
+    TR.createButtonAction(3, 'copyCtrl', 'Copy CV Controller', partial(copyController), True)
 
 
 
@@ -46,7 +46,7 @@ def createControllerUI(sh, col, scl, ori, lblFrom, lblTo, *args):
 
 def createController(sh, col, scl, ori, lblFrom, lblTo, doubleOffset = False, hideAndLockOffset = True):
     jnt = cmds.ls(sl=True)
-    if RTeh.GetSelectionException(jnt): return
+    if TReh.GetSelectionException(jnt): return
 
     if sh == '':
         sh = getShape()
@@ -55,7 +55,7 @@ def createController(sh, col, scl, ori, lblFrom, lblTo, doubleOffset = False, hi
         ori = getOrientation()
     
     if col == '':
-        col = RTvars.ctrlColor
+        col = TRvars.ctrlColor
 
     if scl == '':
         scl = cmds.floatSliderGrp('ctrlScale', q=True, v=True)
@@ -94,7 +94,7 @@ def createController(sh, col, scl, ori, lblFrom, lblTo, doubleOffset = False, hi
         else:
             cmds.pointConstraint( jnt, offsetName, n=const, mo=False )
     except Exception as e:
-        RTeh.DestinationIsLocked(offsetName)
+        TReh.DestinationIsLocked(offsetName)
         return
             
     cmds.delete( const )
@@ -163,22 +163,22 @@ def overrideColor(ctrl, col):
 
 def assignColor(col, *args):
     cmds.button( 'colorizeCtrl', e=True, bgc=col )
-    RTvars.ctrlColor = col
+    TRvars.ctrlColor = col
 
 
 
 def colorizeController(*args):
     sel = cmds.ls(sl=True)
-    if RTeh.GetNoSelectionException(sel): return
+    if TReh.GetNoSelectionException(sel): return
     
     for s in sel:
-        overrideColor(s, RTvars.ctrlColor)
+        overrideColor(s, TRvars.ctrlColor)
 
 
 
 def changeController(*args):
     sel = cmds.ls(sl=True)
-    if RTeh.GetSelectionException(sel): return
+    if TReh.GetSelectionException(sel): return
     
     utils.printHeader('CHANGE CONTROLLER')
     print ('OFFSET' + sel[0][4:])
@@ -192,7 +192,7 @@ def changeController(*args):
 def copyController(*args):
     sel = cmds.ls(sl=True)
     print (sel)
-    if RTeh.GetTwoSelectionException(sel): return
+    if TReh.GetTwoSelectionException(sel): return
     
     utils.printHeader('COPY CV\'s FROM ONE CONTROLLER TO ANOTHER')
     cvsFrom = cmds.getAttr(sel[1] + '_Shape.spans') + 1
@@ -208,5 +208,5 @@ def copyController(*args):
         cmds.delete( sel[0] )
         cmds.select( d=True )
     else:
-        cmds.confirmDialog( t='Copy CV\'s', m='The number of spans from the two selected objects MUST be the same.\nSource controller = ' + str(cvsFrom) + '\nDestination controller = ' + str(cvsTo), b=['OK'], p=RTvars.winName )
+        cmds.confirmDialog( t='Copy CV\'s', m='The number of spans from the two selected objects MUST be the same.\nSource controller = ' + str(cvsFrom) + '\nDestination controller = ' + str(cvsTo), b=['OK'], p=TRvars.winName )
     

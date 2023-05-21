@@ -1,41 +1,41 @@
-import RiggingTools as RT
-import RT_GlobalVariables as RTvars
-import RT_ErrorsHandler as RTeh
-import RT_Controllers as RTctrl
-import RT_Utils as utils
-import RT_Utilities
-import RT_SpaceSwitch
+import TotalRig as TR
+import TR_GlobalVariables as TRvars
+import TR_ErrorsHandler as TReh
+import TR_Controllers as TRctrl
+import TR_Utils as utils
+import TR_Utilities
+import TR_SpaceSwitch
 import maya.cmds as cmds
 from functools import partial
 
 
 def drawUI():
-    RT.toolHeader('chainToolsTab', '---------   CHAIN TOOLS  ---------')
-    RT.subHeader(1, 'REDEFINE CHAIN', 5)
-    winWidth = RT.winWidth
+    TR.toolHeader('chainToolsTab', '---------   CHAIN TOOLS  ---------')
+    TR.subHeader(1, 'REDEFINE CHAIN', 5)
+    winWidth = TR.winWidth
     rowWidth = [winWidth*0.1, winWidth*0.65]
     cmds.rowLayout( nc=2, cw2=rowWidth )
     cmds.text( l='', w=rowWidth[0] )
     cmds.intSliderGrp( 'NumBones', l='Number of bones', min=2, max=10, field=True, value=5, adj=1, cal=(1, "left"), w=rowWidth[1] )
     cmds.setParent( '..' ) 
-    RT.createCheckbox(0.1, 'DeleteChainCB', 'Delete source chain', RT.emptyCallback, True, True)
-    RT.createCheckbox(0.1, 'ControllersAndConnectCB', 'Create controllers and connect', RT.emptyCallback, False, True) 
-    RT.createButtonAction(10,'', 'Redefine Chain', partial(redefineChain, False, True, False, ''), False)
-    RT.subHeader(7, 'CONTROLLERS', 5)
-    RT.createFloarSliderGroup('CtrlSimpleScaleChain', 'Controllers scale          ', 0.15, 0.01, 1.0, 0.05)
-    RT.createButtonAction(3,'', 'Create Chain Controllers', partial(createChainControllers, False), False)
-    RT.subHeader(7, 'OPTIONS', 5)
-    RT.createCheckbox(0.1, 'UseMirrorChainCB', 'Activate mirror', RT.emptyCallback, True, True)
-    RT.createThreeRadioCollection('ParentConst', 'Parent constraint', True, 'OrientConst', 'Orient constraint', False, 'PointConst', 'Point constraint', False, 0.1)
-    RT.createButtonAction(10,'', 'Create Chain System', partial(createChainSystem, False), True)
+    TR.createCheckbox(0.1, 'DeleteChainCB', 'Delete source chain', TR.emptyCallback, True, True)
+    TR.createCheckbox(0.1, 'ControllersAndConnectCB', 'Create controllers and connect', TR.emptyCallback, False, True) 
+    TR.createButtonAction(10,'', 'Redefine Chain', partial(redefineChain, False, True, False, ''), False)
+    TR.subHeader(7, 'CONTROLLERS', 5)
+    TR.createFloarSliderGroup('CtrlSimpleScaleChain', 'Controllers scale          ', 0.15, 0.01, 1.0, 0.05)
+    TR.createButtonAction(3,'', 'Create Chain Controllers', partial(createChainControllers, False), False)
+    TR.subHeader(7, 'OPTIONS', 5)
+    TR.createCheckbox(0.1, 'UseMirrorChainCB', 'Activate mirror', TR.emptyCallback, True, True)
+    TR.createThreeRadioCollection('ParentConst', 'Parent constraint', True, 'OrientConst', 'Orient constraint', False, 'PointConst', 'Point constraint', False, 0.1)
+    TR.createButtonAction(10,'', 'Create Chain System', partial(createChainSystem, False), True)
 
 
 
 def setStartingBone():
     sel = cmds.ls(sl=True)
-    if RTeh.GetSelectionException(sel): return
+    if TReh.GetSelectionException(sel): return
     
-    RTvars.chainStartingBone = sel[0]
+    TRvars.chainStartingBone = sel[0]
 
 
 
@@ -44,7 +44,7 @@ def redefineChain(delChain, connectChain, nonRoll, extra, *args):
     setStartingBone()
     cv = createCurve(nonRoll)
     bones = []  
-    chainName = RTvars.chainStartingBone[3:]
+    chainName = TRvars.chainStartingBone[3:]
     cmds.select( cv ) 
     curveCVs = cmds.ls( cv + ".cv[0:]",fl=True)
     
@@ -61,10 +61,10 @@ def redefineChain(delChain, connectChain, nonRoll, extra, *args):
     cmds.parent( w=True )
     cmds.select( bones[0] )
     cmds.joint ( bones[0], e=True, oj='xzy', sao='zup', ch=True, zso=True )
-    RTvars.twistBones = bones
+    TRvars.twistBones = bones
     
     if cmds.checkBox( 'DeleteChainCB', q=True, v=True ) or delChain:
-        cmds.delete( RTvars.chainStartingBone )
+        cmds.delete( TRvars.chainStartingBone )
     
     cmds.select( bones[0] )
     setStartingBone()
@@ -73,14 +73,14 @@ def redefineChain(delChain, connectChain, nonRoll, extra, *args):
     cmds.delete()
     
     if cmds.checkBox( 'ControllersAndConnectCB', q=True, v=True ) and connectChain:
-        cmds.select( RTvars.chainStartingBone )
+        cmds.select( TRvars.chainStartingBone )
         createChainControllers(True)
 
 
 
 def createCurve(nonRoll):
-    selTwo = cmds.listRelatives( RTvars.chainStartingBone, c=True )
-    cmds.select( RTvars.chainStartingBone, r=True )
+    selTwo = cmds.listRelatives( TRvars.chainStartingBone, c=True )
+    cmds.select( TRvars.chainStartingBone, r=True )
     cmds.select( selTwo, add=True )
     sel = cmds.ls(sl=True)
     pos = [cmds.xform( obj, q=True, ws=True, translation=True ) for obj in sel]
@@ -111,19 +111,19 @@ def createChainControllers(link, *args):
         utils.printHeader('CREATING AND CONNECTING CHAIN CONTROLLERS')
         
         setStartingBone()
-        chain = getChain(RTvars.chainStartingBone, True)
+        chain = getChain(TRvars.chainStartingBone, True)
         controllersChain = []
         
         cmds.refresh()
         cmds.select(chain[0])
         cmds.makeIdentity(apply=True, t=1, r=1, s=1, n=0)
         
-        utils.printSubheader('Creating controllers --> ' + RTvars.chainStartingBone)
+        utils.printSubheader('Creating controllers --> ' + TRvars.chainStartingBone)
         for c in chain:
             cmds.select( c )
             sel = cmds.ls(sl=True)
             if sel[0].find('JNT_') > -1:
-                ctrl = RTctrl.createController( 'Circle', utils.getColorFromSide(sel[0]), cmds.floatSliderGrp( 'CtrlSimpleScaleChain' ,q=True, v=True ), 'Object', sel[0], '' )
+                ctrl = TRctrl.createController( 'Circle', utils.getColorFromSide(sel[0]), cmds.floatSliderGrp( 'CtrlSimpleScaleChain' ,q=True, v=True ), 'Object', sel[0], '' )
                 controllersChain.append(ctrl)
 
                 utils.lockAndHideOffset(ctrl[0], False)
@@ -139,7 +139,7 @@ def createChainControllers(link, *args):
             else:
                 orientJoint(c)
         
-        utils.printSubheader('Connecting controllers --> ' + RTvars.chainStartingBone)
+        utils.printSubheader('Connecting controllers --> ' + TRvars.chainStartingBone)
         for c in range(len(controllersChain)):
             try:
                 cmds.parent( controllersChain[c+1][0], controllersChain[c][1] )
@@ -152,15 +152,15 @@ def createChainControllers(link, *args):
         setSSTailAndSpine()
     
     else:
-        utils.printSubheader('Creating controllers --> ' + RTvars.chainStartingBone)
+        utils.printSubheader('Creating controllers --> ' + TRvars.chainStartingBone)
         
         chains = cmds.ls(sl=True)
-        if RTeh.GetNoSelectionException(chains): return
+        if TReh.GetNoSelectionException(chains): return
         
         for ch in chains:
             cmds.select( ch )
             setStartingBone()
-            chain = getChain(RTvars.chainStartingBone, True)
+            chain = getChain(TRvars.chainStartingBone, True)
             controllersChain = []
             
             cmds.refresh()
@@ -172,9 +172,9 @@ def createChainControllers(link, *args):
                 sel = cmds.ls(sl=True)
                 if (sel[0].find('JNT_') > -1):
                     if sel[0].find('Nose') > -1 or sel[0].find('Jaw') > -1:
-                        ctrl = RTctrl.createController( 'Box', utils.getColorFromSide(sel[0]), cmds.floatSliderGrp( 'CtrlSimpleScaleChain' ,q=True, v=True ) * 2, 'Object', sel[0], '' )
+                        ctrl = TRctrl.createController( 'Box', utils.getColorFromSide(sel[0]), cmds.floatSliderGrp( 'CtrlSimpleScaleChain' ,q=True, v=True ) * 2, 'Object', sel[0], '' )
                     else:
-                        ctrl = RTctrl.createController( 'Circle', utils.getColorFromSide(sel[0]), cmds.floatSliderGrp( 'CtrlSimpleScaleChain' ,q=True, v=True ), 'Object', sel[0], '' )
+                        ctrl = TRctrl.createController( 'Circle', utils.getColorFromSide(sel[0]), cmds.floatSliderGrp( 'CtrlSimpleScaleChain' ,q=True, v=True ), 'Object', sel[0], '' )
                     controllersChain.append(ctrl)
                     utils.lockController(ctrl[1], True)
 
@@ -185,7 +185,7 @@ def createChainControllers(link, *args):
 def createChainSystem(forceMirror, *args):
     utils.printHeader('CONNECTING CHAINs')
     chains = cmds.ls(sl=True)
-    if RTeh.GetNoSelectionException(chains): return
+    if TReh.GetNoSelectionException(chains): return
 
     allChains = mirrorControllers(chains, forceMirror)
     
@@ -193,7 +193,7 @@ def createChainSystem(forceMirror, *args):
         utils.printHeader('Connecting chain --> ' + j)        
         cmds.select( j )
         setStartingBone()
-        jnt = RTvars.chainStartingBone
+        jnt = TRvars.chainStartingBone
         cmds.editDisplayLayerMembers( 'JOINTS', jnt, nr=True )
             
         for c in getChain(jnt, False):
@@ -286,7 +286,7 @@ def createMirrorControllers(startJoint, side, newSide):
             cmds.select( r )
             cmds.rename( r, rightName )
             col = (0, 1, 0) if side == '__L_' else (1, 0, 0)
-            RTctrl.overrideColor(rightName, col)
+            TRctrl.overrideColor(rightName, col)
         
         mirrorGrp = cmds.group( em=True, n='MIRROR_GRP', w=True )
         cmds.parent( mirror[0], mirrorGrp )
@@ -329,14 +329,14 @@ def getOffsetsFromChain(startJoint):
 
 
 def setSSTailAndSpine():
-    if RTvars.chainStartingBone.find('Tail') > -1:
-        result = cmds.confirmDialog( t='Space Switch', m='Do you want to create an <b>Point/Orient</b> space switch between the <b>Tail</b> and the <b>Spine</b>?', b=['Yes','No'], db='Yes', cb='No', ds='No', p=RTvars.winName )
+    if TRvars.chainStartingBone.find('Tail') > -1:
+        result = cmds.confirmDialog( t='Space Switch', m='Do you want to create an <b>Point/Orient</b> space switch between the <b>Tail</b> and the <b>Spine</b>?', b=['Yes','No'], db='Yes', cb='No', ds='No', p=TRvars.winName )
         if result == 'Yes':
-            cmds.parent( RTvars.chainStartingBone, 'JNT__Spine' )
-            offset = 'OFFSET' + RTvars.chainStartingBone[3:]
+            cmds.parent( TRvars.chainStartingBone, 'JNT__Spine' )
+            offset = 'OFFSET' + TRvars.chainStartingBone[3:]
             utils.lockAndHideOffset(offset, False)
-            cmds.parent( 'OFFSET' + RTvars.chainStartingBone[3:], 'CTRL__Master' )
-            RT_SpaceSwitch.createSpaceSwitch('SpineSpace', 'CTRL' + RTvars.chainStartingBone[3:], 'CTRL__Master', 'CTRL__Spine', 'PointOrient')
+            cmds.parent( 'OFFSET' + TRvars.chainStartingBone[3:], 'CTRL__Master' )
+            TR_SpaceSwitch.createSpaceSwitch('SpineSpace', 'CTRL' + TRvars.chainStartingBone[3:], 'CTRL__Master', 'CTRL__Spine', 'PointOrient')
             utils.lockAndHideOffset(offset, True)
     else:
         print ('No tail has been found!!')

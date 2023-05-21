@@ -1,7 +1,7 @@
-import RiggingTools
-import RT_HandsSetup
-import RT_GlobalVariables as RTvars
-import RT_ErrorsHandler as RTeh
+import TotalRig
+import TR_HandsSetup
+import TR_GlobalVariables as TRvars
+import TR_ErrorsHandler as TReh
 import maya.cmds as cmds
 from math import pow,sqrt
 
@@ -10,7 +10,7 @@ def createLimbArray(limb):
     l = []
     l.extend(limb)
     
-    handFoot = RT_HandsSetup.getFullHandFootHierarchy()
+    handFoot = TR_HandsSetup.getFullHandFootHierarchy()
     for n in handFoot:
         l.append(n)
 
@@ -47,11 +47,11 @@ def replaceBones(A, B, bones):
         cmds.textFieldButtonGrp(bones[b], e=True, tx=boneName)
         
         if b==0:
-            RTvars.limbStartingBone = boneName
+            TRvars.limbStartingBone = boneName
 
 
 def clearAllFields():
-    for b in RTvars.legBones:
+    for b in TRvars.legBones:
         removeObject(b)
 
 
@@ -62,7 +62,7 @@ def removeObject(bone):
 
 def addObject(field):
     sel = cmds.ls(sl=True)
-    if RTeh.GetSelectionException(sel): return
+    if TReh.GetSelectionException(sel): return
 
     cmds.textFieldButtonGrp(field, e=True, tx=''.join(sel))
 
@@ -203,13 +203,13 @@ def getDistance(objA, objB):
 
 def lockControllers(ctrls, state):
     for c in ctrls:
-        for a in RTvars.attributes:
+        for a in TRvars.attributes:
             cmds.setAttr( c + a, l=state )
 
 
 
 def lockController(ctrl, state):
-    for a in RTvars.attributes:
+    for a in TRvars.attributes:
         cmds.setAttr( ctrl + a, l=state )
 
 
@@ -233,23 +233,23 @@ def lockAndHideAttribute(ctrl, pos, rot):
 def lockAndHideOffset(offset, state, keyable=False):
     if offset=='null':
         offset = cmds.ls(sl=True)
-        if RTeh.GetSelectionException(offset): return
+        if TReh.GetSelectionException(offset): return
         offset = offset[0]
 
     cmds.setAttr( offset + '.visibility', k=not state, l=state, cb=not state )
-    for attribute in RTvars.attributes:
+    for attribute in TRvars.attributes:
         cmds.setAttr( offset + attribute, k=not state, l=state, cb=not state )
     
     if keyable:
         cmds.setAttr( offset + '.visibility', k=not state )
-        for attribute in RTvars.attributes:
+        for attribute in TRvars.attributes:
             cmds.setAttr( offset + attribute, k=not state )
 
 
 
 def hideAttributes(ctrl, vis):
     cmds.setAttr( ctrl + '.visibility', vis, k=False, cb=False )
-    for a in RTvars.attributes:
+    for a in TRvars.attributes:
         cmds.setAttr( ctrl + a, k=False, cb=False )
 
 
@@ -279,12 +279,12 @@ def getFootReverse():
 
 
 def getConstraint(type, object):
-    if type == 'Parent': return RTvars.CONST + object + RTvars.PARENT
-    elif type == 'Point': return RTvars.CONST + object + RTvars.POINT
-    elif type == 'Orient': return RTvars.CONST + object + RTvars.ORIENT
-    elif type == 'Scale': return RTvars.CONST + object + RTvars.SCALE
-    elif type == 'Aim': return RTvars.CONST + object + RTvars.AIM
-    elif type == 'PoleVector': return RTvars.CONST + object + RTvars.POLEV    
+    if type == 'Parent': return TRvars.CONST + object + TRvars.PARENT
+    elif type == 'Point': return TRvars.CONST + object + TRvars.POINT
+    elif type == 'Orient': return TRvars.CONST + object + TRvars.ORIENT
+    elif type == 'Scale': return TRvars.CONST + object + TRvars.SCALE
+    elif type == 'Aim': return TRvars.CONST + object + TRvars.AIM
+    elif type == 'PoleVector': return TRvars.CONST + object + TRvars.POLEV    
 
 
 

@@ -1,64 +1,64 @@
 import sys
 sys.path.append(r'D:/UOC/Semestres/2022-23_S2/TFG - Videojocs/TotalRIG/Python/')
 
-import RT_GlobalVariables as RTvars
-import RT_ErrorsHandler as RTeh
-import RT_Utils
-import RT_Rename
-import RT_Controllers
-import RT_LimbSystem
-import RT_HandsSetup
-import RT_ChainTools
-import RT_SpaceSwitch
-import RT_RibbonSystem
-import RT_HeadUtilities
-import RT_Utilities
+import TR_GlobalVariables as TRvars
+import TR_ErrorsHandler as TReh
+import TR_Utils
+import TR_Rename
+import TR_Controllers
+import TR_LimbSystem
+import TR_HandsSetup
+import TR_ChainTools
+import TR_SpaceSwitch
+import TR_RibbonSystem
+import TR_HeadUtilities
+import TR_Utilities
 import maya.cmds as cmds
 from functools import partial
 #from importlib import reload
 
-reload(RTvars)
-reload(RTeh)
-reload(RT_Utils)
-reload(RT_RibbonSystem)
-reload(RT_LimbSystem)
-reload(RT_HandsSetup)
-reload(RT_RibbonSystem)
-reload(RT_ChainTools)
-reload(RT_Controllers)
-reload(RT_HeadUtilities)
-reload(RT_SpaceSwitch)
-reload(RT_Utilities)
-reload(RT_Rename)
+reload(TRvars)
+reload(TReh)
+reload(TR_Utils)
+reload(TR_RibbonSystem)
+reload(TR_LimbSystem)
+reload(TR_HandsSetup)
+reload(TR_RibbonSystem)
+reload(TR_ChainTools)
+reload(TR_Controllers)
+reload(TR_HeadUtilities)
+reload(TR_SpaceSwitch)
+reload(TR_Utilities)
+reload(TR_Rename)
 
 winWidth = 560
 winHeight = 440
 margin = 10
 
-def rigginToolsUI():
-    if cmds.window( RTvars.winName, exists=True ):
-        cmds.deleteUI( RTvars.winName, window=True )
-    elif cmds.windowPref( RTvars.winName, exists=True ):
-        cmds.windowPref( RTvars.winName, remove=True )
+def totalRigUI():
+    if cmds.window( TRvars.winName, exists=True ):
+        cmds.deleteUI( TRvars.winName, window=True )
+    elif cmds.windowPref( TRvars.winName, exists=True ):
+        cmds.windowPref( TRvars.winName, remove=True )
     
-    cmds.window( RTvars.winName, wh=(winWidth+margin, winHeight), s=False, mnb=False, mxb=False, title=RTvars.winName + ' ' + RTvars.version )
+    cmds.window( TRvars.winName, wh=(winWidth+margin, winHeight), s=False, mnb=False, mxb=False, title=TRvars.winName + ' ' + TRvars.version )
     form = cmds.formLayout()
     tabs = cmds.tabLayout(innerMarginWidth=5, innerMarginHeight=5)
     cmds.formLayout( form, edit=True, attachForm=((tabs, 'top', 0), (tabs, 'left', 0), (tabs, 'bottom', 0), (tabs, 'right', 0)) )
     
-    RT_Rename.drawUI()
-    RT_LimbSystem.drawUI()
-    RT_HandsSetup.drawUI()
-    RT_RibbonSystem.drawUI()
-    RT_ChainTools.drawUI()
-    RT_HeadUtilities.drawUI()
-    RT_SpaceSwitch.drawUI()
-    RT_Controllers.drawUI()
-    RT_Utilities.drawUI()
+    TR_Rename.drawUI()
+    TR_LimbSystem.drawUI()
+    TR_HandsSetup.drawUI()
+    TR_RibbonSystem.drawUI()
+    TR_ChainTools.drawUI()
+    TR_HeadUtilities.drawUI()
+    TR_SpaceSwitch.drawUI()
+    TR_Controllers.drawUI()
+    TR_Utilities.drawUI()
     
     cmds.tabLayout( tabs, edit=True, tabLabel=(('renameBonesTab', 'Rename'), ('limbSystemTab', 'Limbs'), ('handsSetupTab', 'Hands'), ('ribbonSystemTab', 'Ribbons'), ('chainToolsTab', 'Chains'), ('headControllerTab', 'Head'), ('spaceSwitchTab', 'S. Switch'), ('utilitiesTab', 'Utilities'), ('controllersTab', 'Controllers')), sti=1 )
-    cmds.showWindow(RTvars.winName)
-    RT_HandsSetup.simple3Layout()
+    cmds.showWindow(TRvars.winName)
+    TR_HandsSetup.simple3Layout()
     return
 
 
@@ -246,13 +246,13 @@ def emptyCallback(*args):
 
 
 def returnBone(item):
-    RTvars.bone = item
+    TRvars.bone = item
 
 
 
 def addObject(nameBone, *args):
-    RT_Utils.addObject(nameBone)
+    TR_Utils.addObject(nameBone)
 
 
 
-rigginToolsUI()
+totalRigUI()

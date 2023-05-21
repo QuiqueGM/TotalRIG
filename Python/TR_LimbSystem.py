@@ -1,13 +1,13 @@
-import RiggingTools as RT
-import RT_GlobalVariables as RTvars
-import RT_ErrorsHandler as RTeh
-import RT_HandsSetup as RThands
-import RT_Controllers as RTctrl
-import RT_ChainTools
-import RT_Utils as utils
-import RT_Utilities
-import RT_SpaceSwitch
-import RT_Rename
+import TotalRig as TR
+import TR_GlobalVariables as TRvars
+import TR_ErrorsHandler as TReh
+import TR_HandsSetup as TRhands
+import TR_Controllers as TRctrl
+import TR_ChainTools
+import TR_Utils as utils
+import TR_Utilities
+import TR_SpaceSwitch
+import TR_Rename
 import maya.cmds as cmds
 import maya.mel as mel
 from functools import partial
@@ -15,10 +15,10 @@ from functools import partial
 
 
 def drawUI():
-    RT.toolHeader('limbSystemTab', '---------   LIMB SYSTEM  ---------')
-    RT.subHeader(1, 'TYPE OF LIMB', 5)
-    RT.createLegOption('Hierarchy', 'FrontLimb', 'Front Leg / Arm', True, 'BackLimb', 'Back Leg / Leg', False)
-    winWidth = RT.winWidth
+    TR.toolHeader('limbSystemTab', '---------   LIMB SYSTEM  ---------')
+    TR.subHeader(1, 'TYPE OF LIMB', 5)
+    TR.createLegOption('Hierarchy', 'FrontLimb', 'Front Leg / Arm', True, 'BackLimb', 'Back Leg / Leg', False)
+    winWidth = TR.winWidth
     rowWidth = [winWidth*0.05, winWidth*0.25, winWidth*0.3, winWidth*0.3]
     
     cmds.rowLayout( nc=4, cw4=rowWidth )
@@ -37,16 +37,16 @@ def drawUI():
     cmds.radioButton( 'FootReverseNo', l='No', al='center', w=rowWidth[2], sl=False, onc=partial(enableDeleteHandFoot, True) )
     cmds.setParent( '..' )
     
-    RT.createTwoButtonsAction(7,'cc', 'Create controllers', createLimbControllers, 'mc', 'Mirror controllers', mirrorControllers, False)
-    RT.subHeader(7, 'OPTIONS', 5)
-    RT.createCheckbox(0.1, 'UseDeleteHandFootCB', 'Remove Hand/Foot', RT.emptyCallback, True, False)
-    RT.createCheckbox(0.1, 'UseMirrorCB', 'Actvate mirror', RT.emptyCallback, True, True)
-    RT.createCheckbox(0.1, 'UseStretchCB', 'Create stretch system', RT.emptyCallback, True, True)
+    TR.createTwoButtonsAction(7,'cc', 'Create controllers', createLimbControllers, 'mc', 'Mirror controllers', mirrorControllers, False)
+    TR.subHeader(7, 'OPTIONS', 5)
+    TR.createCheckbox(0.1, 'UseDeleteHandFootCB', 'Remove Hand/Foot', TR.emptyCallback, True, False)
+    TR.createCheckbox(0.1, 'UseMirrorCB', 'Actvate mirror', TR.emptyCallback, True, True)
+    TR.createCheckbox(0.1, 'UseStretchCB', 'Create stretch system', TR.emptyCallback, True, True)
     createLimbFields()
-    RT.createButtonAction(10,'', 'Create Limb System', createLimbSystem, False)
-    RT.createSpaceForUtilities('---------   UTILITIES  ---------')
-    RT.createButtonAction(3,'', 'Convert IK World to IK Object', convertIKtoObject, False)
-    RT.createTwoButtonsAction(3,'dwl', 'Delete whole limb', deleteLimb, 'dls', 'Delete limb system', deleteLimbSystem, True)
+    TR.createButtonAction(10,'', 'Create Limb System', createLimbSystem, False)
+    TR.createSpaceForUtilities('---------   UTILITIES  ---------')
+    TR.createButtonAction(3,'', 'Convert IK World to IK Object', convertIKtoObject, False)
+    TR.createTwoButtonsAction(3,'dwl', 'Delete whole limb', deleteLimb, 'dls', 'Delete limb system', deleteLimbSystem, True)
 
 
 
@@ -57,17 +57,17 @@ def enableDeleteHandFoot(value, *args):
 
 def createLimbFields():
     bones = []
-    bones.extend(RTvars.bonesHindArm)
-    bones.extend(RTvars.simpleHand)
-    bones.extend(RTvars.hand)
-    bones.extend(RTvars.bonesHindLeg)
-    bones.extend(RTvars.simpleFoot)
-    bones.extend(RTvars.foot)
+    bones.extend(TRvars.bonesHindArm)
+    bones.extend(TRvars.simpleHand)
+    bones.extend(TRvars.hand)
+    bones.extend(TRvars.bonesHindLeg)
+    bones.extend(TRvars.simpleFoot)
+    bones.extend(TRvars.foot)
     
-    winWidth = RT.winWidth
+    winWidth = TR.winWidth
     rowWidth = [winWidth*0.2, winWidth*0.60, winWidth*0.3]
     for b in range(len(bones)):
-        cmds.textFieldButtonGrp( bones[b], l=bones[b], vis=False, ed=False, cw3=rowWidth, cl3=('left', 'left', 'left'), bl='  Add  ', bc=partial(RT.addObject, bones[b]), h=20 )
+        cmds.textFieldButtonGrp( bones[b], l=bones[b], vis=False, ed=False, cw3=rowWidth, cl3=('left', 'left', 'left'), bl='  Add  ', bc=partial(TR.addObject, bones[b]), h=20 )
 
 
 
@@ -75,28 +75,28 @@ def createLimbFields():
 ### LIMB SYSTEM
 
 def createLimbControllers(*args):
-    RT_LimbSystem.createLimbControllers()
+    TR_LimbSystem.createLimbControllers()
 
 def mirrorControllers(*args):
-    RT_LimbSystem.mirrorControllers()
+    TR_LimbSystem.mirrorControllers()
 
 def createLimbSystem(*args):
-    RT_LimbSystem.createLimbSystem()
+    TR_LimbSystem.createLimbSystem()
 
 def convertIKtoObject(*args):
-    RT_LimbSystem.convertIKtoObject()
+    TR_LimbSystem.convertIKtoObject()
 
 def deleteLimb(*args):
-    RT_LimbSystem.deleteLimb()
+    TR_LimbSystem.deleteLimb()
 
 def deleteLimbSystem(*args):
-    RT_LimbSystem.deleteLimbSystem()
+    TR_LimbSystem.deleteLimbSystem()
 
 def createStretchSystem(*args):
-    RT_LimbSystem.createStretchSystem(*args)
+    TR_LimbSystem.createStretchSystem(*args)
 
 def createSSforPoleVector(*args):
-    RT_LimbSystem.createSSforPoleVector()
+    TR_LimbSystem.createSSforPoleVector()
 '''
 
 
@@ -111,26 +111,26 @@ def assignVariables(autoFill = True):
     global snapGroups
     global mirror
     
-    cmds.select( RTvars.limbStartingBone )
+    cmds.select( TRvars.limbStartingBone )
     sel = cmds.ls(sl=True)[0]
     if autoFill: autofillFromSelection()
     sidePos = '__' + utils.getSideFromBone(sel) + utils.getPositionFromBone(sel)
 
     if utils.getHierarchy() == 'Leg':
         if utils.getIKSystem() == 'HindLimb':
-            limbBones = RTvars.bonesHindLeg
-            offsetsLimb = RTvars.offsetsHindLeg
-            snapGroups = RTvars.snapHindLeg
+            limbBones = TRvars.bonesHindLeg
+            offsetsLimb = TRvars.offsetsHindLeg
+            snapGroups = TRvars.snapHindLeg
             CTRL_UpperLimbPV = 'CTRL' + sidePos + 'UpperLeg_PV'
             PV_UpperLine = 'LINE' + sidePos + 'UpperLeg_PV'
             CTRL_LowerLimbIK = 'CTRL' + sidePos + 'LowerLeg_IK'
             IKH_LowerLimb = 'IKH' + sidePos + 'LowerLeg'
         else:
-            limbBones = RTvars.legBones
-            offsetsLimb = RTvars.offsetsLeg
-            snapGroups = RTvars.snapLeg
+            limbBones = TRvars.legBones
+            offsetsLimb = TRvars.offsetsLeg
+            snapGroups = TRvars.snapLeg
                                  
-        reverseFoot = RTvars.reverseFoot
+        reverseFoot = TRvars.reverseFoot
         JNT_ClavHipHead = cmds.textFieldGrp( 'HipHead' ,q=True, tx=True )
         JNT_ClavHip = cmds.textFieldGrp( 'Hip' ,q=True, tx=True )
         JNT_UpperLimb = cmds.textFieldGrp( 'UpperLeg' ,q=True, tx=True )
@@ -149,19 +149,19 @@ def assignVariables(autoFill = True):
         
     else:
         if utils.getIKSystem() == 'HindLimb':
-            limbBones = RTvars.bonesHindArm
-            offsetsLimb = RTvars.offsetsHindArm
-            snapGroups = RTvars.snapHindArm
+            limbBones = TRvars.bonesHindArm
+            offsetsLimb = TRvars.offsetsHindArm
+            snapGroups = TRvars.snapHindArm
             CTRL_UpperLimbPV = 'CTRL' + sidePos + 'Arm_PV'
             PV_UpperLine = 'LINE' + sidePos + 'Arm_PV'
             CTRL_LowerLimbIK = 'CTRL' + sidePos + 'Forearm_IK'
             IKH_LowerLimb = 'IKH' + sidePos + 'Forearm'
         else:
-            limbBones = RTvars.armBones
-            offsetsLimb = RTvars.offsetsArm
-            snapGroups = RTvars.snapArm
+            limbBones = TRvars.armBones
+            offsetsLimb = TRvars.offsetsArm
+            snapGroups = TRvars.snapArm
             
-        reverseFoot = RTvars.reverseHand
+        reverseFoot = TRvars.reverseHand
         JNT_ClavHipHead = cmds.textFieldGrp( 'ClavicleHead' ,q=True, tx=True ) 
         JNT_ClavHip = cmds.textFieldGrp( 'Clavicle' ,q=True, tx=True ) 
         JNT_UpperLimb = cmds.textFieldGrp( 'Arm' ,q=True, tx=True )
@@ -200,7 +200,7 @@ def assignVariables(autoFill = True):
     newLimbBones = utils.createLimbArray(limbBones)
     
     for n in range(len(limbBones), len(newLimbBones)):
-        ctrl = [newLimbBones[n], 'Circle', RThands.getFingerSizeController(), 'Object', '']
+        ctrl = [newLimbBones[n], 'Circle', TRhands.getFingerSizeController(), 'Object', '']
         ctrlLimbBones.append(ctrl)
 
 
@@ -208,7 +208,7 @@ def assignVariables(autoFill = True):
 def autofillFromSelection():
     utils.printHeader('AUTOFILL LIMB')
 
-    bones = utils.createLimbArray(RTvars.bonesHindArm if utils.getHierarchy() == 'Arm' else RTvars.bonesHindLeg)
+    bones = utils.createLimbArray(TRvars.bonesHindArm if utils.getHierarchy() == 'Arm' else TRvars.bonesHindLeg)
     bones = utils.getLimbBones(bones)
     sel = cmds.listRelatives( cmds.ls(sl=True), ad=True )
     sel.append( cmds.ls(sl=True)[0] )
@@ -229,8 +229,8 @@ def autofillFromSelection():
 
 
 def createLimbControllers(*args):
-    RT_Rename.autorenameLimb()
-    createLimbBackUp(RTvars.limbStartingBone)
+    TR_Rename.autorenameLimb()
+    createLimbBackUp(TRvars.limbStartingBone)
     assignVariables()
     
     utils.printHeader('CREATING LIMB CONTROLLERS')
@@ -243,7 +243,7 @@ def createLimbControllers(*args):
         
         doubleOffset = True if b >= len(ctrlLimbBones)-numFingers else False
         hideAndLockOffset = False if ctrlLimbBones[b][4].find('_PV') > -1 else True
-        ctrl = RTctrl.createController( ctrlLimbBones[b][1], utils.getColorFromSide(sel[0]), ctrlLimbBones[b][2], ctrlLimbBones[b][3], ctrlLimbBones[b][0], ctrlLimbBones[b][4], doubleOffset, hideAndLockOffset )[1]
+        ctrl = TRctrl.createController( ctrlLimbBones[b][1], utils.getColorFromSide(sel[0]), ctrlLimbBones[b][2], ctrlLimbBones[b][3], ctrlLimbBones[b][0], ctrlLimbBones[b][4], doubleOffset, hideAndLockOffset )[1]
         
     ctrls = getListControllers()
     createShape()
@@ -319,7 +319,7 @@ def rotateToeController(toeName):
     cmds.select( toeName )
     cmds.select( toeName + '_Shape.cv[0:7]' )
     cmds.rotate(  0, '90deg', 0 )
-    cmds.move( RThands.getFingerSizeController() * 0.9, 0, 0, r=True, os=True, wd=True)
+    cmds.move( TRhands.getFingerSizeController() * 0.9, 0, 0, r=True, os=True, wd=True)
     cmds.scale( 1.25, 1, 1 )
     cmds.select( d=True )
 
@@ -367,15 +367,15 @@ def createReverseFootSetUp(wristAnkleIK):
 
 def createLimbSystem(*args):
     sel = cmds.ls(sl=True)
-    if RTeh.GetSelectionException(sel): return
+    if TReh.GetSelectionException(sel): return
     
-    RTvars.limbStartingBone = sel[0]
+    TRvars.limbStartingBone = sel[0]
     utils.printHeader('CREATING LIMB SYSYEM')
     mel.eval('MLdeleteUnused;')
     
     if utils.getFootReverse() == 'Yes':
         if not checkIfFootReverseIsSet():
-            result = cmds.confirmDialog( t='Foot reverse Setup', m='Something in the Reverse Foot is not set properly.\nMaybe you forgot to move some anchor. Do you want to continue?', b=['Yes','No'], db='Yes', cb='No', ds='No', p=RTvars.winName )
+            result = cmds.confirmDialog( t='Foot reverse Setup', m='Something in the Reverse Foot is not set properly.\nMaybe you forgot to move some anchor. Do you want to continue?', b=['Yes','No'], db='Yes', cb='No', ds='No', p=TRvars.winName )
             if result == 'No':
                 return
     
@@ -463,7 +463,7 @@ def createPoleVectorHelpers(JNT_PV, CTRL_PV, PV_LINE):
     cmds.select( PVLineShape )
     cmds.rename( PVLineShape[0], PV_LINE + '_Shape' )
     col = (1, 0, 0) if utils.getSideFromBone(PV_LINE) == 'L_' else (0, 1, 0)
-    RTctrl.overrideColor(PV_LINE + '_Shape', col)
+    TRctrl.overrideColor(PV_LINE + '_Shape', col)
     
     iniCluster = createClusters(PV_LINE, JNT_PV[3:], '0')
     endCluster = createClusters(PV_LINE, CTRL_PV[4:], '1')
@@ -487,9 +487,9 @@ def createClusters(line, name, index):
 
 def mirrorControllers(*args):
     sel = cmds.ls(sl=True)
-    if RTeh.GetSelectionException(sel): return
+    if TReh.GetSelectionException(sel): return
     
-    RTvars.limbStartingBone = sel[0]
+    TRvars.limbStartingBone = sel[0]
     mel.eval('MLdeleteUnused;')
     utils.lockControllers(getListControllers(), False)
     createMirror()
@@ -499,9 +499,9 @@ def mirrorControllers(*args):
 def createMirror():
     assignVariables()
     utils.printHeader('MIRRORING LIMB')
-    side = '__' + utils.getSideFromBone(RTvars.limbStartingBone)
+    side = '__' + utils.getSideFromBone(TRvars.limbStartingBone)
     newSide = '__R_' if side == '__L_' else '__L_'
-    cmds.select( RTvars.limbStartingBone )
+    cmds.select( TRvars.limbStartingBone )
     utils.printSubheader('Mirroring joint hierarchy')
     cmds.mirrorJoint( myz=True, mb=True, sr=(side, newSide) )
     createLimbBackUp(cmds.ls(sl=True)[0])
@@ -566,7 +566,7 @@ def createMirrorControllers(side, newSide):
             cmds.rename( n, newName )
             col = (0, 1, 0) if side == '__L_' else (1, 0, 0)
             try:
-                RTctrl.overrideColor(newName, col)
+                TRctrl.overrideColor(newName, col)
             except:
                 pass
 
@@ -586,10 +586,10 @@ def createReverseJoint():
     utils.printHeader('Create Reverse Joint')
     cmds.select( d=True )
     revJnt = 'REV_JNT' + sidePos + reverseFoot[5]
-    RT_Utilities.createSimpleJoint('World', revJnt)
+    TR_Utilities.createSimpleJoint('World', revJnt)
     cmds.editDisplayLayerMembers( 'defaultLayer', revJnt, nr=True )
-    RTvars.ctrlColor = utils.getColorFromSide(revJnt)
-    RTctrl.colorizeController()
+    TRvars.ctrlColor = utils.getColorFromSide(revJnt)
+    TRctrl.colorizeController()
     cmds.parent( revJnt, CTRL_WristAnkle )
     utils.setTransformAndRotationToZero(revJnt)
     utils.hideAttributes(revJnt, 0)
@@ -666,7 +666,7 @@ def connectLimb(isMirror):
     
     #############################
     utils.printSubheader('Creating FK Constraints of the Foot')
-    handFoot = RThands.getHandFootHierarchy()
+    handFoot = TRhands.getHandFootHierarchy()
     handFoot.reverse()
     for f in handFoot:
         for p in f:
@@ -758,9 +758,9 @@ def connectLimb(isMirror):
     #if cmds.checkBox( 'NonRollCB', q=True, v=True ) and utils.getIKSystem() == 'SimpleLimb':
     #    addNonRollSystem()
         
-    RT_SpaceSwitch.createSpaceSwitch('LimbSpace', CTRL_LowerLimbPV, 'CTRL__Master', CTRL_WristAnkle_IK, 'Parent')
+    TR_SpaceSwitch.createSpaceSwitch('LimbSpace', CTRL_LowerLimbPV, 'CTRL__Master', CTRL_WristAnkle_IK, 'Parent')
     if utils.getIKSystem() == 'HindLimb':
-        RT_SpaceSwitch.createSpaceSwitch('LimbSpace', CTRL_UpperLimbPV, 'CTRL__Master', CTRL_WristAnkle_IK, 'Parent')
+        TR_SpaceSwitch.createSpaceSwitch('LimbSpace', CTRL_UpperLimbPV, 'CTRL__Master', CTRL_WristAnkle_IK, 'Parent')
 
     #############################
     utils.printSubheader('Locking and hidding unused attributes')
@@ -1005,7 +1005,7 @@ def createStretchSystem(*args):
     if utils.getFootReverse() == 'Yes' or not cmds.checkBox( 'UseDeleteHandFootCB', q=True, v=True ):
         cmds.parent( JNT_HandFoot, JNT_WristAnkle )
     else:
-        handFoot = RThands.getHandFootHierarchy()
+        handFoot = TRhands.getHandFootHierarchy()
         for f in handFoot:
             f.reverse()
             cmds.parent( 'JNT' + sidePos + f[0], JNT_WristAnkle )
@@ -1037,7 +1037,7 @@ def createStretchSystem(*args):
 
 def convertIKtoObject(*args):
     sel = cmds.ls(sl=True)
-    if RTeh.GetSelectionException(sel): return
+    if TReh.GetSelectionException(sel): return
     
     utils.printHeader('CHANGING IK WORLD TO OBJECT')
     utils.printSubheader('Defining variables...')
@@ -1089,9 +1089,9 @@ def convertIKtoObject(*args):
 def deleteLimbSystem(*args):
     utils.printHeader('DELETING LIMB SYSTEM...')
     sel = cmds.ls(sl=True)
-    if RTeh.GetSelectionException(sel): return
+    if TReh.GetSelectionException(sel): return
 
-    RTvars.limbStartingBone = sel[0]
+    TRvars.limbStartingBone = sel[0]
     assignVariables(False)
 
     utils.printSubheader('Deleting helpers...')
@@ -1119,7 +1119,7 @@ def deleteLimbSystem(*args):
         cmds.delete( 'SPSW_PARENT' + PV + '_MASTER' )
         
     utils.printSubheader('Deleting limb...')
-    cmds.delete( RTvars.limbStartingBone )
+    cmds.delete( TRvars.limbStartingBone )
     
     try:
         cmds.delete( 'LOC' + sidePos + offsetsLimb[1] )
@@ -1144,13 +1144,13 @@ def deleteLimbSystem(*args):
     mel.eval('MLdeleteUnused;')
     
     utils.printSubheader('Restoring joint hierarchy...')
-    cmds.parent( RTvars.limbStartingBone + '_BACK_UP', w=True )
+    cmds.parent( TRvars.limbStartingBone + '_BACK_UP', w=True )
     cmds.refresh()
     cmds.makeIdentity(apply=True, t=1, r=1, s=1, n=0)
-    cmds.rename( RTvars.limbStartingBone + '_BACK_UP', RTvars.limbStartingBone )
+    cmds.rename( TRvars.limbStartingBone + '_BACK_UP', TRvars.limbStartingBone )
     
-    createLimbBackUp(RTvars.limbStartingBone)
-    for n in cmds.listRelatives( RTvars.limbStartingBone, ad=True, s=False ):
+    createLimbBackUp(TRvars.limbStartingBone)
+    for n in cmds.listRelatives( TRvars.limbStartingBone, ad=True, s=False ):
         cmds.rename( n, n[:-1] )
             
     utils.printSubheader('Restoring controllers hierarchy...')
@@ -1178,9 +1178,9 @@ def deleteLimb(*args):
     utils.printHeader('DELETING WHOLE LIMB...')
     deleteLimbSystem()
     
-    cmds.delete( RTvars.limbStartingBone + '_BACK_UP' )
-    cmds.select( RTvars.limbStartingBone )
-    RT_Utilities.renameLimb()
+    cmds.delete( TRvars.limbStartingBone + '_BACK_UP' )
+    cmds.select( TRvars.limbStartingBone )
+    TR_Utilities.renameLimb()
     utils.printSubheader('Deleting Controllers...')
     for o in offsetsLimb:
         cmds.delete( 'OFFSET' + sidePos + o )

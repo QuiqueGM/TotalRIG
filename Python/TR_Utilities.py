@@ -1,29 +1,30 @@
-import RiggingTools as RT
-import RT_GlobalVariables as RTvars
-import RT_ErrorsHandler as RTeh
-import RT_Controllers as RTctrl
-import RT_Utils as utils
-import RT_ChainTools
-import RT_SpaceSwitch
+import TotalRig as TR
+import TR_GlobalVariables as TRvars
+import TR_ErrorsHandler as TReh
+import TR_Controllers as TRctrl
+import TR_Utils as utils
+import TR_ChainTools
+import TR_SpaceSwitch
 import maya.cmds as cmds
 import maya.mel as mel
-import RT_Rename
+import TR_Rename
 from functools import partial
 
 
 def drawUI():
-    RT.toolHeader('utilitiesTab', '---------   UTILITIES  ---------')
-    RT.verticalSpace(5)
-    w = RT.winWidth*0.9
+    TR.toolHeader('utilitiesTab', '---------   UTILITIES  ---------')
+    TR.verticalSpace(5)
+    w = TR.winWidth*0.9
     h = 30
-    RT.createFourButtonUtility('Joint - World', partial(createSimpleJoint, 'World'), 'Joint - Z Up', partial(createSimpleJoint, 'ZUp'), 'Ribbon joints', createRibbonJoints, ' -- EMPTY -- ', RT.emptyCallback, w, h)
-    RT.createFourButtonUtility('Orient Simple Chain', rotateAndOrientSimpleChainZUp, 'Orient Chain', orientSimpleChain, 'Orient End Joint', orientEndJoint, ' Show/Hide LRA ', localRotationAxes, w, h)
-    RT.createFourButtonUtility('Create Root', createRoot, 'Connect Legs', connectLegs, 'Connect Arms', connectArms, 'Connect Wings', connectWings, w, h)
-    RT.createDoubleButtonUtility('Delete References', deleteReferences, 'Delete Blend Shape Targets', deleteBSTargets, w, h)
-    RT.createDoubleButtonUtility('Bind skin', bindSkinMesh, 'Remove END influences', removeInfluences, w, h)
-    RT.createSpaceForUtilities('---------   UTILITIES  ---------')
-    RT.createDoubleButtonUtility('Decrease Joint Size', partial(jointSize, -0.2), 'Increase Joint Size', partial(jointSize, 0.2), w, h)
-    RT.createFourButtonUtility('Reset controllers', resetControllers, 'Rename Limb', renameLimb, 'Unlock OFFSET', partial(handleOffset, False), 'Lock OFFSET', partial(handleOffset, True), w, h)
+    TR.createFourButtonUtility('Joint - World', partial(createSimpleJoint, 'World'), 'Joint - Z Up', partial(createSimpleJoint, 'ZUp'), 'Ribbon joints', createRibbonJoints, ' -- EMPTY -- ', TR.emptyCallback, w, h)
+    TR.createFourButtonUtility('Orient Simple Chain', rotateAndOrientSimpleChainZUp, 'Orient Chain', orientSimpleChain, 'Orient End Joint', orientEndJoint, ' Show/Hide LRA ', localRotationAxes, w, h)
+    TR.createFourButtonUtility('Create Root', createRoot, 'Connect Legs', connectLegs, 'Connect Arms', connectArms, 'Connect Wings', connectWings, w, h)
+    TR.createDoubleButtonUtility('Delete References', deleteReferences, 'Delete Blend Shape Targets', deleteBSTargets, w, h)
+    TR.createDoubleButtonUtility('Bind skin', bindSkinMesh, 'Remove END influences', removeInfluences, w, h)
+    TR.createSpaceForUtilities('---------   UTILITIES  ---------')
+    TR.verticalSpace(5)
+    TR.createDoubleButtonUtility('Decrease Joint Size', partial(jointSize, -0.2), 'Increase Joint Size', partial(jointSize, 0.2), w, h)
+    TR.createFourButtonUtility('Reset controllers', resetControllers, 'Rename Limb', renameLimb, 'Unlock OFFSET', partial(handleOffset, False), 'Lock OFFSET', partial(handleOffset, True), w, h)
 
 
 
@@ -48,7 +49,7 @@ def createSimpleJoint(orientation, name, *args):
 
 def createRibbonJoints(*args):
     for x in range(4):
-        name = 'JNT__' + RTvars.bodyBones[x]
+        name = 'JNT__' + TRvars.bodyBones[x]
         newJoint = cmds.joint( n = name, p=(0, 0, 0) )
         cmds.select( d=True )
         cmds.editDisplayLayerMembers( 'JOINTS', newJoint, nr=True )
@@ -57,7 +58,7 @@ def createRibbonJoints(*args):
 
 def rotateAndOrientSimpleChainZUp(*args):
     sel = cmds.ls(sl=True)
-    if RTeh.GetNoSelectionException(sel): return
+    if TReh.GetNoSelectionException(sel): return
 
     for s in sel:
         cmds.setAttr( s + '.rotateX', -90 )
@@ -71,7 +72,7 @@ def rotateAndOrientSimpleChainZUp(*args):
 
 def orientSimpleChain(*args):
     sel = cmds.ls(sl=True)
-    if RTeh.GetNoSelectionException(sel): return
+    if TReh.GetNoSelectionException(sel): return
     
     for s in sel:
         cmds.select( s )
@@ -84,7 +85,7 @@ def orientSimpleChain(*args):
 
 def orientEndJoint(*args):
     sel = cmds.ls(sl=True)
-    if RTeh.GetNoSelectionException(sel): return
+    if TReh.GetNoSelectionException(sel): return
     
     for s in sel:
         cmds.select( s )
@@ -109,7 +110,7 @@ def localRotationAxes(*args):
 def createRoot(*args):
     utils.printHeader('CREATING ROOT')
     cmds.select( 'JNT__Spine' )
-    root = RTctrl.createController('Circle', (0, 0.5, 1), 1, 'Object', 'Spine', 'Root')
+    root = TRctrl.createController('Circle', (0, 0.5, 1), 1, 'Object', 'Spine', 'Root')
     cmds.select( root[1] + '_Shape.cv[0:7]' )
     cmds.rotate(  0, '90deg', 0 )
     cmds.select( d=True )
@@ -119,7 +120,7 @@ def createRoot(*args):
     cmds.parent( 'OFFSET__Root', 'CTRL__Master' )
     cmds.select( 'CTRL__Master' )
     
-    for n in RTvars.attributes:
+    for n in TRvars.attributes:
         cmds.setAttr( 'CTRL__Master' + n, k=True, l=False )
         
     cmds.select( d=True )
@@ -134,10 +135,10 @@ def connectLegs(*args):
     else:
         parentLimbs('Hip', 'Spine')
                 
-    createSideGroup('LEG__L', '__L_', RTvars.sideGroupLegs)
-    createSideGroup('LEG__R', '__R_', RTvars.sideGroupLegs)
+    createSideGroup('LEG__L', '__L_', TRvars.sideGroupLegs)
+    createSideGroup('LEG__R', '__R_', TRvars.sideGroupLegs)
 
-    result = cmds.confirmDialog( t='Space Switch', m='Do you want to create an <b>Point/Orient</b> space switch between both <b>Back Legs</b> and the <b>Spine</b>?', b=['Yes','No'], db='Yes', cb='No', ds='No', p=RTvars.winName )
+    result = cmds.confirmDialog( t='Space Switch', m='Do you want to create an <b>Point/Orient</b> space switch between both <b>Back Legs</b> and the <b>Spine</b>?', b=['Yes','No'], db='Yes', cb='No', ds='No', p=TRvars.winName )
     if result == 'Yes':
         if getTypeOfLimb('JNT__L_HipHead'):
             switchSpaceLimbs('Hip', 'HipHead', 'SpineSpace')
@@ -156,10 +157,10 @@ def connectArms(*args):
     else:
         parentLimbs('Clavicle', 'Chest')
             
-    createSideGroup('ARM__L', '__L_', RTvars.sideGroupArms)
-    createSideGroup('ARM__R', '__R_', RTvars.sideGroupArms)
+    createSideGroup('ARM__L', '__L_', TRvars.sideGroupArms)
+    createSideGroup('ARM__R', '__R_', TRvars.sideGroupArms)
 
-    result = cmds.confirmDialog( t='Space Switch', m='Do you want to create an <b>Point/Orient</b> space switch between both <b>Front Legs / Arms</b> and the <b>Chest</b>?', b=['Yes','No'], db='Yes', cb='No', ds='No', p=RTvars.winName )
+    result = cmds.confirmDialog( t='Space Switch', m='Do you want to create an <b>Point/Orient</b> space switch between both <b>Front Legs / Arms</b> and the <b>Chest</b>?', b=['Yes','No'], db='Yes', cb='No', ds='No', p=TRvars.winName )
     if result == 'Yes':
         if getTypeOfLimb('JNT__L_ClavicleHead'):
             switchSpaceLimbs('Clavicle', 'ClavicleHead', 'ChestSpace')
@@ -171,7 +172,7 @@ def connectArms(*args):
 
 
 def parentLimbs(child, source):
-    for side in RTvars.sides:
+    for side in TRvars.sides:
         utils.lockAndHideOffset('OFFSET__' + side + child, False)
         cmds.parent('OFFSET__' + side + child, 'CTRL__' + source)
         cmds.parent('JNT__' + side + child, 'JNT__' + source)
@@ -179,9 +180,9 @@ def parentLimbs(child, source):
 
 
 def switchSpaceLimbs(ctrl, jnt, nameSpace):
-    for side in RTvars.sides:
+    for side in TRvars.sides:
         utils.lockAndHideOffset('OFFSET__' + side + ctrl, False)
-        RT_SpaceSwitch.createSpaceSwitch(nameSpace, 'CTRL__' + side + ctrl, 'CTRL__Master', 'JNT__' + side + jnt, 'PointOrient')
+        TR_SpaceSwitch.createSpaceSwitch(nameSpace, 'CTRL__' + side + ctrl, 'CTRL__Master', 'JNT__' + side + jnt, 'PointOrient')
         utils.lockAndHideOffset('OFFSET__' + side + jnt, True)
 
 
@@ -221,11 +222,11 @@ def connectWings(*args):
     for j in joints:
         cmds.parent(j, 'JNT__Chest')
 
-    result = cmds.confirmDialog( t='Space Switch', m='Do you want yo create an <b>Point/Orient</b> space switch between the <b>Wings</b> and the <b>Chest</b>?', b=['Yes','No'], db='Yes', cb='No', ds='No', p=RTvars.winName )
+    result = cmds.confirmDialog( t='Space Switch', m='Do you want yo create an <b>Point/Orient</b> space switch between the <b>Wings</b> and the <b>Chest</b>?', b=['Yes','No'], db='Yes', cb='No', ds='No', p=TRvars.winName )
     if result == 'Yes':
         try:
             for o in offsets:
-                RT_SpaceSwitch.createSpaceSwitch('ChestSpace', 'CTRL' + o[6:], 'CTRL__Master', 'CTRL__Chest', 'PointOrient')
+                TR_SpaceSwitch.createSpaceSwitch('ChestSpace', 'CTRL' + o[6:], 'CTRL__Master', 'CTRL__Chest', 'PointOrient')
         except:
             print ('It has not been possible to create the space switch. Probably the name of the winds don\'t match with a standard name')
     
@@ -256,7 +257,7 @@ def deleteReferences(*args):
 
 def deleteBSTargets(*args):
     utils.printHeader('DELETING BLEND SHAPES')
-    for n in RTvars.blendShapesEyes:
+    for n in TRvars.blendShapesEyes:
         try:
             cmds.delete( n )
         except:
@@ -269,7 +270,7 @@ def bindSkinMesh(*args):
     resetControllers()
     mel.eval('SelectAllJoints;')
     sel = cmds.ls(sl=True, type='joint')
-    cmds.skinCluster( sel, 'Mesh', n=RTvars.skinCluster, tsb=True, bm=0, nw=1, mi=4, omi=True, dr=4, rui=True )
+    cmds.skinCluster( sel, 'Mesh', n=TRvars.skinCluster, tsb=True, bm=0, nw=1, mi=4, omi=True, dr=4, rui=True )
     cmds.select( d=True )
 
 
@@ -281,7 +282,7 @@ def removeInfluences(*args):
     cmds.select( d=True )
     for s in sel:
         try:
-            cmds.skinCluster( RTvars.skinCluster, e=True, ri=s )
+            cmds.skinCluster( TRvars.skinCluster, e=True, ri=s )
         except:
             pass
             
@@ -316,7 +317,7 @@ def resetControllers(*args):
 
 def renameLimb(*args):
     sel = cmds.ls(sl=True)
-    if RTeh.GetSelectionException(sel): return
+    if TReh.GetSelectionException(sel): return
 
     from random import seed
     from random import randint

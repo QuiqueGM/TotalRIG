@@ -1,27 +1,27 @@
-import RiggingTools as RT
-import RT_ErrorsHandler as RTeh
-import RT_Utils as utils
-import RT_GlobalVariables as RTvars
-import RT_ChainTools
+import TotalRig as TR
+import TR_ErrorsHandler as TReh
+import TR_Utils as utils
+import TR_GlobalVariables as TRvars
+import TR_ChainTools
 import maya.cmds as cmds
 
 
 
 def drawUI():
-    RT.toolHeader('headControllerTab', '---------   HEAD CONTROLLER  ---------')
-    RT.subHeader(1, 'EYES', 5)
-    RT.createFloarSliderGroup('EyesPupillaryDist', 'Radius factor scale      ', 0.85, 0.75, 0.95, 0.01)
-    RT.createFloarSliderGroup('EyesControllerDist', 'Distance from Eyes      ', 1.0, 0.01, 1.5, 0.05)       
-    RT.subHeader(7, 'OPTIONS', 5)
-    RT.createCheckbox(0.1, 'CreateAndConnectEyesCB', 'Create and connect Eyes', enableCreateEyes, True, True)
-    RT.createCheckbox(0.1, 'ConnectTongueCB', 'Connect tongue', RT.emptyCallback, True, True)
-    RT.createCheckbox(0.1, 'SquashAndStretchCB', 'Create Squash and Stretch', RT.emptyCallback, True, True)
-    RT.createCheckbox(0.1, 'BlendShapesCB', 'Create Blend Shapes', RT.emptyCallback, True, True)
-    RT.verticalSpace(2)
-    RT.createButtonAction(10,'', 'Create Head', createHead, False)
-    RT.createSpaceForUtilities('---------   UTILITIES  ---------')
-    RT.createTwoButtonsAction(7,'cec', 'Create Eyes Controller', createEyesController, 'dec', 'Delete Eyes Controllers', deleteEyesController, False)
-    RT.createButtonAction(3,'', 'Create Squash And Stretch', createSquashAndStretch, True)
+    TR.toolHeader('headControllerTab', '---------   HEAD CONTROLLER  ---------')
+    TR.subHeader(1, 'EYES', 5)
+    TR.createFloarSliderGroup('EyesPupillaryDist', 'Radius factor scale      ', 0.85, 0.75, 0.95, 0.01)
+    TR.createFloarSliderGroup('EyesControllerDist', 'Distance from Eyes      ', 1.0, 0.01, 1.5, 0.05)       
+    TR.subHeader(7, 'OPTIONS', 5)
+    TR.createCheckbox(0.1, 'CreateAndConnectEyesCB', 'Create and connect Eyes', enableCreateEyes, True, True)
+    TR.createCheckbox(0.1, 'ConnectTongueCB', 'Connect tongue', TR.emptyCallback, True, True)
+    TR.createCheckbox(0.1, 'SquashAndStretchCB', 'Create Squash and Stretch', TR.emptyCallback, True, True)
+    TR.createCheckbox(0.1, 'BlendShapesCB', 'Create Blend Shapes', TR.emptyCallback, True, True)
+    TR.verticalSpace(2)
+    TR.createButtonAction(10,'', 'Create Head', createHead, False)
+    TR.createSpaceForUtilities('---------   UTILITIES  ---------')
+    TR.createTwoButtonsAction(7,'cec', 'Create Eyes Controller', createEyesController, 'dec', 'Delete Eyes Controllers', deleteEyesController, False)
+    TR.createButtonAction(3,'', 'Create Squash And Stretch', createSquashAndStretch, True)
 
 
 
@@ -36,7 +36,7 @@ def enableCreateEyes(*args):
 
 def createHead():
     utils.printHeader('CREATING HEAD')
-    chains = RT_ChainTools.createChainSystem(True)
+    chains = TR_ChainTools.createChainSystem(True)
     
     for c in chains:
         cmds.parent( c, 'JNT__Head' )
@@ -127,7 +127,7 @@ def createBlendShapes():
     
     utils.printSubheader('Creating blend shapes')
     bs = []
-    for n in RTvars.blendShapesEyes:
+    for n in TRvars.blendShapesEyes:
         bs.append(n)        
     
     cmds.select( bs, 'Mesh' )
@@ -185,7 +185,7 @@ def createEyesController(*args):
     utils.printSubheader('Creating controllers')
     for e in eyes:
         cmds.select( e )
-        ctrl = RTctrl.createController('Circle', utils.getColorFromSide(e[0]), getEyesRadius(), 'World', '', '', False, False)
+        ctrl = TRctrl.createController('Circle', utils.getColorFromSide(e[0]), getEyesRadius(), 'World', '', '', False, False)
         cmds.select ( ctrl[1] + '_Shape.cv[0:7]' )
         cmds.rotate( 0, '90deg', 0 )
         
@@ -194,7 +194,7 @@ def createEyesController(*args):
     cmds.duplicate( eyes[0], n=JNT_Eyes, rc=True )
     cmds.setAttr( JNT_Eyes + '.translateX', 0 )
     cmds.select( JNT_Eyes )
-    ctrl = RTctrl.createController('Circle', utils.getColorFromSide(JNT_Eyes[0]), getEyesRadius(), 'World', '', '', False, False)
+    ctrl = TRctrl.createController('Circle', utils.getColorFromSide(JNT_Eyes[0]), getEyesRadius(), 'World', '', '', False, False)
     cmds.select ( ctrl[1] + '_Shape.cv[0:7]' )
     cmds.rotate( 0, '90deg', 0 )
     cmds.scale( 2.65, 1.6, 1 )
@@ -216,7 +216,7 @@ def createEyesController(*args):
     utils.lockAndHideAttribute('CTRL__L_Eye', False, True)
     utils.lockAndHideAttribute('CTRL__R_Eye', False, True)
     
-    RT_SpaceSwitch.createSpaceSwitch('HeadSpace', ctrl[1], 'CTRL__Master', 'CTRL__Head', 'Parent')
+    TR_SpaceSwitch.createSpaceSwitch('HeadSpace', ctrl[1], 'CTRL__Master', 'CTRL__Head', 'Parent')
     cmds.select( d=True )
 
 

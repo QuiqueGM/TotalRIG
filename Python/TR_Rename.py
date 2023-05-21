@@ -1,20 +1,20 @@
-import RiggingTools as RT
-import RT_GlobalVariables as RTvars
-import RT_ErrorsHandler as RTeh
-import RT_Utils
+import TotalRig as TR
+import TR_GlobalVariables as TRvars
+import TR_ErrorsHandler as TReh
+import TR_Utils
 import maya.cmds as cmds
 from functools import partial
 
 
 
 def drawUI():
-    RT.toolHeader('renameBonesTab', '---------   RENAME BONES   ---------')
-    RT.subHeader(1, 'SIDE AND POSITION', 1)
-    RT.createThreeRadioCollection('LeftSide', 'Left', True, 'RightSide', 'Right', False, 'CenterSide', 'Center', False)
-    RT.createThreeRadioCollection('FrontPos', 'Front', False, 'BackPos', 'Back', False, 'NonePose', 'None', True)
-    RT.verticalSpace(5)
-    RT.subHeader(1, 'PREDEFINED NAMES', 5)
-    winWidth = RT.winWidth
+    TR.toolHeader('renameBonesTab', '---------   RENAME BONES   ---------')
+    TR.subHeader(1, 'SIDE AND POSITION', 1)
+    TR.createThreeRadioCollection('LeftSide', 'Left', True, 'RightSide', 'Right', False, 'CenterSide', 'Center', False)
+    TR.createThreeRadioCollection('FrontPos', 'Front', False, 'BackPos', 'Back', False, 'NonePose', 'None', True)
+    TR.verticalSpace(5)
+    TR.subHeader(1, 'PREDEFINED NAMES', 5)
+    winWidth = TR.winWidth
     rowWidth = [winWidth*0.08, winWidth*0.35, winWidth*0.1, winWidth*0.35]
     cmds.rowLayout( nc=4, cw4=rowWidth )
     cmds.text( l='', w=rowWidth[0])
@@ -24,9 +24,9 @@ def drawUI():
     cmds.menuItem( l='Arm' )    
     cmds.menuItem( l='Leg' )    
     cmds.text( l='', w=rowWidth[2])
-    cmds.optionMenu( 'JointOM', w=rowWidth[3], l='Joint   ', cc=RT.returnBone )
+    cmds.optionMenu( 'JointOM', w=rowWidth[3], l='Joint   ', cc=TR.returnBone )
     fillAreas()
-    RT.verticalSpace(5)
+    TR.verticalSpace(5)
     rowWidth = [winWidth*0.15, winWidth*0.3, winWidth*0.25]
     cmds.rowLayout( nc=3, cw3=rowWidth )
     cmds.text( l='', w=rowWidth[0] )
@@ -41,13 +41,13 @@ def drawUI():
     cmds.button( 'IncButton', en=False, l='+', c=incrementNumber, w=rowWidth[3] )
     cmds.button( 'ResetButton', en=False, l='R', c=resetNumber, w=rowWidth[4] )
     cmds.setParent( '..' )
-    RT.verticalSpace(2)
+    TR.verticalSpace(2)
     rowWidth = [winWidth*0.15, winWidth*0.7]
-    RT.createButtonAction(10, '', 'Rename', partial(renameBone, ''), False)
+    TR.createButtonAction(10, '', 'Rename', partial(renameBone, ''), False)
     
-    RT.createSpaceForUtilities('---------   UTILITIES  ---------')
-    RT.createButtonAction(3,'', 'Autorename Simple Chain', autorenameSimpleChain, False)
-    RT.createButtonAction(3,'', 'Autorename Multiple Chains', autorenameMultChains, True)
+    TR.createSpaceForUtilities('---------   UTILITIES  ---------')
+    TR.createButtonAction(3,'', 'Autorename Simple Chain', autorenameSimpleChain, False)
+    TR.createButtonAction(3,'', 'Autorename Multiple Chains', autorenameMultChains, True)
 
 
 
@@ -73,10 +73,10 @@ def fillAreas(*args):
     
     if joints: cmds.deleteUI( joints )
     
-    if currentValue == 'Head': fillArea(RTvars.headBones)
-    elif currentValue == 'Leg': fillArea(RTvars.legBones)
-    elif currentValue == 'Arm': fillArea(RTvars.armBones)      
-    elif currentValue == 'Body': fillArea(RTvars.bodyBones)
+    if currentValue == 'Head': fillArea(TRvars.headBones)
+    elif currentValue == 'Leg': fillArea(TRvars.legBones)
+    elif currentValue == 'Arm': fillArea(TRvars.armBones)      
+    elif currentValue == 'Body': fillArea(TRvars.bodyBones)
         
     cmds.setParent( '..' )
 
@@ -85,7 +85,7 @@ def fillAreas(*args):
 def fillArea(bones):
     for b in bones:
         cmds.menuItem( p='JointOM', l=b )
-    RTvars.bone = bones[0]
+    TRvars.bone = bones[0]
 
 
 
@@ -103,20 +103,20 @@ def resetNumber(*args):
 
 def renameBone(add, *args):
     sel = cmds.ls(sl=True)
-    if RTeh.GetSelectionException(sel): return
+    if TReh.GetSelectionException(sel): return
 
     getBone()
-    typeOfBone = RT_Utils.getTypeOfJoint(sel) if not isAnIsolatedJoint(sel) else 'JNT__'
-    name =  typeOfBone + getSide() + getPosition() + RTvars.bone + getNumber()
+    typeOfBone = TR_Utils.getTypeOfJoint(sel) if not isAnIsolatedJoint(sel) else 'JNT__'
+    name =  typeOfBone + getSide() + getPosition() + TRvars.bone + getNumber()
 
     if (getSide() != '' or getPosition() != '') and checkIfCentralBone(name):        
         message = 'Are you sure you want to rename the   <b>' + sel[0] + '</b>   joint as   <b>' + name + '</b>  ?'
-        if cmds.confirmDialog( t='Rename', m=message, b=['Yes','No'], db='Yes', cb='No', ds='No', p=RTvars.winName ) == 'No':
+        if cmds.confirmDialog( t='Rename', m=message, b=['Yes','No'], db='Yes', cb='No', ds='No', p=TRvars.winName ) == 'No':
             return
 
     if getSide() == '' and name.find('Eye') > -1:        
         message = 'Are you sure you want to rename the   <b>' + sel[0] + '</b>   joint as   <b>' + name + '</b>  ?'
-        if cmds.confirmDialog( t='Rename', m=message, b=['Yes','No'], db='Yes', cb='No', ds='No', p=RTvars.winName ) == 'No':
+        if cmds.confirmDialog( t='Rename', m=message, b=['Yes','No'], db='Yes', cb='No', ds='No', p=TRvars.winName ) == 'No':
             return
             
     if name.find('Nose') > -1 or name.find('Jaw') > -1:
@@ -131,14 +131,14 @@ def renameBone(add, *args):
 
 
 def renameJoint(sel, name):
-    RT_Utils.printHeader('RENAMING ' + sel + ' --> ' + name)
+    TR_Utils.printHeader('RENAMING ' + sel + ' --> ' + name)
     cmds.rename(name)
 
 
 
 def getBone():
     if cmds.checkBox( 'UseOtherCB', q=True, v=True ):
-        RTvars.bone = cmds.textField( 'AlternativeName', q=True, tx=True )
+        TRvars.bone = cmds.textField( 'AlternativeName', q=True, tx=True )
 
 
 
@@ -182,8 +182,8 @@ def getNumber():
 
 
 def checkIfCentralBone(name):
-    for c in RTvars.centralBones:
-        if RTvars.bone == c:
+    for c in TRvars.centralBones:
+        if TRvars.bone == c:
             return True
 
     return False
@@ -204,45 +204,45 @@ def isAnIsolatedJoint(sel):
 
 
 def autorenameLimb():
-    RT_Utils.printHeader('AUTORENAME LIMB -- ' + RT_Utils.getHierarchy())
+    TR_Utils.printHeader('AUTORENAME LIMB -- ' + TR_Utils.getHierarchy())
     
     sel = cmds.ls(sl=True)
-    if RTeh.GetSelectionException(sel): return
+    if TReh.GetSelectionException(sel): return
     
     chain = cmds.listRelatives( sel, ad=True, type='joint' )
     chain.append( sel[0] )
     chain.reverse()
-    bones = RT_Utils.createLimbArray(RTvars.bonesHindArm if RT_Utils.getHierarchy() == 'Arm' else RTvars.bonesHindLeg)
-    bones = RT_Utils.getLimbBones(bones)
+    bones = TR_Utils.createLimbArray(TRvars.bonesHindArm if TR_Utils.getHierarchy() == 'Arm' else TRvars.bonesHindLeg)
+    bones = TR_Utils.getLimbBones(bones)
     n = -1
 
     for c in range(len(chain)):
         cmds.select( chain[c] )
         sel = cmds.ls( sl=True )
-        typeOfBone = RT_Utils.getTypeOfJoint(sel)
+        typeOfBone = TR_Utils.getTypeOfJoint(sel)
         if typeOfBone == 'JNT__':
             n+=1
 
         name =  typeOfBone + getSide() + getPosition() + bones[n]
         cmds.rename( sel, name )
         if c==0:
-            RTvars.limbStartingBone = name
+            TRvars.limbStartingBone = name
             
         cmds.select( cl=True )
 def autorenameSimpleChain(*args):
     sel = cmds.ls(sl=True)
-    if RTeh.GetNoSelectionException(sel): return
+    if TReh.GetNoSelectionException(sel): return
     
-    RT_Utils.printHeader('AUTORENAME SIMPLE CHAIN')
+    TR_Utils.printHeader('AUTORENAME SIMPLE CHAIN')
     chain = cmds.listRelatives( sel, ad=True, type='joint' )
     chain.append(sel)
     chain.reverse()
     n=0
     
-    name =  RT_Utils.getTypeOfJoint(sel) + getSide() + getPosition() + RTvars.bone + getNumber()
+    name =  TR_Utils.getTypeOfJoint(sel) + getSide() + getPosition() + TRvars.bone + getNumber()
     if (getSide() != '' or getPosition() != '') and checkIfCentralBone(name):        
         message = 'Are you sure you want to rename the   <b>' + sel[0] + '</b>   joint as   <b>' + name + '</b>  ?'
-        if cmds.confirmDialog( t='Rename', m=message, b=['Yes','No'], db='Yes', cb='No', ds='No', p=RTvars.winName ) == 'No':
+        if cmds.confirmDialog( t='Rename', m=message, b=['Yes','No'], db='Yes', cb='No', ds='No', p=TRvars.winName ) == 'No':
             return
     
     for c in chain:
@@ -251,7 +251,7 @@ def autorenameSimpleChain(*args):
         jnt = cmds.ls( sl=True )
         n+=1
         number = "_{0:0=2d}".format(n)
-        name =  RT_Utils.getTypeOfJoint(jnt) + getSide() + getPosition() + RTvars.bone + getNumber() + number
+        name =  TR_Utils.getTypeOfJoint(jnt) + getSide() + getPosition() + TRvars.bone + getNumber() + number
         cmds.rename( jnt, name )
         cmds.select( cl=True )
 
@@ -259,22 +259,22 @@ def autorenameSimpleChain(*args):
 
 def autorenameMultChains(*args):
     sel = cmds.ls(sl=True)
-    if RTeh.GetNoSelectionException(sel): return
+    if TReh.GetNoSelectionException(sel): return
     
-    RT_Utils.printHeader('AUTORENAME MULTIPLE CHAINS')
+    TR_Utils.printHeader('AUTORENAME MULTIPLE CHAINS')
     for s in sel:
         chain = cmds.listRelatives( s, ad=True, type='joint' )
         chain.append(s)
         chain.reverse()
         n=0
-        jointName = RT_Utils.getNameControl(5, s, 'lower')[1:]
+        jointName = TR_Utils.getNameControl(5, s, 'lower')[1:]
         
         for c in chain:
             cmds.select( c )
             jnt = cmds.ls( sl=True )
             n+=1
             number = "_{0:0=2d}".format(n)
-            name =  RT_Utils.getTypeOfJoint(jnt) + getSide() + getPosition() + jointName + number
+            name =  TR_Utils.getTypeOfJoint(jnt) + getSide() + getPosition() + jointName + number
             cmds.rename( jnt, name )
             cmds.select( cl=True )
 
@@ -282,7 +282,7 @@ def autorenameMultChains(*args):
 
 def autorenameComplexChain(*args):
     sel = cmds.ls(sl=True)
-    if RTeh.GetNoSelectionException(sel): return
+    if TReh.GetNoSelectionException(sel): return
     
     chain = cmds.listRelatives( sel, ad=True, type='joint' )
     chain.append(sel[0])
@@ -302,7 +302,7 @@ def autorenameComplexChain(*args):
             index.append(name)
         else:  
             number = "_{0:0=2d}".format(n)
-            name = RT_Utils.getTypeOfJoint(chain[c]) + currentName[5:] + number
+            name = TR_Utils.getTypeOfJoint(chain[c]) + currentName[5:] + number
             cmds.rename( chain[c], name )
             index[-1] = name
             

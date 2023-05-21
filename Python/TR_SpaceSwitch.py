@@ -1,31 +1,31 @@
-import RiggingTools as RT
-import RT_GlobalVariables as RTvars
-import RT_Utils as utils
+import TotalRig as TR
+import TR_GlobalVariables as TRvars
+import TR_Utils as utils
 import maya.cmds as cmds
 from functools import partial
 
 
 
 def drawUI():
-    RT.toolHeader('spaceSwitchTab', '---------   SPACE SWITCH  ---------')
-    RT.subHeader(1, 'TARGET', 1)
-    winWidth = RT.winWidth
+    TR.toolHeader('spaceSwitchTab', '---------   SPACE SWITCH  ---------')
+    TR.subHeader(1, 'TARGET', 1)
+    winWidth = TR.winWidth
     rowWidth = [winWidth*0.1, winWidth*0.165, winWidth*0.2]
     cmds.rowLayout( nc=3, cw3=rowWidth )
     cmds.text( l='', w=rowWidth[0] )
     cmds.text( l='Attribute', al='left', w=rowWidth[1] )
     cmds.textField( 'SSAttribute' , en=True, w=rowWidth[2] )
     cmds.setParent( '..' )
-    RT.createTextFieldButtonGrp('SSController', 'Controller', partial(RT.addObject, 'SSController'), True)
-    RT.subHeader(5, 'SPACE SWITCH', 7)
-    RT.createTextFieldButtonGrp('SSFrom0', 'From (0)', partial(RT.addObject, 'SSFrom0'), True)
-    RT.createTextFieldButtonGrp('SSTo1', 'To (1)', partial(RT.addObject, 'SSTo1'), True)
-    RT.subHeader(5, 'CONSTRAINT TYPE', 7)
-    RT.createRadioCollection('SpaceSwitchParent', 'Parent space switch', 'SpaceSwitchAimOrient', 'Point/Orient space switch')    
-    RT.createButtonAction(10,'', 'Create Space Switch', partial(createSpaceSwitch, '', '', '', '', ''), False)
-    RT.createSpaceForUtilities('---------   UTILITIES  ---------')
-    RT.createButtonAction(3,'', 'Create Point/Orient Space Switch for Head', createSpaceSwitchForHead, False)
-    RT.createButtonAction(3,'', 'Create Point/Orient Space Switch for Tail', createSpaceSwitchForTail, True)
+    TR.createTextFieldButtonGrp('SSController', 'Controller', partial(TR.addObject, 'SSController'), True)
+    TR.subHeader(5, 'SPACE SWITCH', 7)
+    TR.createTextFieldButtonGrp('SSFrom0', 'From (0)', partial(TR.addObject, 'SSFrom0'), True)
+    TR.createTextFieldButtonGrp('SSTo1', 'To (1)', partial(TR.addObject, 'SSTo1'), True)
+    TR.subHeader(5, 'CONSTRAINT TYPE', 7)
+    TR.createRadioCollection('SpaceSwitchParent', 'Parent space switch', 'SpaceSwitchAimOrient', 'Point/Orient space switch')    
+    TR.createButtonAction(10,'', 'Create Space Switch', partial(createSpaceSwitch, '', '', '', '', ''), False)
+    TR.createSpaceForUtilities('---------   UTILITIES  ---------')
+    TR.createButtonAction(3,'', 'Create Point/Orient Space Switch for Head', createSpaceSwitchForHead, False)
+    TR.createButtonAction(3,'', 'Create Point/Orient Space Switch for Tail', createSpaceSwitchForTail, True)
 
 
 
