@@ -191,12 +191,11 @@ def changeController(*args):
 
 def copyController(*args):
     sel = cmds.ls(sl=True)
-    print (sel)
     if TReh.GetTwoSelectionException(sel): return
     
     utils.printHeader('COPY CV\'s FROM ONE CONTROLLER TO ANOTHER')
     cvsFrom = cmds.getAttr(sel[1] + '_Shape.spans') + 1
-    cvsTo = cmds.getAttr(sel[0] + '_Shape.spans') + 1  
+    cvsTo = cmds.getAttr(sel[0] + '_Shape.spans') + 1
     
     if cvsFrom == cvsTo:
         for cv in range(cvsFrom):
