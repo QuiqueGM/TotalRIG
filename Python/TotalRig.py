@@ -1,5 +1,8 @@
 import sys
-sys.path.append(r'D:/UOC/Semestres/2022-23_S2/TFG - Videojocs/TotalRIG/Python/')
+
+totalRigPath = 'D:/UOC/Semestres/2022-23_S2/TFG - Videojocs/TotalRIG/Python'
+if not totalRigPath in sys.path:
+    sys.path.append(totalRigPath)
 
 import TR_GlobalVariables as TRvars
 import TR_ErrorsHandler as TReh
