@@ -192,8 +192,8 @@ def createRibbonSystem(*args):
 
     #############################
     utils.printSubheader('Parenting locators and setting constraints')
-    controlTop = createRibbonJointConnection(locatorTop[1], topJoint)
-    controlBottom = createRibbonJointConnection(locatorBottom[1], bottomJoint)
+    controlTop = createRibbonJointConnection(locatorTop[1], topJoint, cmds.floatSliderGrp( 'RBSizeBottom', q=True, v=True ))
+    controlBottom = createRibbonJointConnection(locatorBottom[1], bottomJoint, cmds.floatSliderGrp( 'RBSizeTop', q=True, v=True ))
     centralJointRibbon = 'JNT_RBN' + name + '__CENTRAL'
     cmds.select( centralJointRibbon )
     ctrl = TRctrl.createController('Circle', (1, 1, 0), 0.3, 'Object', 'OFFSET', 'AUX')
@@ -229,15 +229,17 @@ def createRibbonSystem(*args):
     utils.lockAndHideAttribute(controlTop, False, False)
     utils.lockAndHideAttribute(ctrl[1], False, False)
     utils.lockAndHideAttribute(controlBottom, False, False)
+    utils.lockAndHideOffset(offset, True)
     ctrlName = ctrl[1].replace('CTRL_RBN__', 'CTRL__')
     cmds.rename( ctrl[1], ctrlName )
+    cmds.select( d=True ) 
 
 
 
-def createRibbonJointConnection(locCtrl, bone):
+def createRibbonJointConnection(locCtrl, bone, size):
     cmds.parent( locCtrl, bone )
     cmds.select( bone )
-    ctrl =  TRctrl.createController('Mesh', (1, 1, 0), 0.35, 'World', '', '')
+    ctrl =  TRctrl.createController('Mesh', (1, 1, 0), size, 'World', '', '', False, False)
     cmds.parentConstraint( ctrl[1], bone, n=utils.getConstraint('Parent', bone[3:]), mo=True )
     return ctrl[1]
 
@@ -255,9 +257,7 @@ def createBoneController(bone, pName):
 
 
 def createLocator(influence):
-    print influence
     name = 'LOC' + influence[7:]
-    print name
     locator = cmds.spaceLocator( n='LOC' + influence[7:] )
     sel = cmds.xform( influence, q=True, m=True, ws=True )
     cmds.xform( locator, m=sel, ws=True )
@@ -268,35 +268,55 @@ def createLocator(influence):
 
 
 
-def deleteRibbonKeepControllers():
-    utils.printHeader('DELETING RIBBON SYSTEM...')
-    sel = cmds.ls(sl=True)
-    if TReh.GetSelectionException(sel): return
-    
+def deleteSharedThings(sel):
+    utils.printHeader('DELETING SHARE SYSTEM...')
+   
     ribbon = sel[0][5:]
+    central = ribbon + '__CENTRAL'
     topJoint = sel[0][5:].split('_')[0]
     btmJoint = sel[0][5:].split('_')[1]
+    
+    utils.printSubheader('Deleting objects...')
+    cmds.parent( 'CTRL__' + central, w=True )
+    cmds.rename( 'CTRL__' + central, 'CTRL__' + central + '__BCK')
+    cmds.delete( 'OFFSET__' + central )
+    cmds.delete( 'GRP_LOC__' + ribbon )
+    deleteJoint(topJoint)
+    deleteJoint(btmJoint)
     
     utils.printSubheader('Deleting helpers...')
     cmds.delete( 'LOC__' + ribbon + '*' )
     cmds.delete( sel )
     
-    utils.printSubheader('Deleting rig connections...')
+    utils.printSubheader('Deleting rig connections and unused nodes...')
     cmds.delete( 'HSF__' + ribbon )
-    cmds.delete( 'JNT__' + topJoint )
-    cmds.delete( 'JNT__' + btmJoint )
-    
-    utils.printSubheader('Deleting controllers...')
-    cmds.delete( 'OFFSET__' + ribbon + '__CENTRAL' )
-    cmds.delete( 'GRP_LOC__' + ribbon )
-    cmds.delete( 'OFFSET__' + topJoint )
-    cmds.delete( 'OFFSET__' + btmJoint )
-    
-    utils.printSubheader('Deleting unused nodes...') 
     mel.eval('MLdeleteUnused;')
+    cmds.select( d=True ) 
+    
+    return [topJoint, btmJoint, central]
 
 
-def deleteRibbon(*args):
-    utils.printHeader('DELETING WHOLE RIBBON...')
-    deleteRibbonKeepControllers()
-    print 'WIP - deleteRibbon'
+
+def deleteRibbon(keepControllers):
+    sel = cmds.ls(sl=True)
+    if TReh.GetSelectionException(sel, 'the ribbon.'): return
+    
+    ribbon = deleteSharedThings(sel)
+    
+    if not keepControllers:
+        utils.printSubheader('Deleting controllers...')
+        
+        for j in ribbon:
+            cmds.delete( 'CTRL__' + j + '__BCK')
+    
+    
+
+
+def deleteJoint(jnt):
+    utils.printSubheader('    Deleting ' + jnt) 
+    cmds.parent( 'JNT__' + jnt, w=True )
+    cmds.delete( TRvars.CONST + '__' + jnt + TRvars.PARENT )
+    ctrl = 'CTRL__' + jnt
+    cmds.parent( ctrl, w=True )
+    cmds.rename( ctrl, ctrl + '__BCK')
+    cmds.delete( 'OFFSET__' + jnt )
