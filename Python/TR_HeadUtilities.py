@@ -2,6 +2,8 @@ import TotalRig as TR
 import TR_ErrorsHandler as TReh
 import TR_Utils as utils
 import TR_GlobalVariables as TRvars
+import TR_Controllers as TRctrl
+import TR_SpaceSwitch
 import TR_ChainTools
 import maya.cmds as cmds
 
@@ -34,7 +36,7 @@ def enableCreateEyes(*args):
 
 ################################## HEAD
 
-def createHead():
+def createHead(*args):
     utils.printHeader('CREATING HEAD')
     chains = TR_ChainTools.createChainSystem(True)
     
