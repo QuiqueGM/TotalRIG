@@ -267,7 +267,7 @@ def autorenameMultChains(*args):
         chain.append(s)
         chain.reverse()
         n=0
-        jointName = TR_Utils.getNameControl(5, s, 'lower')[1:]
+        jointName = TR_Utils.getNameControl(0, s, 'lower')[1:]
         
         for c in chain:
             cmds.select( c )
