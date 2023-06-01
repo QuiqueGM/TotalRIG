@@ -46,7 +46,7 @@ def drawUI():
     cmds.setParent( '..' )
     cmds.setParent('..')
     TR.createSpaceForUtilities('---------   UTILITIES  ---------')
-    TR.createTwoButtonsAction(3,'selectDrivenKeys', 'Selecy Driven Key Offsets', partial(selectDrivenKeys, 'DRIVEN_KEY'), 'getHierarchyLayout', 'Get hierarchy layout', getHierarchyLayout, False)
+    TR.createTwoButtonsAction(3,'selectDrivenKeys', 'Select Driven Key Offsets', partial(selectDrivenKeys, 'DRIVEN_KEY'), 'getHierarchyLayout', 'Get hierarchy layout', getHierarchyLayout, False)
     TR.createTwoButtonsAction(3,'saveClosedHand', 'Save Closed', partial(saveHand, 'CLOSED'), 'saveOpenHand', 'Save Open', partial(saveHand, 'OPEN'),  False)
     TR.createTwoButtonsAction(3,'saveDrivenKeysHand', 'Create Driven Keys', saveDrivenKeysHand, 'mirrorDrivenKeysHand', 'Mirror Driven Keys', mirrorDrivenKeysHand, True)
 
