@@ -71,37 +71,6 @@ def createLimbFields():
 
 
 
-'''
-### LIMB SYSTEM
-
-def createLimbControllers(*args):
-    TR_LimbSystem.createLimbControllers()
-
-def mirrorControllers(*args):
-    TR_LimbSystem.mirrorControllers()
-
-def createLimbSystem(*args):
-    TR_LimbSystem.createLimbSystem()
-
-def convertIKtoObject(*args):
-    TR_LimbSystem.convertIKtoObject()
-
-def deleteLimb(*args):
-    TR_LimbSystem.deleteLimb()
-
-def deleteLimbSystem(*args):
-    TR_LimbSystem.deleteLimbSystem()
-
-def createStretchSystem(*args):
-    TR_LimbSystem.createStretchSystem(*args)
-
-def createSSforPoleVector(*args):
-    TR_LimbSystem.createSSforPoleVector()
-'''
-
-
-
-
 def assignVariables(autoFill = True):
     global limbBones, newLimbBones, offsetsLimb, ctrlLimbBones, reverseFoot, sidePos
     global JNT_ClavHipHead, JNT_ClavHip, JNT_UpperLimb, JNT_LowerLimb, JNT_WristAnkle, JNT_HandFoot, JNT_FingToeIndex, JNT_FingToeMiddle, JNT_FingToeRing, JNT_FingToeThumb, JNT_FingToePinky
@@ -1172,6 +1141,9 @@ def deleteLimbSystem(*args):
             cmds.delete( 'LEG' + sidePos[:-1] )
     except:
         print ('No groups found')
+    
+    cmds.select(d=True)
+
 
 
 def deleteLimb(*args):
@@ -1180,7 +1152,7 @@ def deleteLimb(*args):
     
     cmds.delete( TRvars.limbStartingBone + '_BACK_UP' )
     cmds.select( TRvars.limbStartingBone )
-    TR_Utilities.renameLimb()
+    TR_Utilities.renameChains()
     utils.printSubheader('Deleting Controllers...')
     for o in offsetsLimb:
         cmds.delete( 'OFFSET' + sidePos + o )
