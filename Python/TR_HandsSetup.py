@@ -245,7 +245,7 @@ def saveDrivenKeysHand(*args):
     sel = cmds.ls(sl=True)
     if TReh.GetSelectionException(sel): return
     
-    handFoot = 'HAND' if sel[0].find('Arm') > -1 else 'FOOT'
+    handFoot = 'HAND' if sel[0].find('Hand') > -1 else 'FOOT'
     utils.addAttrSeparator(sel[0], 'HandBehaviourSeparator', handFoot)
     cmds.addAttr( ln='Hand', nn='Open / Close', at="long", k=True, dv=0, min=-100, max=100 )
     
