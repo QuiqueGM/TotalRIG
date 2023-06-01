@@ -24,7 +24,7 @@ def drawUI():
     TR.createSpaceForUtilities('---------   UTILITIES  ---------')
     TR.verticalSpace(5)
     TR.createDoubleButtonUtility('Decrease Joint Size', partial(jointSize, -0.2), 'Increase Joint Size', partial(jointSize, 0.2), w, h)
-    TR.createFourButtonUtility('Reset controllers', resetControllers, 'Rename Limb', renameLimb, 'Unlock OFFSET', partial(handleOffset, False), 'Lock OFFSET', partial(handleOffset, True), w, h)
+    TR.createFourButtonUtility('Reset controllers', resetControllers, 'Rename Chains', renameChains, 'Unlock OFFSET', partial(handleOffset, False), 'Lock OFFSET', partial(handleOffset, True), w, h)
 
 
 
@@ -315,7 +315,7 @@ def resetControllers(*args):
 
 
 
-def renameLimb(*args):
+def renameChains(*args):
     sel = cmds.ls(sl=True)
     if TReh.GetSelectionException(sel): return
 
