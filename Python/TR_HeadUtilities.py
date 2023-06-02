@@ -174,7 +174,6 @@ def createEyesController(*args):
     utils.printSubheader('Mirroring eyes')
     eyes = []
     distance = cmds.floatSliderGrp( 'EyesControllerDist', q=True, v=True )
-    distance = 0.8
     addEye('JNT__L_Eye', eyes)
     cmds.select( eyes[0] )
     cmds.mirrorJoint( myz=True, mb=True, sr=('_L_', '_R_') )
