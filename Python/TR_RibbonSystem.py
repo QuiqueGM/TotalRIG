@@ -27,7 +27,7 @@ def drawUI():
     cmds.rowLayout( nc=3, cw3=rowWidth )
     cmds.text( l='', w=rowWidth[0] )
     cmds.floatSliderGrp( 'RBSizeBottom', l='Bottom Size   ', f=True, min=0.05, max=0.5, v=0.30, s=0.01, cal=(1, "right"), cw3=colWidth )
-    cmds.floatSliderGrp( 'RBSizeTop', l='Top Size', f=True, min=0.05, max=0.5, v=0.30, s=0.01, cal=(1, "left"), cw3=colWidth )
+    cmds.floatSliderGrp( 'RBSizeTop', l='       Top Size', f=True, min=0.05, max=0.5, v=0.30, s=0.01, cal=(1, "left"), cw3=colWidth )
     cmds.setParent( '..' )
     TR.verticalSpace(3)
     TR.createButtonAction(10,'', 'Create Ribbon System', createRibbonSystem, False)
@@ -297,9 +297,9 @@ def deleteSharedThings(sel):
 
 
 
-def deleteRibbon(keepControllers):
+def deleteRibbon(keepControllers, *args):
     sel = cmds.ls(sl=True)
-    if TReh.GetSelectionException(sel, 'the ribbon.'): return
+    if TReh.GetSelectionException(sel): return
     
     ribbon = deleteSharedThings(sel)
     
