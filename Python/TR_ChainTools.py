@@ -329,17 +329,21 @@ def getOffsetsFromChain(startJoint):
 
 
 def setSSTailAndSpine():
-    if TRvars.chainStartingBone.find('Tail') > -1:
-        result = cmds.confirmDialog( t='Space Switch', m='Do you want to create an <b>Point/Orient</b> space switch between the <b>Tail</b> and the <b>Spine</b>?', b=['Yes','No'], db='Yes', cb='No', ds='No', p=TRvars.winName )
-        if result == 'Yes':
-            cmds.parent( TRvars.chainStartingBone, 'JNT__Spine' )
-            offset = 'OFFSET' + TRvars.chainStartingBone[3:]
-            utils.lockAndHideOffset(offset, False)
-            cmds.parent( 'OFFSET' + TRvars.chainStartingBone[3:], 'CTRL__Master' )
-            TR_SpaceSwitch.createSpaceSwitch('SpineSpace', 'CTRL' + TRvars.chainStartingBone[3:], 'CTRL__Master', 'CTRL__Spine', 'PointOrient')
-            utils.lockAndHideOffset(offset, True)
-    else:
-        print ('No tail has been found!!')
+    try:
+        cmds.select( 'JNT__Spine' )
+        if TRvars.chainStartingBone.find('Tail') > -1:
+            result = cmds.confirmDialog( t='Space Switch', m='Do you want to create an <b>Point/Orient</b> space switch between the <b>Tail</b> and the <b>Spine</b>?', b=['Yes','No'], db='Yes', cb='No', ds='No', p=TRvars.winName )
+            if result == 'Yes':
+                cmds.parent( TRvars.chainStartingBone, 'JNT__Spine' )
+                offset = 'OFFSET' + TRvars.chainStartingBone[3:]
+                utils.lockAndHideOffset(offset, False)
+                cmds.parent( 'OFFSET' + TRvars.chainStartingBone[3:], 'CTRL__Master' )
+                TR_SpaceSwitch.createSpaceSwitch('SpineSpace', 'CTRL' + TRvars.chainStartingBone[3:], 'CTRL__Master', 'CTRL__Spine', 'PointOrient')
+                utils.lockAndHideOffset(offset, True)
+        else:
+            print ('No TAIL has been found!!')
+    except:
+        print ('No SPINE has been found!!')
 
 
 
