@@ -24,7 +24,7 @@ def drawUI():
     TR.createRadioCollection('SpaceSwitchParent', 'Parent space switch', 'SpaceSwitchAimOrient', 'Point/Orient space switch')    
     TR.createButtonAction(10,'', 'Create Space Switch', partial(createSpaceSwitch, '', '', '', '', ''), False)
     TR.createSpaceForUtilities('---------   UTILITIES  ---------')
-    TR.createButtonAction(3,'', 'Create Point/Orient Space Switch for Head', createSpaceSwitchForHead, False)
+    TR.createButtonAction(3,'', 'Create Point/Orient Space Switch for Head and Neck', createSpaceSwitchForHeadNeck, False)
     TR.createButtonAction(3,'', 'Create Point/Orient Space Switch for Tail', createSpaceSwitchForTail, True)
 
 
@@ -131,10 +131,11 @@ def typeOfConstraint():
 
 
 
-def createSpaceSwitchForHead(*args):
-    utils.printSubheader('WIP')
+def createSpaceSwitchForHeadNeck(*args):
+    createSpaceSwitch('NeckSpace', 'CTRL__Head', 'CTRL__Master', 'CTRL__Neck', 'PointOrient')
+    createSpaceSwitch('ChestSpace', 'CTRL__Neck', 'CTRL__Master', 'CTRL__Chest', 'PointOrient')
 
 
 
 def createSpaceSwitchForTail(*args):
-    utils.printSubheader('WIP')
+    createSpaceSwitch('SpineSpace', 'CTRL__Tail_01', 'CTRL__Master', 'CTRL__Spine', 'PointOrient')
