@@ -16,7 +16,7 @@ def drawUI():
     TR.verticalSpace(5)
     w = TR.winWidth*0.9
     h = 30
-    TR.createFourButtonUtility('Joint - World', partial(createSimpleJoint, 'World'), 'Joint - Z Up', partial(createSimpleJoint, 'ZUp'), 'Ribbon joints', createRibbonJoints, ' -- EMPTY -- ', TR.emptyCallback, w, h)
+    TR.createFourButtonUtility('Joint - World', partial(createSimpleJoint, 'World', ''), 'Joint - Z Up', partial(createSimpleJoint, 'ZUp'), 'Ribbon joints', createRibbonJoints, ' -- EMPTY -- ', TR.emptyCallback, w, h)
     TR.createFourButtonUtility('Orient Simple Chain', rotateAndOrientSimpleChainZUp, 'Orient Chain', orientSimpleChain, 'Orient End Joint', orientEndJoint, ' Show/Hide LRA ', localRotationAxes, w, h)
     TR.createFourButtonUtility('Create Root', createRoot, 'Connect Legs', connectLegs, 'Connect Arms', connectArms, 'Connect Wings', connectWings, w, h)
     TR.createDoubleButtonUtility('Delete References', deleteReferences, 'Delete Blend Shape Targets', deleteBSTargets, w, h)
@@ -30,6 +30,9 @@ def drawUI():
 
 def createSimpleJoint(orientation, name, *args):
     sel = cmds.ls(sl=True)
+    if name == '':
+        name = getRandomName()
+        
     newJoint = cmds.joint( n=name, p=(0, 0, 0) )
     
     if len(sel) > 0:
@@ -319,16 +322,21 @@ def renameChains(*args):
     sel = cmds.ls(sl=True)
     if TReh.GetSelectionException(sel): return
 
-    from random import seed
-    from random import randint
-    from datetime import datetime
     sel = cmds.listRelatives( cmds.ls(sl=True), ad=True )
     sel.append( cmds.ls(sl=True)[0] )
     for s in sel:
         cmds.refresh()
         cmds.select( s )
-        seed(datetime.now())
-        cmds.rename( 'joint_' + str(randint(10000000, 9999999999)) )
+        cmds.rename( getRandomName() )
+
+
+
+def getRandomName():
+    from random import seed
+    from random import randint
+    from datetime import datetime
+    seed(datetime.now())
+    return 'joint_' + str(randint(10000000, 9999999999))
 
 
 
