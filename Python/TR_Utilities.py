@@ -20,7 +20,7 @@ def drawUI():
     TR.createFourButtonUtility('Orient Simple Chain', rotateAndOrientSimpleChainZUp, 'Orient Chain', orientSimpleChain, 'Orient End Joint', orientEndJoint, ' Show/Hide LRA ', localRotationAxes, w, h)
     TR.createFourButtonUtility('Create Root', createRoot, 'Connect Legs', connectLegs, 'Connect Arms', connectArms, 'Connect Wings', connectWings, w, h)
     TR.createDoubleButtonUtility('Delete References', deleteReferences, 'Delete Blend Shape Targets', deleteBSTargets, w, h)
-    TR.createDoubleButtonUtility('Bind skin', bindSkinMesh, 'Remove END influences', removeInfluences, w, h)
+    TR.createDoubleButtonUtility('Bind skin', bindSkinMesh, 'Remove unnecessary influences', removeInfluences, w, h)
     TR.createSpaceForUtilities('---------   UTILITIES  ---------')
     TR.verticalSpace(5)
     TR.createDoubleButtonUtility('Decrease Joint Size', partial(jointSize, -0.2), 'Increase Joint Size', partial(jointSize, 0.2), w, h)
