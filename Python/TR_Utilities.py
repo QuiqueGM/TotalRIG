@@ -16,7 +16,7 @@ def drawUI():
     TR.verticalSpace(5)
     w = TR.winWidth*0.9
     h = 30
-    TR.createFourButtonUtility('Joint - World', partial(createSimpleJoint, 'World', ''), 'Joint - Z Up', partial(createSimpleJoint, 'ZUp'), 'Ribbon joints', createRibbonJoints, ' -- EMPTY -- ', TR.emptyCallback, w, h)
+    TR.createFourButtonUtility('Joint - World', partial(createSimpleJoint, 'World', ''), 'Joint - Z Up', partial(createSimpleJoint, 'ZUp', ''), 'Ribbon joints', createRibbonJoints, ' -- EMPTY -- ', TR.emptyCallback, w, h)
     TR.createFourButtonUtility('Orient Simple Chain', rotateAndOrientSimpleChainZUp, 'Orient Chain', orientSimpleChain, 'Orient End Joint', orientEndJoint, ' Show/Hide LRA ', localRotationAxes, w, h)
     TR.createFourButtonUtility('Create Root', createRoot, 'Connect Legs', connectLegs, 'Connect Arms', connectArms, 'Connect Wings', connectWings, w, h)
     TR.createDoubleButtonUtility('Delete References', deleteReferences, 'Delete Blend Shape Targets', deleteBSTargets, w, h)
