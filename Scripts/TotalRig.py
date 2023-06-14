@@ -1,6 +1,6 @@
 import sys
 
-totalRigPath = 'D:/UOC/Semestres/2022-23_S2/TFG - Videojocs/TotalRIG/Python'
+totalRigPath = 'D:/UOC/Semestres/2022-23_S2/TFG - Videojocs/TotalRIG/Scripts'
 if not totalRigPath in sys.path:
     sys.path.append(totalRigPath)
 
